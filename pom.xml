@@ -22,6 +22,7 @@
 
     <java.version>1.8</java.version>
     <vertx.version>3.7.0</vertx.version>
+    <jmc.core.version>7.1.0-SNAPSHOT</jmc.core.version>
     <exec.mainClass>com.redhat.jfr.server.MainVerticle</exec.mainClass>
   </properties>
 
@@ -53,12 +54,12 @@
       <dependency>
       <groupId>org.openjdk.jmc</groupId>
       <artifactId>flightrecorder</artifactId>
-      <version>7.1.0-SNAPSHOT</version>
+      <version>${jmc.core.version}</version>
     </dependency>
     <dependency>
       <groupId>org.openjdk.jmc</groupId>
       <artifactId>common</artifactId>
-      <version>7.1.0-SNAPSHOT</version>
+      <version>${jmc.core.version}</version>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
