@@ -1,31 +1,22 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8" ?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
   <groupId>com.redhat.jfr.datasource</groupId>
   <artifactId>jfr-datasource</artifactId>
   <version>1.0.0-SNAPSHOT</version>
-
   <packaging>pom</packaging>
   <name>JFR Prototype Datasource</name>
-
   <modules>
     <module>server</module>
   </modules>
-
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-
     <java.version>1.8</java.version>
     <vertx.version>3.7.0</vertx.version>
     <jmc.core.version>7.1.0-SNAPSHOT</jmc.core.version>
     <exec.mainClass>com.redhat.jfr.server.MainVerticle</exec.mainClass>
   </properties>
-
   <build>
     <pluginManagement>
       <plugins>
@@ -49,9 +40,8 @@
       </plugins>
     </pluginManagement>
   </build>
-
   <dependencies>
-      <dependency>
+    <dependency>
       <groupId>org.openjdk.jmc</groupId>
       <artifactId>flightrecorder</artifactId>
       <version>${jmc.core.version}</version>
@@ -66,7 +56,7 @@
       <artifactId>vertx-core</artifactId>
       <version>${vertx.version}</version>
     </dependency>
-        <dependency>
+    <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-web</artifactId>
       <version>${vertx.version}</version>
