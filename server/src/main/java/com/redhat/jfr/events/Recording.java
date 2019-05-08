@@ -2,7 +2,9 @@ package com.redhat.jfr.events;
 
 import java.io.File;
 import java.util.Iterator;
+import java.util.List;
 
+import org.openjdk.jmc.common.item.IAttribute;
 import org.openjdk.jmc.common.item.IItem;
 import org.openjdk.jmc.common.item.IItemCollection;
 import org.openjdk.jmc.common.item.IItemIterable;
@@ -30,8 +32,11 @@ public class Recording {
       try {
         IItemIterable item = i.next();
         IType<IItem> type = item.getType();
-        json.append("\"" + type.getIdentifier() + "\"");
-        json.append(",");
+        List<IAttribute<?>> attributes = type.getAttributes();
+        for (IAttribute<?> attribute : attributes) {
+          json.append("\"" + type.getIdentifier() + "." + attribute.getIdentifier() + "\"");
+          json.append(",");
+        }
       } catch (Exception e) {
         return "[]";
       }
