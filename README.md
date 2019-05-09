@@ -20,4 +20,4 @@ java -jar ./server/target/server-1.0.0-SNAPSHOT-fat.jar <path-to-jfr>
 
 - Add a SimpleJson data source
 - Set the URL to: `http://localhost:8080`
-- Create a panel that pulls from the data source and plots the workLeft timeseries
+- Create a panel that pulls from the data source and plots a timeseries
