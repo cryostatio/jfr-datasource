@@ -18,6 +18,10 @@ java -jar ./server/target/server-1.0.0-SNAPSHOT-fat.jar <path-to-jfr>
 
 ### Run Grafana
 
+- Install SimpleJson data source if necessary via
+```
+grafana-cli --pluginsDir <path-to-your-plugins-directory> plugins install grafana-simple-json-datasource
+```
 - Add a SimpleJson data source
 - Set the URL to: `http://localhost:8080`
 - Create a panel that pulls from the data source and plots a timeseries
