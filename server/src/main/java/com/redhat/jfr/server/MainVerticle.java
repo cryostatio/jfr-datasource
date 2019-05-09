@@ -1,11 +1,14 @@
 package com.redhat.jfr.server;
 
+import java.time.temporal.TemporalAccessor;
+
 import com.redhat.jfr.events.Recording;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.handler.BodyHandler;
 
 public class MainVerticle {
   public static void main(String[] args) {
@@ -27,10 +30,12 @@ public class MainVerticle {
         response.end(jfr.search());
       });
 
-      router.route().path("/query").handler(routingContext -> {
+      router.route().path("/query").handler(BodyHandler.create()).handler(routingContext -> {
         HttpServerResponse response = routingContext.response();
         setHeaders(response);
-        response.end(jfr.query());
+
+        Query query = new Query(routingContext.getBodyAsJson());
+        response.end(jfr.query(query));
       });
 
       router.route().path("/annotations").handler(routingContext -> {
@@ -38,7 +43,6 @@ public class MainVerticle {
         setHeaders(response);
         response.end(jfr.annotations());
       });
-
       System.out.println("Server listening on 0.0.0.0:8080");
       server.requestHandler(router).listen(8080);
     } catch (Exception e) {
