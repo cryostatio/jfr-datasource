@@ -15,7 +15,7 @@
     <java.version>1.8</java.version>
     <vertx.version>3.7.0</vertx.version>
     <jmc.core.version>7.1.0-SNAPSHOT</jmc.core.version>
-    <exec.mainClass>com.redhat.jfr.server.MainVerticle</exec.mainClass>
+    <quarkus.version>0.14.0</quarkus.version>
   </properties>
   <build>
     <pluginManagement>
@@ -33,13 +33,24 @@
           </configuration>
         </plugin>
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-jar-plugin</artifactId>
-          <version>3.1.0</version>
+          <groupId>io.quarkus</groupId>
+          <artifactId>quarkus-maven-plugin</artifactId>
+          <version>${quarkus.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>
   </build>
+  <dependencyManagement>
+	<dependencies>
+	  <dependency>
+		<groupId>io.quarkus</groupId>
+		<artifactId>quarkus-bom</artifactId>
+		<version>${quarkus.version}</version>
+		<type>pom</type>
+		<scope>import</scope>
+	  </dependency>
+	</dependencies>
+  </dependencyManagement>
   <dependencies>
     <dependency>
       <groupId>org.openjdk.jmc</groupId>
@@ -52,14 +63,8 @@
       <version>${jmc.core.version}</version>
     </dependency>
     <dependency>
-      <groupId>io.vertx</groupId>
-      <artifactId>vertx-core</artifactId>
-      <version>${vertx.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.vertx</groupId>
-      <artifactId>vertx-web</artifactId>
-      <version>${vertx.version}</version>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-vertx-web</artifactId>
     </dependency>
   </dependencies>
 </project>
