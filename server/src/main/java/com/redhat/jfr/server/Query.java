@@ -1,10 +1,7 @@
 package com.redhat.jfr.server;
 
-import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
-import java.util.Date;
-import java.util.Map;
 
 import com.redhat.jfr.utils.ArgRunnable;
 

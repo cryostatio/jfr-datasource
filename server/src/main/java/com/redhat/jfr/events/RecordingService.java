@@ -1,10 +1,16 @@
 package com.redhat.jfr.events;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+
 import com.redhat.jfr.server.Query;
+
+import io.quarkus.runtime.StartupEvent;
 
 import org.openjdk.jmc.common.item.Attribute;
 import org.openjdk.jmc.common.item.IAttribute;
@@ -17,17 +23,33 @@ import org.openjdk.jmc.common.item.ItemFilters;
 import org.openjdk.jmc.common.unit.IQuantity;
 import org.openjdk.jmc.common.unit.QuantityConversionException;
 import org.openjdk.jmc.common.unit.UnitLookup;
+import org.openjdk.jmc.flightrecorder.CouldNotLoadRecordingException;
 import org.openjdk.jmc.flightrecorder.JfrAttributes;
 import org.openjdk.jmc.flightrecorder.JfrLoaderToolkit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class Recording {
+@ApplicationScoped
+public class RecordingService {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(RecordingService.class);
+  private static final String JFR_PROPERTY = "jfrFile";
 
   private String filename;
   private IItemCollection events;
 
-  public Recording(String filename) {
-    this.filename = filename;
+  public RecordingService() throws IOException {
+    this.filename = System.getProperty(JFR_PROPERTY);
     loadEvents();
+  }
+
+  void onStart(@Observes StartupEvent event) {
+      try {
+          loadEvents();
+          LOGGER.info("Successfully read events from JFR file");
+      } catch (IOException e) {
+          LOGGER.error("Failed to read events from recording", e);
+      }
   }
 
   public String search() {
@@ -115,11 +137,14 @@ public class Recording {
     return "[]";
   }
 
-  private void loadEvents() {
+  private void loadEvents() throws IOException {
+    if (this.filename == null) {
+      throw new IOException("JFR file must be specified with system property " + JFR_PROPERTY);
+    }
     try {
       this.events = JfrLoaderToolkit.loadEvents(new File(this.filename));
-    } catch (Exception e) {
-      //Ignore errors :)
+    } catch (CouldNotLoadRecordingException e) {
+      throw new IOException("Failed to load JFR recording", e);
     }
   }
 

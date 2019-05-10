@@ -6,14 +6,27 @@ This demonstrates how a simple json data source can be used in Grafana to read t
 
 ### Build
 
+This project uses [Quarkus](https://quarkus.io), which can produce a JAR to run in a JVM,
+or an executable native image.
+
+To build a JAR:
 ```
 mvn clean verify
+```
+To build a native image instead:
+```
+mvn -Pnative clean verify
 ```
 
 ### Run the server, targeting a jfr file
 
+If you built a JAR:
 ```
-java -jar ./server/target/server-1.0.0-SNAPSHOT-fat.jar <path-to-jfr>
+java -DjfrFile=<path-to-jfr> -jar ./server/target/server-1.0.0-SNAPSHOT-runner.jar
+```
+If you built a native image:
+```
+./server/target/server-1.0.0-SNAPSHOT-runner -DjfrFile=<path-to-jfr>
 ```
 
 ### Run Grafana
