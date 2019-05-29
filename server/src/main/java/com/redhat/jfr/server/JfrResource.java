@@ -1,5 +1,7 @@
 package com.redhat.jfr.server;
 
+import java.io.IOException;
+
 import javax.inject.Inject;
 
 import com.redhat.jfr.events.RecordingService;
@@ -40,6 +42,22 @@ public class JfrResource {
         HttpServerResponse response = context.response();
         setHeaders(response);
         response.end(service.annotations());
+    }
+
+    @Route(path = "/load")
+    void load(RoutingContext context) {
+        HttpServerResponse response = context.response();
+        setHeaders(response);
+
+        String filename = context.getBodyAsString();
+        try {
+            service.loadEvents(filename);
+        } catch (IOException e) {
+            response.setStatusCode(404);
+            response.end();
+        }
+
+        response.end();
     }
 
     private void setHeaders(HttpServerResponse response) {

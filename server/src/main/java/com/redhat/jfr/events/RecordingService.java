@@ -12,7 +12,6 @@ import com.redhat.jfr.server.Query;
 
 import io.quarkus.runtime.StartupEvent;
 
-import org.openjdk.jmc.common.item.Attribute;
 import org.openjdk.jmc.common.item.IAttribute;
 import org.openjdk.jmc.common.item.IItem;
 import org.openjdk.jmc.common.item.IItemCollection;
@@ -20,6 +19,7 @@ import org.openjdk.jmc.common.item.IItemIterable;
 import org.openjdk.jmc.common.item.IMemberAccessor;
 import org.openjdk.jmc.common.item.IType;
 import org.openjdk.jmc.common.item.ItemFilters;
+import org.openjdk.jmc.common.item.ItemToolkit;
 import org.openjdk.jmc.common.unit.IQuantity;
 import org.openjdk.jmc.common.unit.QuantityConversionException;
 import org.openjdk.jmc.common.unit.UnitLookup;
@@ -35,21 +35,15 @@ public class RecordingService {
   private static final Logger LOGGER = LoggerFactory.getLogger(RecordingService.class);
   private static final String JFR_PROPERTY = "jfrFile";
 
-  private String filename;
   private IItemCollection events;
 
-  public RecordingService() throws IOException {
-    this.filename = System.getProperty(JFR_PROPERTY);
-    loadEvents();
-  }
-
   void onStart(@Observes StartupEvent event) {
-      try {
-          loadEvents();
-          LOGGER.info("Successfully read events from JFR file");
-      } catch (IOException e) {
-          LOGGER.error("Failed to read events from recording", e);
-      }
+    try {
+      loadEvents(System.getProperty(JFR_PROPERTY));
+      LOGGER.info("Successfully read events from JFR file");
+    } catch (IOException e) {
+      LOGGER.error("Failed to read events from recording", e);
+    }
   }
 
   public String search() {
@@ -62,11 +56,13 @@ public class RecordingService {
     while (i.hasNext()) {
       try {
         IItemIterable item = i.next();
-        IType<IItem> type = item.getType();
-        List<IAttribute<?>> attributes = type.getAttributes();
-        for (IAttribute<?> attribute : attributes) {
-          json.append("\"" + type.getIdentifier() + "." + attribute.getIdentifier() + "\"");
-          json.append(",");
+        if (item.hasItems()) {
+          IType<IItem> type = item.getType();
+          List<IAttribute<?>> attributes = type.getAttributes();
+          for (IAttribute<?> attribute : attributes) {
+            json.append("\"" + type.getIdentifier() + "." + attribute.getIdentifier() + "\"");
+            json.append(",");
+          }
         }
       } catch (Exception e) {
         return "[]";
@@ -79,55 +75,68 @@ public class RecordingService {
   }
 
   public String query(Query query) {
-    if (events == null) {
-      return "[]";
-    }
-    StringBuilder json = new StringBuilder();
-    json.append("[");
-    query.applyTargets((target) -> {
-      json.append("{");
-      json.append("\"target\"");
-      json.append(":");
-      json.append("\"" + target + "\"");
-      json.append(",");
-      json.append("\"datapoints\"");
-      json.append(":");
+    try {
+      if (events == null) {
+        return "[]";
+      }
+      StringBuilder json = new StringBuilder();
       json.append("[");
+      query.applyTargets((target) -> {
+        json.append("{");
+        json.append("\"target\"");
+        json.append(":");
+        json.append("\"" + target + "\"");
+        json.append(",");
+        json.append("\"datapoints\"");
+        json.append(":");
+        json.append("[");
 
-      String eventName = target.substring(0, target.lastIndexOf("."));
-      String eventField = target.substring(target.lastIndexOf(".") + 1);
+        String eventName = target.substring(0, target.lastIndexOf("."));
+        String eventField = target.substring(target.lastIndexOf(".") + 1);
 
-      IItemCollection filteredEvents = events.apply(ItemFilters.type(eventName));
-      if (filteredEvents.hasItems()) {
-        for (IItemIterable itemIterable : filteredEvents) {
-          IType<IItem> type = itemIterable.getType();
-          IMemberAccessor<IQuantity, IItem> numberAccessor = Attribute.attr(eventField, eventName, UnitLookup.NUMBER)
-              .getAccessor(type);
-          IMemberAccessor<IQuantity, IItem> startTimeAccessor = JfrAttributes.START_TIME.getAccessor(type);
+        IItemCollection filteredEvents = events.apply(ItemFilters.type(eventName));
 
-          for (IItem item : itemIterable) {
-            json.append("[");
-            json.append(numberAccessor.getMember(item).longValue());
-            json.append(",");
-            try {
-              json.append(startTimeAccessor.getMember(item).longValueIn(UnitLookup.EPOCH_MS));
-            } catch (QuantityConversionException e) {
-              json.append(0);
+        if (filteredEvents.hasItems()) {
+          for (IItemIterable itemIterable : filteredEvents) {
+            IType<IItem> type = itemIterable.getType();
+            List<IAttribute<?>> attributes = type.getAttributes();
+            for (IAttribute<?> attribute : attributes) {
+              if (eventField.equals(attribute.getIdentifier())) {
+                IMemberAccessor<IQuantity, IItem> startTimeAccessor = JfrAttributes.START_TIME.getAccessor(type);
+                IMemberAccessor<?, IItem> accessor = ItemToolkit.accessor(attribute);
+
+                for (IItem item : itemIterable) {
+                  if (!(accessor.getMember(item) instanceof IQuantity)) {
+                    return;
+                  }
+                  json.append("[");
+                  json.append(((IQuantity) accessor.getMember(item)).doubleValue());
+                  json.append(",");
+                  try {
+                    json.append(startTimeAccessor.getMember(item).longValueIn(UnitLookup.EPOCH_MS));
+                  } catch (QuantityConversionException e) {
+                    json.append(0);
+                  }
+                  json.append("]");
+                  json.append(",");
+                }
+                json.deleteCharAt(json.length() - 1);
+              }
             }
-            json.append("]");
-            json.append(",");
           }
         }
-        json.deleteCharAt(json.length() - 1);
-      }
 
+        json.append("]");
+        json.append("}");
+        json.append(",");
+      });
+      json.deleteCharAt(json.length() - 1);
       json.append("]");
-      json.append("}");
-      json.append(",");
-    });
-    json.deleteCharAt(json.length() - 1);
-    json.append("]");
-    return json.toString();
+      return json.toString();
+    } catch (Exception e) {
+      e.printStackTrace();
+      return "[]";
+    }
   }
 
   public String annotations() {
@@ -137,13 +146,16 @@ public class RecordingService {
     return "[]";
   }
 
-  private void loadEvents() throws IOException {
-    if (this.filename == null) {
-      throw new IOException("JFR file must be specified with system property " + JFR_PROPERTY);
+  public void loadEvents(String filename) throws IOException {
+    if (filename == null || filename == "") {
+      throw new IOException("Invalid JFR filename");
     }
     try {
-      this.events = JfrLoaderToolkit.loadEvents(new File(this.filename));
+      File file = new File(filename);
+      LOGGER.info("Loading file: " + file.getAbsolutePath());
+      this.events = JfrLoaderToolkit.loadEvents(file);
     } catch (CouldNotLoadRecordingException e) {
+      LOGGER.error("Failed to read events from recording", e);
       throw new IOException("Failed to load JFR recording", e);
     }
   }
