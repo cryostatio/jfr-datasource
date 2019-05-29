@@ -15,7 +15,7 @@
     <java.version>1.8</java.version>
     <vertx.version>3.7.0</vertx.version>
     <jmc.core.version>7.1.0-SNAPSHOT</jmc.core.version>
-    <quarkus.version>0.14.0</quarkus.version>
+    <quarkus.version>0.15.0</quarkus.version>
   </properties>
   <build>
     <pluginManagement>
