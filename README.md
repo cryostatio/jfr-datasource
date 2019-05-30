@@ -4,6 +4,13 @@ This demonstrates how a simple json data source can be used in Grafana to read t
 
 ## Usage
 
+### Dependencies
+
+This project depends on JMC Core libraries which can be built from the 'core' maven project at:
+```
+http://hg.openjdk.java.net/jmc/jmc
+```
+
 ### Build
 
 This project uses [Quarkus](https://quarkus.io), which can produce a JAR to run in a JVM,
