@@ -41,15 +41,15 @@
     </pluginManagement>
   </build>
   <dependencyManagement>
-	<dependencies>
-	  <dependency>
-		<groupId>io.quarkus</groupId>
-		<artifactId>quarkus-bom</artifactId>
-		<version>${quarkus.version}</version>
-		<type>pom</type>
-		<scope>import</scope>
-	  </dependency>
-	</dependencies>
+    <dependencies>
+      <dependency>
+        <groupId>io.quarkus</groupId>
+        <artifactId>quarkus-bom</artifactId>
+        <version>${quarkus.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
   </dependencyManagement>
   <dependencies>
     <dependency>
