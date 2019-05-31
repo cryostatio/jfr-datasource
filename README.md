@@ -45,3 +45,21 @@ grafana-cli --pluginsDir <path-to-your-plugins-directory> plugins install grafan
 - Add a SimpleJson data source
 - Set the URL to: `http://localhost:8080`
 - Create a panel that pulls from the data source and plots a timeseries
+
+
+### Run on OpenShift
+
+Build the builder image
+```
+oc new-build https://github.com/jiekang/jfr-datasource.git --context-dir=docker/builder --name jfr-datasource-builder
+```
+
+Deploy the datasource using the builder image
+```
+oc new-app -i jfr-datasource-builder:latest~https://github.com/jiekang/jfr-datasource.git --name=jfr-datasource
+```
+
+Expose the datasource
+```
+oc expose svc/jfr-datasource
+```
