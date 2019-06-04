@@ -33,18 +33,8 @@ import org.slf4j.LoggerFactory;
 public class RecordingService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RecordingService.class);
-  private static final String JFR_PROPERTY = "jfrFile";
 
   private IItemCollection events;
-
-  void onStart(@Observes StartupEvent event) {
-    try {
-      loadEvents(System.getProperty(JFR_PROPERTY));
-      LOGGER.info("Successfully read events from JFR file");
-    } catch (IOException e) {
-      LOGGER.error("Failed to read events from recording", e);
-    }
-  }
 
   public String search() {
     if (events == null) {

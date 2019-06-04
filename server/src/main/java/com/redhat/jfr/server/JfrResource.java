@@ -1,5 +1,6 @@
 package com.redhat.jfr.server;
 
+import java.io.File;
 import java.io.IOException;
 
 import javax.inject.Inject;
@@ -8,10 +9,14 @@ import com.redhat.jfr.events.RecordingService;
 
 import io.quarkus.vertx.web.Route;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
+import io.vertx.ext.web.FileUpload;
 import io.vertx.ext.web.RoutingContext;
 
 public class JfrResource {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(RecordingService.class);
+    
     @Inject
     RecordingService service;
 
@@ -55,6 +60,18 @@ public class JfrResource {
         } catch (IOException e) {
             response.setStatusCode(404);
             response.end();
+        }
+
+        response.end();
+    }
+
+    @Route(path = "/upload")
+    void upload(RoutingContext context) {
+        HttpServerResponse response = context.response();
+        setHeaders(response);
+
+        for (FileUpload f : context.fileUploads()) {
+            LOGGER.info("Uploaded: " + f.uploadedFileName());
         }
 
         response.end();
