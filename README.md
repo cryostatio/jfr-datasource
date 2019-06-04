@@ -38,12 +38,12 @@ If you built a native image:
 
 ### Run Grafana
 
-- Install SimpleJson data source if necessary via
+- Install SimpleJson data source if not already installed via
 ```
 grafana-cli --pluginsDir <path-to-your-plugins-directory> plugins install grafana-simple-json-datasource
 ```
 - Add a SimpleJson data source
-- Set the URL to: `http://localhost:8080`
+- Set the URL to the jfr-datasource (default: `http://localhost:8080`)
 - Create a panel that pulls from the data source and plots a timeseries
 
 
