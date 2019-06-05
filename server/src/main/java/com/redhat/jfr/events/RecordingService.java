@@ -6,11 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
 
 import com.redhat.jfr.server.Query;
-
-import io.quarkus.runtime.StartupEvent;
 
 import org.openjdk.jmc.common.item.IAttribute;
 import org.openjdk.jmc.common.item.IItem;
@@ -142,6 +139,9 @@ public class RecordingService {
     }
     try {
       File file = new File(filename);
+      if (!file.exists()) {
+        throw new IOException("File not found");
+      }
       LOGGER.info("Loading file: " + file.getAbsolutePath());
       this.events = JfrLoaderToolkit.loadEvents(file);
     } catch (CouldNotLoadRecordingException e) {
