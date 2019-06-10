@@ -18,7 +18,9 @@ import org.openjdk.jmc.common.item.IType;
 import org.openjdk.jmc.common.item.ItemFilters;
 import org.openjdk.jmc.common.item.ItemToolkit;
 import org.openjdk.jmc.common.unit.IQuantity;
+import org.openjdk.jmc.common.unit.IRange;
 import org.openjdk.jmc.common.unit.QuantityConversionException;
+import org.openjdk.jmc.common.unit.QuantityRange;
 import org.openjdk.jmc.common.unit.UnitLookup;
 import org.openjdk.jmc.flightrecorder.CouldNotLoadRecordingException;
 import org.openjdk.jmc.flightrecorder.JfrAttributes;
@@ -80,8 +82,10 @@ public class RecordingService {
 
         String eventName = target.substring(0, target.lastIndexOf("."));
         String eventField = target.substring(target.lastIndexOf(".") + 1);
-
-        IItemCollection filteredEvents = events.apply(ItemFilters.type(eventName));
+        IQuantity start = UnitLookup.EPOCH_MS.quantity(query.getFrom());
+        IQuantity end = UnitLookup.EPOCH_MS.quantity(query.getTo());
+        IRange<IQuantity> range = QuantityRange.createWithEnd(start, end);
+        IItemCollection filteredEvents = events.apply(ItemFilters.type(eventName)).apply(ItemFilters.rangeContainedIn(JfrAttributes.LIFETIME, range));
 
         if (filteredEvents.hasItems()) {
           for (IItemIterable itemIterable : filteredEvents) {

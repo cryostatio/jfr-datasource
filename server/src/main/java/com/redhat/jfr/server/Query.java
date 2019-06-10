@@ -1,5 +1,6 @@
 package com.redhat.jfr.server;
 
+import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 
@@ -30,14 +31,16 @@ public class Query {
     }
   }
 
-  public TemporalAccessor getFrom() {
+  public long getFrom() {
     TemporalAccessor accessor = dateFormat.parse(this.query.getJsonObject("range").getString("from"));
-    return accessor;
+    Instant instant = Instant.from(accessor);
+    return instant.toEpochMilli();
   }
 
-  public TemporalAccessor getTo() {
+  public long getTo() {
     TemporalAccessor accessor = dateFormat.parse(this.query.getJsonObject("range").getString("to"));
-    return accessor;
+    Instant instant = Instant.from(accessor);
+    return instant.toEpochMilli();
   }
 
 }
