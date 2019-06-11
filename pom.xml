@@ -14,9 +14,24 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <java.version>1.8</java.version>
     <vertx.version>3.7.0</vertx.version>
-    <jmc.core.version>7.1.0-SNAPSHOT</jmc.core.version>
+    <jmc.core.version>7.0.0-SNAPSHOT</jmc.core.version>
     <quarkus.version>0.15.0</quarkus.version>
   </properties>
+
+  <repositories>
+    <!-- Added to acquire jmc-core. This can be removed when jmc-core is published to maven central-->
+    <repository>
+      <id>oss.sonatype.org-snapshot</id>
+      <url>http://oss.sonatype.org/content/repositories/snapshots</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+
   <build>
     <pluginManagement>
       <plugins>

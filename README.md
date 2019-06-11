@@ -6,7 +6,7 @@ This demonstrates how a simple json data source can be used in Grafana to read t
 
 ### Dependencies
 
-This project depends on JMC Core libraries which can be built from the 'core' maven project at:
+This project depends on JMC Core libraries which are acquired from the sonatype repositories. They can also be built from the 'core' maven project at:
 ```
 http://hg.openjdk.java.net/jmc/jmc
 ```
@@ -52,7 +52,7 @@ grafana-cli --pluginsDir <path-to-your-plugins-directory> plugins install grafan
 Build the builder image
 ```
 oc new-build https://github.com/jiekang/jfr-datasource.git --context-dir=docker/builder --name jfr-datasource-builder
-```
+``
 
 Deploy the datasource using the builder image
 ```
