@@ -19,7 +19,7 @@ import io.vertx.ext.web.RoutingContext;
 public class JfrResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(RecordingService.class);
     private static final String JFR_PROPERTY = "jfrDir";
-    private String jfrDir = "";
+    private String jfrDir = "file-uploads";
 
     @Inject
     RecordingService service;
@@ -28,8 +28,8 @@ public class JfrResource {
         String dir = System.getProperty(JFR_PROPERTY);
         if (dir != null && dir != "") {
             jfrDir = dir;
-            LOGGER.info("Set JFR Directory to: " + jfrDir);
         }
+        LOGGER.info("Set JFR Directory to: " + jfrDir);
     }
 
     @Route(path = "/")
@@ -66,15 +66,23 @@ public class JfrResource {
         HttpServerResponse response = context.response();
         setHeaders(response);
 
-        String filename = (jfrDir != null || jfrDir != "") ? jfrDir + File.separator + context.getBodyAsString() : context.getBodyAsString();
-        try {
-            service.loadEvents(filename);
-        } catch (IOException e) {
+        String filename = (jfrDir != null || jfrDir != "") ? jfrDir + File.separator + context.getBodyAsString()
+                : context.getBodyAsString();
+
+        File f = new File(filename);
+        if (f.exists() && f.isFile()) {
+            try {
+                service.loadEvents(filename);
+            } catch (IOException e) {
+                response.setStatusCode(404);
+                response.end();
+            }
+        } else {
             response.setStatusCode(404);
             response.end();
         }
 
-        response.end();
+        response.end("Loaded: " + filename);
     }
 
     @Route(path = "/upload")
@@ -82,11 +90,14 @@ public class JfrResource {
         HttpServerResponse response = context.response();
         setHeaders(response);
 
+        StringBuilder builder = new StringBuilder();
         for (FileUpload f : context.fileUploads()) {
+            builder.append("Uploaded: " + f.uploadedFileName());
+            builder.append(System.lineSeparator());
             LOGGER.info("Uploaded: " + f.uploadedFileName());
         }
 
-        response.end();
+        response.end(builder.toString());
     }
 
     private void setHeaders(HttpServerResponse response) {
