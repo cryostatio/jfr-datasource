@@ -118,6 +118,23 @@ public class JfrResource {
         }
     }
 
+    @Route(path = "/list")
+    void list(RoutingContext context) {
+        HttpServerResponse response = context.response();
+        setHeaders(response);
+
+        File dir = new File(jfrDir);
+        StringBuilder responseBuilder = new StringBuilder();
+        for (File f : dir.listFiles()) {
+            if (f.isFile()) {
+                responseBuilder.append(f.getName());
+                responseBuilder.append(System.lineSeparator());
+            }
+        }
+
+        response.end(responseBuilder.toString());
+    }
+
     private String uploadFiles(Set<FileUpload> uploads, StringBuilder responseBuilder) {
         String lastFile = "";
         for (FileUpload f : uploads) {

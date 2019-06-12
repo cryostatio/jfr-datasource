@@ -110,6 +110,15 @@ CURL Example
 $ curl -F "file=@/home/user/some-file.jfr" "localhost:8080/load"
 ```
 
+#### GET /list
+
+Lists files available for Set
+
+CURL Example
+```
+$ curl "localhost:8080/list"
+```
+
 ### Query Endpoints
 
 These endpoints match those required used by the Grafana Simple JSON datasource
@@ -122,7 +131,6 @@ CURL Example
 ```
 $ curl "localhost:8080/search"
 ```
-
 
 #### POST /query
 
