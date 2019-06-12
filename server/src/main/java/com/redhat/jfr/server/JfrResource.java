@@ -2,6 +2,7 @@ package com.redhat.jfr.server;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Set;
 
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
@@ -59,10 +60,9 @@ public class JfrResource {
             }
         } catch (Exception e) {
         }
+
         response.setStatusCode(400);
-        JsonObject message = new JsonObject();
-        message.put("error", "invalid query body");
-        response.end(message.toString());
+        response.end("Error: invalid query body");
     }
 
     @Route(path = "/annotations")
@@ -72,28 +72,21 @@ public class JfrResource {
         response.end(service.annotations());
     }
 
-    @Route(path = "/load")
-    void load(RoutingContext context) {
+    @Route(path = "/set")
+    void set(RoutingContext context) {
         HttpServerResponse response = context.response();
         setHeaders(response);
 
         String filename = (jfrDir != null || jfrDir != "") ? jfrDir + File.separator + context.getBodyAsString()
                 : context.getBodyAsString();
 
-        File f = new File(filename);
-        if (f.exists() && f.isFile()) {
-            try {
-                service.loadEvents(filename);
-            } catch (IOException e) {
-                response.setStatusCode(404);
-                response.end();
-            }
-        } else {
+        try {
+            service.loadEvents(filename);
+            response.end("Loaded: " + filename);
+        } catch (IOException e) {
             response.setStatusCode(404);
             response.end();
         }
-
-        response.end("Loaded: " + filename);
     }
 
     @Route(path = "/upload")
@@ -101,14 +94,40 @@ public class JfrResource {
         HttpServerResponse response = context.response();
         setHeaders(response);
 
-        StringBuilder builder = new StringBuilder();
-        for (FileUpload f : context.fileUploads()) {
-            builder.append("Uploaded: " + f.uploadedFileName());
-            builder.append(System.lineSeparator());
+        StringBuilder responseBuilder = new StringBuilder();
+        uploadFiles(context.fileUploads(), responseBuilder);
+
+        response.end(responseBuilder.toString());
+    }
+
+    @Route(path = "/load")
+    void load(RoutingContext context) {
+        HttpServerResponse response = context.response();
+        setHeaders(response);
+
+        StringBuilder responseBuilder = new StringBuilder();
+        String lastFile = uploadFiles(context.fileUploads(), responseBuilder);
+
+        try {
+            service.loadEvents(lastFile);
+            responseBuilder.append("Loaded: " + lastFile);
+            response.end(responseBuilder.toString());
+        } catch (IOException e) {
+            response.setStatusCode(404);
+            response.end();
+        }
+    }
+
+    private String uploadFiles(Set<FileUpload> uploads, StringBuilder responseBuilder) {
+        String lastFile = "";
+        for (FileUpload f : uploads) {
+            responseBuilder.append("Uploaded: " + f.uploadedFileName());
+            responseBuilder.append(System.lineSeparator());
             LOGGER.info("Uploaded: " + f.uploadedFileName());
+            lastFile = f.uploadedFileName();
         }
 
-        response.end(builder.toString());
+        return lastFile;
     }
 
     private void setHeaders(HttpServerResponse response) {
