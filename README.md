@@ -114,7 +114,7 @@ $ curl -F "file=@/home/user/some-file.jfr" "localhost:8080/load"
 
 These endpoints match those required used by the Grafana Simple JSON datasource
 
-### GET /search
+#### GET /search
 
 Responds with a JSON array containing the selectable query elements
 
@@ -124,7 +124,7 @@ $ curl "localhost:8080/search"
 ```
 
 
-### POST /query
+#### POST /query
 
 Responds with a JSON array containing elements for a query. The query body format matches that of the Grafana Simple JSON datasource
 
