@@ -11,6 +11,7 @@ import com.redhat.jfr.events.RecordingService;
 import io.quarkus.runtime.StartupEvent;
 import io.quarkus.vertx.web.Route;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.FileUpload;
@@ -49,9 +50,19 @@ public class JfrResource {
     void query(RoutingContext context) {
         HttpServerResponse response = context.response();
         setHeaders(response);
-
-        Query query = new Query(context.getBodyAsJson());
-        response.end(service.query(query));
+        try {
+            JsonObject body = context.getBodyAsJson();
+            if (body != null && !body.isEmpty()) {
+                Query query = new Query(context.getBodyAsJson());
+                response.end(service.query(query));
+                return;
+            }
+        } catch (Exception e) {
+        }
+        response.setStatusCode(400);
+        JsonObject message = new JsonObject();
+        message.put("error", "invalid query body");
+        response.end(message.toString());
     }
 
     @Route(path = "/annotations")

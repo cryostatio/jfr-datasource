@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 
+import com.redhat.jfr.json.JsonUtils;
 import com.redhat.jfr.server.Query;
 
 import org.openjdk.jmc.common.item.IAttribute;
@@ -28,6 +29,9 @@ import org.openjdk.jmc.flightrecorder.JfrLoaderToolkit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+
 @ApplicationScoped
 public class RecordingService {
 
@@ -37,10 +41,9 @@ public class RecordingService {
 
   public String search() {
     if (events == null) {
-      return "[]";
+      return JsonUtils.EMPTY_ARRAY;
     }
-    StringBuilder json = new StringBuilder();
-    json.append("[");
+    JsonArray json = new JsonArray();
     Iterator<IItemIterable> i = events.iterator();
     while (i.hasNext()) {
       try {
@@ -49,43 +52,39 @@ public class RecordingService {
           IType<IItem> type = item.getType();
           List<IAttribute<?>> attributes = type.getAttributes();
           for (IAttribute<?> attribute : attributes) {
-            json.append("\"" + type.getIdentifier() + "." + attribute.getIdentifier() + "\"");
-            json.append(",");
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.put(type.getIdentifier(), attribute.getIdentifier());
+            json.add(jsonObject);
           }
         }
       } catch (Exception e) {
-        return "[]";
+        return JsonUtils.EMPTY_ARRAY;
       }
     }
-
-    json.deleteCharAt(json.length() - 1);
-    json.append("]");
     return json.toString();
   }
 
   public String query(Query query) {
     try {
       if (events == null) {
-        return "[]";
+        return JsonUtils.EMPTY_ARRAY;
       }
-      StringBuilder json = new StringBuilder();
-      json.append("[");
+      JsonArray json = new JsonArray();
       query.applyTargets((target) -> {
-        json.append("{");
-        json.append("\"target\"");
-        json.append(":");
-        json.append("\"" + target + "\"");
-        json.append(",");
-        json.append("\"datapoints\"");
-        json.append(":");
-        json.append("[");
+        JsonObject targetObject = new JsonObject();
+        json.add(targetObject);
+
+        targetObject.put("target", target);
+        JsonArray datapointsArray = new JsonArray();
+        targetObject.put("datapoints", datapointsArray);
 
         String eventName = target.substring(0, target.lastIndexOf("."));
         String eventField = target.substring(target.lastIndexOf(".") + 1);
         IQuantity start = UnitLookup.EPOCH_MS.quantity(query.getFrom());
         IQuantity end = UnitLookup.EPOCH_MS.quantity(query.getTo());
         IRange<IQuantity> range = QuantityRange.createWithEnd(start, end);
-        IItemCollection filteredEvents = events.apply(ItemFilters.type(eventName)).apply(ItemFilters.rangeContainedIn(JfrAttributes.LIFETIME, range));
+        IItemCollection filteredEvents = events.apply(ItemFilters.type(eventName))
+            .apply(ItemFilters.rangeContainedIn(JfrAttributes.LIFETIME, range));
 
         if (filteredEvents.hasItems()) {
           for (IItemIterable itemIterable : filteredEvents) {
@@ -100,41 +99,36 @@ public class RecordingService {
                   if (!(accessor.getMember(item) instanceof IQuantity)) {
                     return;
                   }
-                  json.append("[");
-                  json.append(((IQuantity) accessor.getMember(item)).doubleValue());
-                  json.append(",");
+                  JsonArray datapoint = new JsonArray();
+                  datapoint.add(((IQuantity) accessor.getMember(item)).doubleValue());
+
+                  long startTime = 0;
                   try {
-                    json.append(startTimeAccessor.getMember(item).longValueIn(UnitLookup.EPOCH_MS));
+                    startTime = startTimeAccessor.getMember(item).longValueIn(UnitLookup.EPOCH_MS);
                   } catch (QuantityConversionException e) {
-                    json.append(0);
+                    // Do Nothing
                   }
-                  json.append("]");
-                  json.append(",");
+                  datapoint.add(startTime);
+                  datapointsArray.add(datapoint);
                 }
-                json.deleteCharAt(json.length() - 1);
               }
             }
           }
         }
-
-        json.append("]");
-        json.append("}");
-        json.append(",");
       });
-      json.deleteCharAt(json.length() - 1);
-      json.append("]");
       return json.toString();
     } catch (Exception e) {
       e.printStackTrace();
-      return "[]";
+      return JsonUtils.EMPTY_ARRAY;
     }
   }
 
   public String annotations() {
     if (events == null) {
-      return "[]";
+      return JsonUtils.EMPTY_ARRAY;
     }
-    return "[]";
+    // TODO: Implement annotation support
+    return JsonUtils.EMPTY_ARRAY;
   }
 
   public void loadEvents(String filename) throws IOException {
