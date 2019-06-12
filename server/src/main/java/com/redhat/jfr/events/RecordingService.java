@@ -39,6 +39,10 @@ public class RecordingService {
 
   private IItemCollection events;
 
+  public boolean eventsLoaded() {
+    return events != null;
+  }
+
   public String search() {
     if (events == null) {
       return JsonUtils.EMPTY_ARRAY;
@@ -137,7 +141,7 @@ public class RecordingService {
     }
     try {
       File file = new File(filename);
-      if (!file.exists()) {
+      if (!file.exists() || !file.isFile()) {
         throw new IOException("File not found");
       }
       LOGGER.info("Loading file: " + file.getAbsolutePath());
