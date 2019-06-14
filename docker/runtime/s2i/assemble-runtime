@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# This POC script is based on the openshift/source-to-image project documentation,
+# and loosely inspired by fabric8io-images/s2i's assemble script, but **MUCH** simplified;
+# a TODO future PRODUCTION version of this would probably want to re-use that script...
+
+set -ex
+
+echo "Executing assemble-runtime"

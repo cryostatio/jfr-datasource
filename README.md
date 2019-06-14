@@ -11,7 +11,7 @@ This project depends on JMC Core libraries which are acquired from the sonatype 
 http://hg.openjdk.java.net/jmc/jmc
 ```
 
-### Build
+### Build and run locally
 
 This project uses [Quarkus](https://quarkus.io), which can produce a JAR to run in a JVM, or an executable native image.
 
@@ -25,7 +25,7 @@ mvn -Pnative clean verify
 ```
 Native image builds may use more than 4G of RAM to complete.
 
-### Run the server
+#### Run the server
 
 If you built a JAR:
 ```
@@ -46,6 +46,30 @@ grafana-cli --pluginsDir <path-to-your-plugins-directory> plugins install grafan
 - Set the URL to the jfr-datasource (default: `http://localhost:8080`)
 - Create a panel that pulls from the data source and plots a timeseries
 
+
+### Build and run via S2I
+
+This project has support for building a runtime image via S2I
+
+Build the builder and runtime images
+```
+pushd docker/builder
+docker build . -t jfr-datasource-builder
+popd
+pushd docker/runtime
+docker build . -t jfr-datasource-runtime
+popd
+```
+
+#### Run the S2I build
+```
+s2i build https://github.com/jiekang/jfr-datasource -r update-s2i jfr-datasource-builder jfr-datasource --runtime-image jfr-datasource-runtime --runtime-artifact /home/quarkus/application:.
+```
+
+Run the image
+```
+docker run --rm -it -p 8080:8080 jfr-datasource
+```
 
 ### Run on OpenShift
 
