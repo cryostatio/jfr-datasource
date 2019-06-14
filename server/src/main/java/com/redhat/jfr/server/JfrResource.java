@@ -4,12 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 
-import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import com.redhat.jfr.events.RecordingService;
 
-import io.quarkus.runtime.StartupEvent;
 import io.quarkus.vertx.web.Route;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
@@ -20,19 +18,11 @@ import io.vertx.ext.web.RoutingContext;
 
 public class JfrResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(RecordingService.class);
-    private static final String JFR_PROPERTY = "jfrDir";
-    private String jfrDir = "file-uploads";
+
+    private static final String jfrDir = "file-uploads";
 
     @Inject
     RecordingService service;
-
-    void onStart(@Observes StartupEvent event) {
-        String dir = System.getProperty(JFR_PROPERTY);
-        if (dir != null && dir != "") {
-            jfrDir = dir;
-        }
-        LOGGER.info("Set JFR Directory to: " + jfrDir);
-    }
 
     @Route(path = "/")
     void root(RoutingContext context) {
@@ -77,8 +67,7 @@ public class JfrResource {
         HttpServerResponse response = context.response();
         setHeaders(response);
 
-        String filename = (jfrDir != null || jfrDir != "") ? jfrDir + File.separator + context.getBodyAsString()
-                : context.getBodyAsString();
+        String filename = jfrDir + File.separator + context.getBodyAsString();
 
         try {
             service.loadEvents(filename);
