@@ -25,7 +25,7 @@ mvn -Pnative clean verify
 ```
 Native image builds may use more than 4G of RAM to complete.
 
-### Run the server, targeting a jfr file
+### Run the server
 
 If you built a JAR:
 ```
@@ -34,12 +34,6 @@ java -jar ./server/target/server-1.0.0-SNAPSHOT-runner.jar
 If you built a native image:
 ```
 ./server/target/server-1.0.0-SNAPSHOT-runner
-```
-
-By default, the server will load files from the directory `file-upload`. To change this, set the System Property `jfrDir`. For example:
-```
-java -DjfrDir="/some/path" ./server/target/server-1.0.0-SNAPSHOT-runner.jar
-./server/target/server-1.0.0-SNAPSHOT-runner -DjfrDir="/some/path"
 ```
 
 ### Run Grafana
