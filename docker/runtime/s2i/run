@@ -1,0 +1,3 @@
+#!/bin/sh
+
+${QUARKUS_HOME}/application
