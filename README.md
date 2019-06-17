@@ -63,7 +63,7 @@ popd
 
 #### Run the S2I build
 ```
-s2i build https://github.com/rh-jmc-team/jfr-datasource -r update-s2i jfr-datasource-builder jfr-datasource --runtime-image jfr-datasource-runtime --runtime-artifact /home/quarkus/application:.
+s2i build https://github.com/rh-jmc-team/jfr-datasource jfr-datasource-builder jfr-datasource --runtime-image jfr-datasource-runtime --runtime-artifact /home/quarkus/application:.
 ```
 
 Run the image
