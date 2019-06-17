@@ -63,7 +63,7 @@ popd
 
 #### Run the S2I build
 ```
-s2i build https://github.com/jiekang/jfr-datasource -r update-s2i jfr-datasource-builder jfr-datasource --runtime-image jfr-datasource-runtime --runtime-artifact /home/quarkus/application:.
+s2i build https://github.com/rh-jmc-team/jfr-datasource -r update-s2i jfr-datasource-builder jfr-datasource --runtime-image jfr-datasource-runtime --runtime-artifact /home/quarkus/application:.
 ```
 
 Run the image
@@ -75,12 +75,12 @@ docker run --rm -it -p 8080:8080 jfr-datasource
 
 Build the builder image
 ```
-oc new-build https://github.com/jiekang/jfr-datasource.git --context-dir=docker/builder --name jfr-datasource-builder
+oc new-build https://github.com/rh-jmc-team/jfr-datasource.git --context-dir=docker/builder --name jfr-datasource-builder
 ```
 
 Deploy the datasource using the builder image
 ```
-oc new-app -i jfr-datasource-builder:latest~https://github.com/jiekang/jfr-datasource.git --name=jfr-datasource
+oc new-app -i jfr-datasource-builder:latest~https://github.com/rh-jmc-team/jfr-datasource.git --name=jfr-datasource
 ```
 
 Expose the datasource
