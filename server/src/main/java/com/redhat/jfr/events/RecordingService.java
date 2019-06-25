@@ -56,9 +56,8 @@ public class RecordingService {
           IType<IItem> type = item.getType();
           List<IAttribute<?>> attributes = type.getAttributes();
           for (IAttribute<?> attribute : attributes) {
-            JsonObject jsonObject = new JsonObject();
-            jsonObject.put(type.getIdentifier(), attribute.getIdentifier());
-            json.add(jsonObject);
+            String name = type.getIdentifier() + "." + attribute.getIdentifier();
+            json.add(name);
           }
         }
       } catch (Exception e) {
