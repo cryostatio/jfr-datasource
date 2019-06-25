@@ -56,6 +56,10 @@ public class RecordingService {
           IType<IItem> type = item.getType();
           List<IAttribute<?>> attributes = type.getAttributes();
           for (IAttribute<?> attribute : attributes) {
+            if (attribute.getIdentifier().contains("eventType") || attribute.getIdentifier().contains("startTime")
+                || attribute.getIdentifier().contains("endTime")) {
+              continue;
+            }
             String name = type.getIdentifier() + "." + attribute.getIdentifier();
             json.add(name);
           }
