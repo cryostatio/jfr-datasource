@@ -71,15 +71,10 @@ public class JfrResource {
         HttpServerResponse response = context.response();
         setHeaders(response);
 
-        String filename = jfrDir + File.separator + context.getBodyAsString();
+        String file = context.getBodyAsString();
+        String filePath = jfrDir + File.separator + file;
 
-        try {
-            service.loadEvents(filename);
-            response.end("Loaded: " + filename);
-        } catch (IOException e) {
-            response.setStatusCode(404);
-            response.end();
-        }
+        setFile(filePath, file, response, new StringBuilder());
     }
 
     @Route(path = "/upload")
@@ -100,15 +95,9 @@ public class JfrResource {
 
         StringBuilder responseBuilder = new StringBuilder();
         String lastFile = uploadFiles(context.fileUploads(), responseBuilder);
+        String filePath = jfrDir + File.separator + lastFile;
 
-        try {
-            service.loadEvents(lastFile);
-            responseBuilder.append("Loaded: " + lastFile);
-            response.end(responseBuilder.toString());
-        } catch (IOException e) {
-            response.setStatusCode(404);
-            response.end();
-        }
+        setFile(filePath, lastFile, response, responseBuilder);
     }
 
     @Route(path = "/list")
@@ -132,6 +121,9 @@ public class JfrResource {
         String lastFile = "";
         for (FileUpload fileUpload : uploads) {
             Path source = Paths.get(fileUpload.uploadedFileName());
+            String uploadedFile = source.getFileName().toString();
+            lastFile = uploadedFile;
+
             Path dest = source.resolveSibling(fileUpload.fileName());
 
             if (Files.exists(dest)) {
@@ -141,30 +133,33 @@ public class JfrResource {
                     attempts++;
                 }
             }
-            if (Files.exists(dest)) {
-                addUploadedFile(fileUpload.uploadedFileName(), responseBuilder);
-                lastFile = fileUpload.uploadedFileName();
-            } else {
-                try {
-                    Files.move(source, dest);
-                    String path = dest.toAbsolutePath().toString();
-                    addUploadedFile(path, responseBuilder);
-                    lastFile = path;
-                } catch (IOException e) {
-                    addUploadedFile(fileUpload.uploadedFileName(), responseBuilder);
-                    lastFile = fileUpload.uploadedFileName();
-                }
+            try {
+                Files.move(source, dest);
+                logUploadedFile(dest.getFileName().toString(), responseBuilder);
+                lastFile = dest.getFileName().toString();
+            } catch (IOException e) {
+                logUploadedFile(uploadedFile, responseBuilder);
             }
-
         }
 
         return lastFile;
     }
 
-    private void addUploadedFile(String file, StringBuilder responseBuilder) {
+    private void logUploadedFile(String file, StringBuilder responseBuilder) {
         responseBuilder.append("Uploaded: " + file);
         responseBuilder.append(System.lineSeparator());
         LOGGER.info("Uploaded: " + file);
+    }
+
+    private void setFile(String absolutePath, String filename, HttpServerResponse response, StringBuilder responseBuilder) {
+        try {
+            service.loadEvents(absolutePath);
+            responseBuilder.append("Set: " + filename);
+            response.end(responseBuilder.toString());
+        } catch (IOException e) {
+            response.setStatusCode(404);
+            response.end();
+        }
     }
 
     private void setHeaders(HttpServerResponse response) {
