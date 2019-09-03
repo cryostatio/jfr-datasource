@@ -97,7 +97,7 @@
           "value": "null"
         }
       ],
-      "valueName": "total"
+      "valueName": "current"
     },
     {
       "cacheTimeout": null,
@@ -178,7 +178,7 @@
           "value": "null"
         }
       ],
-      "valueName": "total"
+      "valueName": "current"
     },
     {
       "aliasColors": {},
