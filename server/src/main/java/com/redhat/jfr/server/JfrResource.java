@@ -2,7 +2,11 @@ package com.redhat.jfr.server;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.inject.Inject;
 
@@ -126,14 +130,41 @@ public class JfrResource {
 
     private String uploadFiles(Set<FileUpload> uploads, StringBuilder responseBuilder) {
         String lastFile = "";
-        for (FileUpload f : uploads) {
-            responseBuilder.append("Uploaded: " + f.uploadedFileName());
-            responseBuilder.append(System.lineSeparator());
-            LOGGER.info("Uploaded: " + f.uploadedFileName());
-            lastFile = f.uploadedFileName();
+        for (FileUpload fileUpload : uploads) {
+            Path source = Paths.get(fileUpload.uploadedFileName());
+            Path dest = source.resolveSibling(fileUpload.fileName());
+
+            if (Files.exists(dest)) {
+                int attempts = 0;
+                while (Files.exists(dest) && attempts < 10) {
+                    dest = source.resolveSibling(UUID.randomUUID().toString() + '-' + fileUpload.fileName());
+                    attempts++;
+                }
+            }
+            if (Files.exists(dest)) {
+                addUploadedFile(fileUpload.uploadedFileName(), responseBuilder);
+                lastFile = fileUpload.uploadedFileName();
+            } else {
+                try {
+                    Files.move(source, dest);
+                    String path = dest.toAbsolutePath().toString();
+                    addUploadedFile(path, responseBuilder);
+                    lastFile = path;
+                } catch (IOException e) {
+                    addUploadedFile(fileUpload.uploadedFileName(), responseBuilder);
+                    lastFile = fileUpload.uploadedFileName();
+                }
+            }
+
         }
 
         return lastFile;
+    }
+
+    private void addUploadedFile(String file, StringBuilder responseBuilder) {
+        responseBuilder.append("Uploaded: " + file);
+        responseBuilder.append(System.lineSeparator());
+        LOGGER.info("Uploaded: " + file);
     }
 
     private void setHeaders(HttpServerResponse response) {

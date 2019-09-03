@@ -94,7 +94,7 @@ oc expose svc/jfr-datasource
 
 #### GET /
 
-Responds with 200 OK. Used to verify server is available.
+Responds with 200 OK. Used to verify server is available
 
 CURL Example
 ```
@@ -103,7 +103,7 @@ $ curl "localhost:8080/"
 
 #### POST /upload
 
-Expects a file upload. Used to upload a JFR file to the server. Responds with the uploaded filename
+Expects a JFR file upload. Used to upload a JFR file to the server. Responds with the uploaded filename
 
 CURL Example
 ```
@@ -112,16 +112,16 @@ $ curl -F "file=@/home/user/some-file.jfr" "localhost:8080/upload"
 
 #### POST /set
 
-Sets a JFR file for querying requests. Expects files to match with the uploaded filename (generally a hash)
+Sets a JFR file for querying requests. Expects file name specified via POST body
 
 CURL Example
 ```
-$ curl -X POST --data "some-hash" "localhost:8080/set"
+$ curl -X POST --data "some-file" "localhost:8080/set"
 ```
 
 #### POST /load
 
-Expects a file upload. Uploads and Sets a JFR file for querying requests. Responds with the uploaded and selected filename.
+Expects a JFR file upload. Performs `Upload` and `Set` in sequence. Responds with the uploaded and selected filename.
 
 CURL Example
 ```
@@ -130,7 +130,7 @@ $ curl -F "file=@/home/user/some-file.jfr" "localhost:8080/load"
 
 #### GET /list
 
-Lists files available for Set
+Lists files available for `Set`
 
 CURL Example
 ```
@@ -139,7 +139,7 @@ $ curl "localhost:8080/list"
 
 ### Query Endpoints
 
-These endpoints match those required used by the Grafana Simple JSON datasource
+These endpoints match those used by the Grafana Simple JSON datasource
 
 #### GET /search
 
