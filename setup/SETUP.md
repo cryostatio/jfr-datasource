@@ -10,7 +10,7 @@ oc expose svc/grafana
 
 # Adding datasource to the Grafana instance
 
-Visit the grafana instance and add a simple-json-datasource with URL pointing to the jfr-datasource instance. For a pre-made dashboard that can be imported into Grafana, see [Dashboards](../dashboards/dashboard.json)
+Visit the grafana instance and add a simple-json-datasource with URL pointing to the jfr-datasource instance. For a pre-made dashboard that can be imported into Grafana, see [Dashboards](../dashboards)
 
 
 
