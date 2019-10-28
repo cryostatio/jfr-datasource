@@ -13,9 +13,13 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <java.version>1.8</java.version>
-    <vertx.version>3.7.0</vertx.version>
     <jmc.core.version>7.0.0-SNAPSHOT</jmc.core.version>
-    <quarkus.version>0.15.0</quarkus.version>
+    <junit.version>5.5.1</junit.version>
+    <maven-failsafe-plugin.version>2.22.1</maven-failsafe-plugin.version>
+    <maven-surefire-plugin.version>2.22.1</maven-surefire-plugin.version>
+    <quarkus.version>0.26.1</quarkus.version>
+    <rest-assured.version>3.0.0</rest-assured.version>
+    <vertx.version>3.7.0</vertx.version>
   </properties>
 
   <repositories>
@@ -80,6 +84,7 @@
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-vertx-web</artifactId>
+      <version>${quarkus.version}</version>
     </dependency>
   </dependencies>
 </project>
