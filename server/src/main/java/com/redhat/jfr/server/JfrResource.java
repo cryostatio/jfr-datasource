@@ -48,7 +48,7 @@ public class JfrResource {
         try {
             JsonObject body = context.getBodyAsJson();
             if (body != null && !body.isEmpty()) {
-                Query query = new Query(context.getBodyAsJson());
+                Query query = new Query(body);
                 response.end(service.query(query));
                 return;
             }
@@ -155,6 +155,7 @@ public class JfrResource {
         try {
             service.loadEvents(absolutePath);
             responseBuilder.append("Set: " + filename);
+            responseBuilder.append(System.lineSeparator());
             response.end(responseBuilder.toString());
         } catch (IOException e) {
             response.setStatusCode(404);
