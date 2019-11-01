@@ -43,52 +43,52 @@ public class DatasourceTest {
 
   @Test
   public void testPostUpload() throws Exception {
-    File jfrFile = new File("src/test/resources/jmc.1.jfr");
+    File jfrFile = new File("src/test/resources/jmc.cpu.jfr");
     assertTrue(jfrFile.exists());
 
-    String expected = "Uploaded: jmc.1.jfr" + System.lineSeparator();
+    String expected = "Uploaded: jmc.cpu.jfr" + System.lineSeparator();
     given().multiPart(jfrFile).when().post("/upload").then().statusCode(200).body(is(expected));
   }
 
   @Test
   public void testPostSet() throws Exception {
-    File jfrFile = new File("src/test/resources/jmc.2.jfr");
+    File jfrFile = new File("src/test/resources/jmc.cpu.jfr");
     assertTrue(jfrFile.exists());
 
-    String expected = "Uploaded: jmc.2.jfr" + System.lineSeparator();
+    String expected = "Uploaded: jmc.cpu.jfr" + System.lineSeparator();
     given().multiPart(jfrFile).when().post("/upload").then().statusCode(200).body(is(expected));
 
-    expected = "Set: jmc.2.jfr" + System.lineSeparator();
-    given().body("jmc.2.jfr").when().post("/set").then().statusCode(200).body(is(expected));
+    expected = "Set: jmc.cpu.jfr" + System.lineSeparator();
+    given().body("jmc.cpu.jfr").when().post("/set").then().statusCode(200).body(is(expected));
   }
 
   @Test
   public void testPostLoad() throws Exception {
-    File jfrFile = new File("src/test/resources/jmc.2.jfr");
+    File jfrFile = new File("src/test/resources/jmc.cpu.jfr");
     assertTrue(jfrFile.exists());
 
-    String expected = "Uploaded: jmc.2.jfr" + System.lineSeparator() + "Set: jmc.2.jfr" + System.lineSeparator();
+    String expected = "Uploaded: jmc.cpu.jfr" + System.lineSeparator() + "Set: jmc.cpu.jfr" + System.lineSeparator();
     given().multiPart(jfrFile).when().post("/load").then().statusCode(200).body(is(expected));
   }
 
   @Test
   public void testGetList() throws Exception {
-    File jfrFile = new File("src/test/resources/jmc.1.jfr");
+    File jfrFile = new File("src/test/resources/jmc.cpu.jfr");
     assertTrue(jfrFile.exists());
 
-    String expected = "Uploaded: jmc.1.jfr" + System.lineSeparator();
+    String expected = "Uploaded: jmc.cpu.jfr" + System.lineSeparator();
     given().multiPart(jfrFile).when().post("/upload").then().statusCode(200).body(is(expected));
 
-    expected = "jmc.1.jfr" + System.lineSeparator();
+    expected = "jmc.cpu.jfr" + System.lineSeparator();
     given().when().get("/list").then().statusCode(200).body(is(expected));
   }
 
   @Test
   public void testGetSearch() throws Exception {
-    File jfrFile = new File("src/test/resources/jmc.2.jfr");
+    File jfrFile = new File("src/test/resources/jmc.cpu.jfr");
     assertTrue(jfrFile.exists());
 
-    String expected = "Uploaded: jmc.2.jfr" + System.lineSeparator() + "Set: jmc.2.jfr" + System.lineSeparator();
+    String expected = "Uploaded: jmc.cpu.jfr" + System.lineSeparator() + "Set: jmc.cpu.jfr" + System.lineSeparator();
     given().multiPart(jfrFile).when().post("/load").then().statusCode(200).body(is(expected));
 
     File outputFile = new File("src/test/resources/search.output.txt");
@@ -99,10 +99,10 @@ public class DatasourceTest {
 
   @Test
   public void testPostQueryTimeseries() throws Exception {
-    File jfrFile = new File("src/test/resources/jmc.2.jfr");
+    File jfrFile = new File("src/test/resources/jmc.cpu.jfr");
     assertTrue(jfrFile.exists());
 
-    String expected = "Uploaded: jmc.2.jfr" + System.lineSeparator() + "Set: jmc.2.jfr" + System.lineSeparator();
+    String expected = "Uploaded: jmc.cpu.jfr" + System.lineSeparator() + "Set: jmc.cpu.jfr" + System.lineSeparator();
     given().multiPart(jfrFile).when().post("/load").then().statusCode(200).body(is(expected));
 
     File inputFile = new File("src/test/resources/query.timeseries.input.txt");
