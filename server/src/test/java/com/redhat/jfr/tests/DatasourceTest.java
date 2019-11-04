@@ -26,14 +26,7 @@ public class DatasourceTest {
         }
       }
     }
-  }
-
-  @AfterAll
-  public static void afterAllDatasourceTest() {
-    File directory = new File("file-uploads");
-    if (directory.exists() && directory.isDirectory()) {
-      directory.delete();
-    }
+    directory.delete();
   }
 
   @Test
@@ -80,6 +73,12 @@ public class DatasourceTest {
     given().multiPart(jfrFile).when().post("/upload").then().statusCode(200).body(is(expected));
 
     expected = "jmc.cpu.jfr" + System.lineSeparator();
+    given().when().get("/list").then().statusCode(200).body(is(expected));
+  }
+
+  @Test
+  public void testGetListEmpty() throws Exception {
+    String expected = "";
     given().when().get("/list").then().statusCode(200).body(is(expected));
   }
 
