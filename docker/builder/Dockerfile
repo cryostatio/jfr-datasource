@@ -1,4 +1,4 @@
-FROM quay.io/quarkus/centos-quarkus-native-s2i:latest
+FROM quay.io/quarkus/ubi-quarkus-native-s2i:19.2.1
 
 USER root
 
