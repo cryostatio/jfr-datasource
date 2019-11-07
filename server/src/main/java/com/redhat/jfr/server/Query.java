@@ -23,11 +23,12 @@ public class Query {
     return this.query.getJsonArray("targets");
   }
 
-  public void applyTargets(ArgRunnable<String> runnable) {
+  public void applyTargets(ArgRunnable<Target> runnable) {
     JsonArray targets = this.query.getJsonArray("targets");
     for (int i = 0; i < targets.size(); i++) {
       JsonObject target = targets.getJsonObject(i);
-      runnable.run(target.getString("target"));
+      Target t = new Target(target.getString("target"), target.getString("type"));
+      runnable.run(t);
     }
   }
 

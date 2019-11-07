@@ -77,58 +77,131 @@ public class RecordingService {
         return JsonUtils.EMPTY_ARRAY;
       }
       JsonArray json = new JsonArray();
-      query.applyTargets((target) -> {
+      query.applyTargets((t) -> {
         JsonObject targetObject = new JsonObject();
         json.add(targetObject);
-
-        targetObject.put("target", target);
-        JsonArray datapointsArray = new JsonArray();
-        targetObject.put("datapoints", datapointsArray);
-
-        if (target.contains(".")) {
-          String eventName = target.substring(0, target.lastIndexOf("."));
-          String eventField = target.substring(target.lastIndexOf(".") + 1);
-          IQuantity start = UnitLookup.EPOCH_MS.quantity(query.getFrom());
-          IQuantity end = UnitLookup.EPOCH_MS.quantity(query.getTo());
-          IRange<IQuantity> range = QuantityRange.createWithEnd(start, end);
-          IItemCollection filteredEvents = events.apply(ItemFilters.type(eventName))
-              .apply(ItemFilters.rangeContainedIn(JfrAttributes.LIFETIME, range));
-
-          if (filteredEvents.hasItems()) {
-            for (IItemIterable itemIterable : filteredEvents) {
-              IType<IItem> type = itemIterable.getType();
-              List<IAttribute<?>> attributes = type.getAttributes();
-              for (IAttribute<?> attribute : attributes) {
-                if (eventField.equals(attribute.getIdentifier())) {
-                  IMemberAccessor<IQuantity, IItem> startTimeAccessor = JfrAttributes.START_TIME.getAccessor(type);
-                  IMemberAccessor<?, IItem> accessor = ItemToolkit.accessor(attribute);
-
-                  for (IItem item : itemIterable) {
-                    if (!(accessor.getMember(item) instanceof IQuantity)) {
-                      return;
-                    }
-                    JsonArray datapoint = new JsonArray();
-                    datapoint.add(((IQuantity) accessor.getMember(item)).doubleValue());
-
-                    long startTime = 0;
-                    try {
-                      startTime = startTimeAccessor.getMember(item).longValueIn(UnitLookup.EPOCH_MS);
-                    } catch (QuantityConversionException e) {
-                      // Do Nothing
-                    }
-                    datapoint.add(startTime);
-                    datapointsArray.add(datapoint);
-                  }
-                }
-              }
-            }
-          }
+        String target = t.getTarget();
+        String type = t.getType();
+        if ("timeserie".equals(type)) {
+          this.getTimeseries(query, target, targetObject);
+        } else if ("table".equals(type)) {
+          this.getTable(query, target, targetObject);
         }
-      });
+      }
+
+      );
       return json.toString();
     } catch (Exception e) {
       e.printStackTrace();
       return JsonUtils.EMPTY_ARRAY;
+    }
+
+  }
+
+  public void getTimeseries(Query query, String target, JsonObject targetObject) {
+    if (target.contains(".")) {
+      targetObject.put("target", target);
+      JsonArray datapointsArray = new JsonArray();
+      targetObject.put("datapoints", datapointsArray);
+
+      String eventName = target.substring(0, target.lastIndexOf("."));
+      String eventField = target.substring(target.lastIndexOf(".") + 1);
+      IQuantity start = UnitLookup.EPOCH_MS.quantity(query.getFrom());
+      IQuantity end = UnitLookup.EPOCH_MS.quantity(query.getTo());
+      IRange<IQuantity> range = QuantityRange.createWithEnd(start, end);
+      IItemCollection filteredEvents = events.apply(ItemFilters.type(eventName))
+          .apply(ItemFilters.rangeContainedIn(JfrAttributes.LIFETIME, range));
+
+      if (filteredEvents.hasItems()) {
+        for (IItemIterable itemIterable : filteredEvents) {
+          IType<IItem> type = itemIterable.getType();
+          List<IAttribute<?>> attributes = type.getAttributes();
+          for (IAttribute<?> attribute : attributes) {
+            if (eventField.equals(attribute.getIdentifier())) {
+              IMemberAccessor<IQuantity, IItem> startTimeAccessor = JfrAttributes.START_TIME.getAccessor(type);
+              IMemberAccessor<?, IItem> accessor = ItemToolkit.accessor(attribute);
+
+              for (IItem item : itemIterable) {
+                if (!(accessor.getMember(item) instanceof IQuantity)) {
+                  return;
+                }
+                JsonArray datapoint = new JsonArray();
+                datapoint.add(((IQuantity) accessor.getMember(item)).doubleValue());
+
+                long startTime = 0;
+                try {
+                  startTime = startTimeAccessor.getMember(item).longValueIn(UnitLookup.EPOCH_MS);
+                } catch (QuantityConversionException e) {
+                  // Do Nothing
+                }
+                datapoint.add(startTime);
+                datapointsArray.add(datapoint);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  public void getTable(Query query, String target, JsonObject targetObject) {
+    if (target.contains(".")) {
+      JsonArray columns = new JsonArray();
+      targetObject.put("columns", columns);
+
+      JsonArray rows = new JsonArray();
+      targetObject.put("rows", rows);
+
+      targetObject.put("type", "table");
+
+      JsonObject timestamp = new JsonObject();
+      timestamp.put("text", "Time");
+      timestamp.put("type", "time");
+      columns.add(timestamp);
+
+
+      String eventName = target.substring(0, target.lastIndexOf("."));
+      String eventField = target.substring(target.lastIndexOf(".") + 1);
+
+      JsonObject field = new JsonObject();
+      field.put("text", eventField);
+      field.put("type", "number");
+      columns.add(field);
+
+      IQuantity start = UnitLookup.EPOCH_MS.quantity(query.getFrom());
+      IQuantity end = UnitLookup.EPOCH_MS.quantity(query.getTo());
+      IRange<IQuantity> range = QuantityRange.createWithEnd(start, end);
+      IItemCollection filteredEvents = events.apply(ItemFilters.type(eventName))
+          .apply(ItemFilters.rangeContainedIn(JfrAttributes.LIFETIME, range));
+          
+      if (filteredEvents.hasItems()) {
+        for (IItemIterable itemIterable : filteredEvents) {
+          IType<IItem> type = itemIterable.getType();
+          List<IAttribute<?>> attributes = type.getAttributes();
+          for (IAttribute<?> attribute : attributes) {
+            if (eventField.equals(attribute.getIdentifier())) {
+              IMemberAccessor<IQuantity, IItem> startTimeAccessor = JfrAttributes.START_TIME.getAccessor(type);
+              IMemberAccessor<?, IItem> accessor = ItemToolkit.accessor(attribute);
+
+              for (IItem item : itemIterable) {
+                if (!(accessor.getMember(item) instanceof IQuantity)) {
+                  return;
+                }
+                JsonArray datapoint = new JsonArray();
+                long startTime = 0;
+                try {
+                  startTime = startTimeAccessor.getMember(item).longValueIn(UnitLookup.EPOCH_MS);
+                } catch (QuantityConversionException e) {
+                  // Do Nothing
+                }
+                datapoint.add(startTime);
+                datapoint.add(((IQuantity) accessor.getMember(item)).doubleValue());
+                rows.add(datapoint);
+              }
+            }
+          }
+        }
+      }
     }
   }
 
