@@ -7,8 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.File;
 import java.nio.file.Files;
 
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import io.quarkus.test.junit.QuarkusTest;
@@ -109,6 +109,26 @@ public class DatasourceTest {
     String input = new String(Files.readAllBytes(inputFile.toPath()));
 
     File outputFile = new File("src/test/resources/query.timeseries.output.txt");
+
+    assertTrue(outputFile.exists());
+    expected = new String(Files.readAllBytes(outputFile.toPath()));
+    given().body(input).when().post("/query").then().statusCode(200).body(is(expected));
+  }
+
+  
+  @Test
+  public void testPostQueryTable() throws Exception {
+    File jfrFile = new File("src/test/resources/jmc.cpu.jfr");
+    assertTrue(jfrFile.exists());
+
+    String expected = "Uploaded: jmc.cpu.jfr" + System.lineSeparator() + "Set: jmc.cpu.jfr" + System.lineSeparator();
+    given().multiPart(jfrFile).when().post("/load").then().statusCode(200).body(is(expected));
+
+    File inputFile = new File("src/test/resources/query.table.input.txt");
+    assertTrue(inputFile.exists());
+    String input = new String(Files.readAllBytes(inputFile.toPath()));
+
+    File outputFile = new File("src/test/resources/query.table.output.txt");
 
     assertTrue(outputFile.exists());
     expected = new String(Files.readAllBytes(outputFile.toPath()));

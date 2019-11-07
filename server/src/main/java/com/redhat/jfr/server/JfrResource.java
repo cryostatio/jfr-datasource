@@ -48,6 +48,7 @@ public class JfrResource {
     try {
       JsonObject body = context.getBodyAsJson();
       if (body != null && !body.isEmpty()) {
+        LOGGER.info(body);
         Query query = new Query(body);
         response.end(service.query(query));
         return;
