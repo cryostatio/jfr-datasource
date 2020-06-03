@@ -63,6 +63,11 @@
       <artifactId>quarkus-vertx-web</artifactId>
       <version>${quarkus.platform.version}</version>
     </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-jaxb</artifactId>
+      <version>${quarkus.platform.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>io.quarkus</groupId>
