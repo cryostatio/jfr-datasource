@@ -16,6 +16,11 @@ For native image support, graalvm 19.3.2 or 20.1.0 is needed with path to it's d
 https://github.com/graalvm/graalvm-ce-builds/releases
 ```
 
+After downloading, run
+```
+/path/to/graal-install/bin/gu install native-image
+```
+
 For containers, podman is needed. Installation instructions are here:
 ```
 https://podman.io/getting-started/installation.html
