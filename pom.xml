@@ -10,9 +10,6 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <imageBuilder>/usr/bin/podman</imageBuilder>
-    <jfrdatasource.imageStream>quay.io/rh-jmc-team/container-jfr</jfrdatasource.imageStream>
-
     <maven-failsafe-plugin.version>2.22.1</maven-failsafe-plugin.version>
     <maven-surefire-plugin.version>2.22.1</maven-surefire-plugin.version>
     <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
@@ -23,11 +20,6 @@
     <rest-assured.version>3.0.0</rest-assured.version>
 
     <jmc.core.version>7.0.0-SNAPSHOT</jmc.core.version>
-
-    <jfrdatasource.webPort>8181</jfrdatasource.webPort>
-    <jfrdatasource.imageVersion>${project.version}</jfrdatasource.imageVersion>
-
-    <baseImage>registry.access.redhat.com/ubi8/ubi</baseImage>
 
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
