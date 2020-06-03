@@ -11,6 +11,16 @@ This project depends on JMC Core libraries which are acquired from the sonatype 
 http://hg.openjdk.java.net/jmc/jmc
 ```
 
+For native image support, graalvm 19.3.2 or 20.1.0 is needed with path to it's directory set via environment variable `GRAALVM_HOME`. This can be downloaded from:
+```
+https://github.com/graalvm/graalvm-ce-builds/releases
+```
+
+For containers, podman is needed. Installation instructions are here:
+```
+https://podman.io/getting-started/installation.html
+```
+
 ### Build and run locally
 
 This project uses [Quarkus](https://quarkus.io), which can produce a JAR to run in a JVM, or an executable native image.
@@ -24,6 +34,11 @@ To build a native image instead:
 mvn -Pnative clean verify
 ```
 Native image builds may use more than 4G of RAM to complete.
+
+To build a native image within a container, for a consistent environment:
+```
+ mvn -Pnative -Dquarkus.native.container-runtime=podman verify
+```
 
 #### Run the server
 
@@ -46,46 +61,12 @@ grafana-cli --pluginsDir <path-to-your-plugins-directory> plugins install grafan
 - Set the URL to the jfr-datasource (default: `http://localhost:8080`)
 - Create a panel that pulls from the data source and plots a timeseries
 
+### Building a container image
 
-### Build and run via S2I
+This project comes with a Dockerfile to produce a container image with the native image result.
 
-This project has support for building a runtime image via S2I
-
-Build the builder and runtime images
 ```
-pushd docker/builder
-docker build . -t jfr-datasource-builder
-popd
-pushd docker/runtime
-docker build . -t jfr-datasource-runtime
-popd
-```
-
-#### Run the S2I build
-```
-s2i build https://github.com/rh-jmc-team/jfr-datasource jfr-datasource-builder jfr-datasource --runtime-image jfr-datasource-runtime --runtime-artifact /home/quarkus/application:.
-```
-
-Run the image
-```
-docker run --rm -it -p 8080:8080 jfr-datasource
-```
-
-### Run on OpenShift
-
-Build the builder image
-```
-oc new-build https://github.com/rh-jmc-team/jfr-datasource.git --context-dir=docker/builder --name jfr-datasource-builder
-```
-
-Deploy the datasource using the builder image
-```
-oc new-app -i jfr-datasource-builder:latest~https://github.com/rh-jmc-team/jfr-datasource.git --name=jfr-datasource
-```
-
-Expose the datasource
-```
-oc expose svc/jfr-datasource
+podman build -f src/main/docker/Dockerfile.native -t quay.io/rh-jmc-team/jfr-datasource .
 ```
 
 ## API
