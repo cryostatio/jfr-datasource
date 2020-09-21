@@ -21,6 +21,8 @@ After downloading, run
 /path/to/graal-install/bin/gu install native-image
 ```
 
+`libz.a` is also required to complete native image builds. On Fedora, `dnf install zlib-devel`.
+
 For containers, podman is needed. Installation instructions are here:
 ```
 https://podman.io/getting-started/installation.html
