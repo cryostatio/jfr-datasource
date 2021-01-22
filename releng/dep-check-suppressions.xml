@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+    <suppress>
+        <notes><![CDATA[
+        Suppresses false positives for io.smallrye.reactive/mutiny and related projects
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/io\.smallrye\.reactive/.*mutiny.*@.*$</packageUrl>
+        <cpe>cpe:/a:mutiny:mutiny</cpe>
+    </suppress>
+</suppressions>

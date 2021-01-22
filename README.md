@@ -8,10 +8,10 @@ This demonstrates how a simple json data source can be used in Grafana to read t
 
 This project depends on JMC Core libraries which are acquired from the sonatype repositories. They can also be built from the 'core' maven project at:
 ```
-http://hg.openjdk.java.net/jmc/jmc
+https://github.com/openjdk/jmc7
 ```
 
-For native image support, graalvm 19.3.2 or 20.1.0 is needed with path to it's directory set via environment variable `GRAALVM_HOME`. This can be downloaded from:
+For native image support, graalvm 20.3.0 (Java 11 version) is needed with path to it's directory set via environment variable `GRAALVM_HOME`. This can be downloaded from:
 ```
 https://github.com/graalvm/graalvm-ce-builds/releases
 ```
@@ -30,7 +30,7 @@ https://podman.io/getting-started/installation.html
 
 ### Build and run locally
 
-This project uses [Quarkus](https://quarkus.io), which can produce a JAR to run in a JVM, or an executable native image.
+This project uses [Quarkus](https://quarkus.io), which can produce a JAR to run in a JVM (JDK 11+), or an executable native image.
 
 To build a JAR:
 ```
@@ -51,11 +51,11 @@ To build a native image within a container, for a consistent environment:
 
 If you built a JAR:
 ```
-java -jar ./server/target/server-1.0.0-SNAPSHOT-runner.jar
+java -jar ./target/jfr-datasource-2.0.0-SNAPSHOT-runner.jar
 ```
 If you built a native image:
 ```
-./server/target/server-1.0.0-SNAPSHOT-runner
+./target/jfr-datasource-2.0.0-SNAPSHOT-runner
 ```
 
 ### Run Grafana

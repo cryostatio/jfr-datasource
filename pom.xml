@@ -4,7 +4,7 @@
   <groupId>com.redhat.jfr.datasource</groupId>
   <artifactId>jfr-datasource</artifactId>
   <version>1.0.0-SNAPSHOT</version>
-  <name>JFR Prototype Datasource</name>
+  <name>JFR Datasource</name>
 
   <properties>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -14,17 +14,18 @@
     <maven-surefire-plugin.version>2.22.1</maven-surefire-plugin.version>
     <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
 
-    <java.version>1.8</java.version>
+    <java.version>11</java.version>
     <junit.version>5.5.1</junit.version>
-    <vertx.version>3.7.0</vertx.version>
     <rest-assured.version>3.0.0</rest-assured.version>
 
-    <jmc.core.version>7.0.0-SNAPSHOT</jmc.core.version>
+    <jmc.core.version>7.1.0-SNAPSHOT</jmc.core.version>
 
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
-    <quarkus.platform.version>1.8.3.Final</quarkus.platform.version>
-    <quarkus-plugin.version>1.8.3.Final</quarkus-plugin.version>
+    <quarkus.platform.version>1.11.0.Final</quarkus.platform.version>
+    <quarkus-plugin.version>1.11.0.Final</quarkus-plugin.version>
+
+    <org.owasp.dependency.check.version>6.0.5</org.owasp.dependency.check.version>
   </properties>
 
   <dependencyManagement>
@@ -140,6 +141,33 @@
         </plugins>
       </build>
     </profile>
+    <profile>
+      <id>dep-check</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.owasp</groupId>
+            <artifactId>dependency-check-maven</artifactId>
+            <version>${org.owasp.dependency.check.version}</version>
+            <configuration>
+              <failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>
+              <suppressionFiles>
+                <suppressionFile>releng/dep-check-suppressions.xml</suppressionFile>
+              </suppressionFiles>
+            </configuration>
+            <executions>
+              <execution>
+                <id>check-for-vulnerable-deps</id>
+                <goals>
+                  <goal>check</goal>
+                </goals>
+                <phase>validate</phase>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 
   <build>
@@ -151,8 +179,7 @@
           <fork>true</fork>
           <meminitial>128m</meminitial>
           <maxmem>1024m</maxmem>
-          <source>${java.version}</source>
-          <target>${java.version}</target>
+          <release>${java.version}</release>
         </configuration>
       </plugin>
       <plugin>
