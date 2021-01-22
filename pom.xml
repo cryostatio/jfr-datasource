@@ -18,7 +18,7 @@
     <junit.version>5.5.1</junit.version>
     <rest-assured.version>3.0.0</rest-assured.version>
 
-    <jmc.core.version>7.0.0-SNAPSHOT</jmc.core.version>
+    <jmc.core.version>7.1.0-SNAPSHOT</jmc.core.version>
 
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
