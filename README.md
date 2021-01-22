@@ -11,7 +11,7 @@ This project depends on JMC Core libraries which are acquired from the sonatype 
 https://github.com/openjdk/jmc7
 ```
 
-For native image support, graalvm 20.3.0 is needed with path to it's directory set via environment variable `GRAALVM_HOME`. This can be downloaded from:
+For native image support, graalvm 20.3.0 (Java 11 version) is needed with path to it's directory set via environment variable `GRAALVM_HOME`. This can be downloaded from:
 ```
 https://github.com/graalvm/graalvm-ce-builds/releases
 ```
@@ -30,7 +30,7 @@ https://podman.io/getting-started/installation.html
 
 ### Build and run locally
 
-This project uses [Quarkus](https://quarkus.io), which can produce a JAR to run in a JVM, or an executable native image.
+This project uses [Quarkus](https://quarkus.io), which can produce a JAR to run in a JVM (JDK 11+), or an executable native image.
 
 To build a JAR:
 ```
