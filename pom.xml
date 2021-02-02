@@ -26,6 +26,7 @@
     <quarkus-plugin.version>1.10.0.Final</quarkus-plugin.version>
 
     <org.owasp.dependency.check.version>6.0.5</org.owasp.dependency.check.version>
+    <build-helper-maven-plugin.version>3.2.0</build-helper-maven-plugin.version>
   </properties>
 
   <dependencyManagement>
@@ -191,7 +192,6 @@
           </execution>
         </executions>
       </plugin>
-
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${maven-surefire-plugin.version}</version>
@@ -200,6 +200,30 @@
             <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
           </systemProperties>
         </configuration>
+      </plugin>
+      <!-- Attach Quarkus runner jar to build: https://stackoverflow.com/a/64808544 -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>${build-helper-maven-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>attach-artifacts</id>
+            <phase>package</phase>
+            <goals>
+              <goal>attach-artifact</goal>
+            </goals>
+            <configuration>
+              <artifacts>
+                <artifact>
+                  <file>${project.build.directory}/${project.build.finalName}-runner.jar</file>
+                  <classifier>runner</classifier>
+                  <type>jar</type>
+                </artifact>
+              </artifacts>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
