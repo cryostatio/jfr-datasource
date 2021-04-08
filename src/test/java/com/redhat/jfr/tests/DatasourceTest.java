@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.File;
 import java.nio.file.Files;
 
+import org.eclipse.microprofile.config.ConfigProvider;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -16,9 +18,12 @@ import io.quarkus.test.junit.QuarkusTest;
 @QuarkusTest
 public class DatasourceTest {
 
+  @ConfigProperty(name = "quarkus.http.body.uploads-directory")
+  String jfrDir;
+
   @AfterEach
   public void afterEachDatasourceTest() {
-    File directory = new File("file-uploads");
+    File directory = new File(jfrDir);
     if (directory.exists() && directory.isDirectory()) {
       for (File f : directory.listFiles()) {
         if (f.isFile()) {
