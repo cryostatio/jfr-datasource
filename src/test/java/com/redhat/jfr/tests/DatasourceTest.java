@@ -7,8 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.File;
 import java.nio.file.Files;
 
+import org.eclipse.microprofile.config.ConfigProvider;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import io.quarkus.test.junit.QuarkusTest;
@@ -18,7 +19,7 @@ public class DatasourceTest {
 
   @AfterEach
   public void afterEachDatasourceTest() {
-    File directory = new File("file-uploads");
+    File directory = new File(System.getProperty("java.io.tmpdir"), "jfr-file-uploads");
     if (directory.exists() && directory.isDirectory()) {
       for (File f : directory.listFiles()) {
         if (f.isFile()) {

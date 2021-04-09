@@ -10,6 +10,8 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
 import com.redhat.jfr.events.RecordingService;
 
 import io.quarkus.vertx.web.Route;
@@ -22,8 +24,9 @@ import io.vertx.ext.web.RoutingContext;
 
 public class JfrResource {
   private static final Logger LOGGER = LoggerFactory.getLogger(RecordingService.class);
-
-  private static final String jfrDir = "file-uploads";
+  
+  @ConfigProperty(name = "quarkus.http.body.uploads-directory")
+  String jfrDir;
 
   @Inject
   RecordingService service;
