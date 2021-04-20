@@ -1,4 +1,4 @@
-package com.redhat.jfr.server;
+package io.cryostat.jfr.datasource.server;
 
 public class Target {
   private final String target;
