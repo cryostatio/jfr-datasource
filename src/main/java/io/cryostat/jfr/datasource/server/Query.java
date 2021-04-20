@@ -1,11 +1,10 @@
-package com.redhat.jfr.server;
+package io.cryostat.jfr.datasource.server;
 
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 
-import com.redhat.jfr.utils.ArgRunnable;
-
+import io.cryostat.jfr.datasource.utils.ArgRunnable;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
