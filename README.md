@@ -75,7 +75,7 @@ grafana-cli --pluginsDir <path-to-your-plugins-directory> plugins install grafan
 This project comes with a Dockerfile to produce a container image with the native image result.
 
 ```
-podman build -f src/main/docker/Dockerfile.native -t quay.io/rh-jmc-team/jfr-datasource .
+podman build -f src/main/docker/Dockerfile.native -t quay.io/cryostat/jfr-datasource .
 ```
 
 ## API
