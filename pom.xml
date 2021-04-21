@@ -18,7 +18,7 @@
     <junit.version>5.5.1</junit.version>
     <rest-assured.version>3.0.0</rest-assured.version>
 
-    <jmc.core.version>7.1.0-SNAPSHOT</jmc.core.version>
+    <jmc.core.version>7.1.1</jmc.core.version>
 
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
@@ -81,14 +81,10 @@
 
   <repositories>
     <repository>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <id>oss.sonatype.org-snapshot</id>
-      <url>http://oss.sonatype.org/content/repositories/snapshots</url>
+      <id>adopt</id>
+      <name>AdoptOpenJDK</name>
+      <url>https://adoptopenjdk.jfrog.io/adoptopenjdk/jmc-libs</url>
+      <layout>default</layout>
     </repository>
   </repositories>
 
