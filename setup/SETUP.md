@@ -1,7 +1,7 @@
 # Deploying pre-built images on OpenShift
 
 ```
-oc new-app https://quay.io/repository/rh-jmc-team/jfr-datasource
+oc new-app https://quay.io/repository/cryostat/jfr-datasource
 oc expose svc/jfr-datasource
 
 oc new-app grafana/grafana:6.2.2 -e GF_INSTALL_PLUGINS=grafana-simple-json-datasource
