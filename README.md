@@ -1,5 +1,9 @@
 # jfr-datasource
 
+[![Quay Repository](https://quay.io/repository/cryostat/jfr-datasource/status "Quay Repository")](https://quay.io/repository/cryostat/jfr-datasource)
+
+![Build Status](https://github.com/cryostatio/jfr-datasource/actions/workflows/ci.yaml/badge.svg)
+
 This demonstrates how a simple json data source can be used in Grafana to read the events of a JFR file
 
 ## Usage
