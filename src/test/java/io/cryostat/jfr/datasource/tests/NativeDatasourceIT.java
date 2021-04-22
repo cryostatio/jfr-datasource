@@ -1,4 +1,4 @@
-package com.redhat.jfr.tests;
+package io.cryostat.jfr.datasource.tests;
 
 import io.quarkus.test.junit.NativeImageTest;
 

@@ -1,4 +1,4 @@
-package com.redhat.jfr.events;
+package io.cryostat.jfr.datasource.events;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,9 +6,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
-
-import com.redhat.jfr.json.JsonUtils;
-import com.redhat.jfr.server.Query;
 
 import org.openjdk.jmc.common.item.IAttribute;
 import org.openjdk.jmc.common.item.IItem;
@@ -29,6 +26,8 @@ import org.openjdk.jmc.flightrecorder.JfrLoaderToolkit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.cryostat.jfr.datasource.json.JsonUtils;
+import io.cryostat.jfr.datasource.server.Query;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
