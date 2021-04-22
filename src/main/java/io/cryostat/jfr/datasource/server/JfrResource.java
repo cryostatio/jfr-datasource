@@ -1,4 +1,4 @@
-package com.redhat.jfr.server;
+package io.cryostat.jfr.datasource.server;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,8 +12,7 @@ import javax.inject.Inject;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import com.redhat.jfr.events.RecordingService;
-
+import io.cryostat.jfr.datasource.events.RecordingService;
 import io.quarkus.vertx.web.Route;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
