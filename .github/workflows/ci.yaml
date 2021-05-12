@@ -20,7 +20,7 @@ jobs:
     - uses: skjolber/maven-cache-github-action@v1
       with:
         step: restore
-    - run: mvn -B -U clean verify
+    - run: mvn -B -U -Dsurefire.excludedEnvironmentVariables=MAVEN_OPTS clean verify
     - uses: skjolber/maven-cache-github-action@v1
       with:
         step: save
