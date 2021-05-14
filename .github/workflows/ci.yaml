@@ -17,11 +17,10 @@ jobs:
       with:
         java-version: '11'
         distribution: 'adopt'
-    - uses: skjolber/maven-cache-github-action@v1
+    - uses: actions/cache@v2
       with:
-        step: restore
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
     - run: mvn -B -U clean verify
-    - uses: skjolber/maven-cache-github-action@v1
-      with:
-        step: save
-
