@@ -92,11 +92,30 @@ $ curl "localhost:8080/"
 
 #### POST /upload
 
-Expects a JFR file upload. Used to upload a JFR file to the server. Responds with the uploaded filename
+Expects a JFR file upload. Used to upload a JFR file to the server. Responds with the uploaded filename.
+
+The webserver sets a default maximum file upload size of 10GB
+(`application.properties`: `quarkus.http.limits.max-body-size=10G`).
+This can be overridden on a deployed instance by setting the environment variable
+`QUARKUS_HTTP_LIMITS_MAX_BODY_SIZE` and restarting the instance.
 
 CURL Example
 ```
 $ curl -F "file=@/home/user/some-file.jfr" "localhost:8080/upload"
+```
+
+It is also possible to bypass this webserver HTTP body size limit by copying
+the large JFR file directly into the webserver's filesystem storage location.
+This location is defined as
+(`application.properties`: `quarkus.http.body.uploads-directory=${java.io.tmpdir}${file.separator}jfr-file-uploads`),
+or `/tmp/jfr-file-uploads`. The following example assumes that the logged in
+user has sufficient permissions and that the `jfr-datasource` container has
+an OpenShift Service and Route exposing it to traffic from outside the cluster.
+
+`oc` and CURL Example
+```
+$ oc cp my-large-file.jfr cryostat-sample-79cc897c8-smcrg:/tmp/jfr-file-uploads/my-large-file.jfr -c cryostat-sample-jfr-datasource
+$ curl -X POST --data "my-large-file.jfr" "https://cryostat-sample-jfr-datasource-myproject.apps-crc.testing/set"
 ```
 
 #### POST /set
@@ -111,6 +130,11 @@ $ curl -X POST --data "some-file" "localhost:8080/set"
 #### POST /load
 
 Expects a JFR file upload. Performs `Upload` and `Set` in sequence. Responds with the uploaded and selected filename.
+
+The webserver sets a default maximum file upload size. If the file to be
+uploaded exceeds this size then either the limit can be raised or the `/load`
+operation can be decomposed into two steps and the size limit worked around.
+See the documentation for `POST /load` for further detail.
 
 CURL Example
 ```
