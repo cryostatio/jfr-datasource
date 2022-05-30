@@ -32,6 +32,7 @@
     <quarkus.native.additional-build-args>
       -H:ReflectionConfigurationResources=reflection.json
     </quarkus.native.additional-build-args>
+    <com.diffplug.spotless.maven.plugin.version>2.10.1</com.diffplug.spotless.maven.plugin.version>
   </properties>
 
   <dependencyManagement>
@@ -211,6 +212,34 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>${com.diffplug.spotless.maven.plugin.version}</version>
+        <executions>
+          <execution>
+            <id>spotless</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <java>
+            <googleJavaFormat>
+              <version>1.7</version>
+              <style>AOSP</style>
+            </googleJavaFormat>
+            <trimTrailingWhitespace/>
+            <endWithNewline/>
+            <importOrder>
+              <order>java,javax,org.openjdk.jmc,io.cryostat,</order>
+            </importOrder>
+            <removeUnusedImports/>
+          </java>
+        </configuration>
       </plugin>
     </plugins>
   </build>

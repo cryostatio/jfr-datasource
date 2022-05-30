@@ -1,19 +1,19 @@
 package io.cryostat.jfr.datasource.server;
 
 public class Target {
-  private final String target;
-  private final String type;
+    private final String target;
+    private final String type;
 
-  public Target(String target, String type) {
-    this.target = target;
-    this.type = type;
-  }
-  
-  public String getTarget() {
-    return this.target;
-  }
+    public Target(String target, String type) {
+        this.target = target;
+        this.type = type;
+    }
 
-  public String getType() {
-    return this.type;
-  }
+    public String getTarget() {
+        return this.target;
+    }
+
+    public String getType() {
+        return this.type;
+    }
 }

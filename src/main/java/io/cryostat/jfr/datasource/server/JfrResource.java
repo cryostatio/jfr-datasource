@@ -10,9 +10,8 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
 import io.cryostat.jfr.datasource.events.RecordingService;
+
 import io.quarkus.vertx.web.Route;
 import io.smallrye.common.annotation.Blocking;
 import io.vertx.core.http.HttpServerResponse;
@@ -21,163 +20,168 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.FileUpload;
 import io.vertx.ext.web.RoutingContext;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 public class JfrResource {
-  private static final Logger LOGGER = LoggerFactory.getLogger(RecordingService.class);
-  
-  @ConfigProperty(name = "quarkus.http.body.uploads-directory")
-  String jfrDir;
+    private static final Logger LOGGER = LoggerFactory.getLogger(RecordingService.class);
 
-  @Inject
-  RecordingService service;
+    @ConfigProperty(name = "quarkus.http.body.uploads-directory")
+    String jfrDir;
 
-  @Route(path = "/")
-  void root(RoutingContext context) {
-    HttpServerResponse response = context.response();
-    response.end();
-  }
+    @Inject RecordingService service;
 
-  @Route(path = "/search")
-  void search(RoutingContext context) {
-    HttpServerResponse response = context.response();
-    setHeaders(response);
-    response.end(service.search());
-  }
-
-  @Route(path = "/query")
-  void query(RoutingContext context) {
-    HttpServerResponse response = context.response();
-    setHeaders(response);
-    try {
-      JsonObject body = context.getBodyAsJson();
-      if (body != null && !body.isEmpty()) {
-        LOGGER.info(body);
-        Query query = new Query(body);
-        response.end(service.query(query));
-        return;
-      }
-    } catch (Exception e) {
+    @Route(path = "/")
+    void root(RoutingContext context) {
+        HttpServerResponse response = context.response();
+        response.end();
     }
 
-    response.setStatusCode(400);
-    response.end("Error: invalid query body");
-  }
+    @Route(path = "/search")
+    void search(RoutingContext context) {
+        HttpServerResponse response = context.response();
+        setHeaders(response);
+        response.end(service.search());
+    }
 
-  @Route(path = "/annotations")
-  void annotations(RoutingContext context) {
-    HttpServerResponse response = context.response();
-    setHeaders(response);
-    response.end(service.annotations());
-  }
-
-  @Route(path = "/set")
-  @Blocking
-  void set(RoutingContext context) {
-    HttpServerResponse response = context.response();
-    setHeaders(response);
-
-    String file = context.getBodyAsString();
-    String filePath = jfrDir + File.separator + file;
-
-    setFile(filePath, file, response, new StringBuilder());
-  }
-
-  @Route(path = "/upload")
-  @Blocking
-  void upload(RoutingContext context) {
-    HttpServerResponse response = context.response();
-    setHeaders(response);
-
-    final StringBuilder responseBuilder = new StringBuilder();
-
-    uploadFiles(context.fileUploads(), responseBuilder);
-    response.end(responseBuilder.toString());
-  }
-
-  @Route(path = "/load")
-  @Blocking
-  void load(RoutingContext context) {
-    HttpServerResponse response = context.response();
-    setHeaders(response);
-
-    final StringBuilder responseBuilder = new StringBuilder();
-
-    String lastFile = uploadFiles(context.fileUploads(), responseBuilder);
-    String filePath = jfrDir + File.separator + lastFile;
-
-    setFile(filePath, lastFile, response, responseBuilder);
-  }
-
-  @Route(path = "/list")
-  void list(RoutingContext context) {
-    HttpServerResponse response = context.response();
-    setHeaders(response);
-
-    File dir = new File(jfrDir);
-    StringBuilder responseBuilder = new StringBuilder();
-    if (dir.exists() && dir.isDirectory()) {
-      for (File f : dir.listFiles()) {
-        if (f.isFile()) {
-          responseBuilder.append(f.getName());
-          responseBuilder.append(System.lineSeparator());
+    @Route(path = "/query")
+    void query(RoutingContext context) {
+        HttpServerResponse response = context.response();
+        setHeaders(response);
+        try {
+            JsonObject body = context.getBodyAsJson();
+            if (body != null && !body.isEmpty()) {
+                LOGGER.info(body);
+                Query query = new Query(body);
+                response.end(service.query(query));
+                return;
+            }
+        } catch (Exception e) {
         }
-      }
+
+        response.setStatusCode(400);
+        response.end("Error: invalid query body");
     }
 
-    response.end(responseBuilder.toString());
-  }
+    @Route(path = "/annotations")
+    void annotations(RoutingContext context) {
+        HttpServerResponse response = context.response();
+        setHeaders(response);
+        response.end(service.annotations());
+    }
 
-  private String uploadFiles(Set<FileUpload> uploads, StringBuilder responseBuilder) {
-    String lastFile = "";
-    for (FileUpload fileUpload : uploads) {
-      Path source = Paths.get(fileUpload.uploadedFileName());
-      String uploadedFile = source.getFileName().toString();
-      lastFile = uploadedFile;
+    @Route(path = "/set")
+    @Blocking
+    void set(RoutingContext context) {
+        HttpServerResponse response = context.response();
+        setHeaders(response);
 
-      Path dest = source.resolveSibling(fileUpload.fileName());
+        String file = context.getBodyAsString();
+        String filePath = jfrDir + File.separator + file;
 
-      if (Files.exists(dest)) {
-        int attempts = 0;
-        while (Files.exists(dest) && attempts < 10) {
-          dest = source.resolveSibling(UUID.randomUUID().toString() + '-' + fileUpload.fileName());
-          attempts++;
+        setFile(filePath, file, response, new StringBuilder());
+    }
+
+    @Route(path = "/upload")
+    @Blocking
+    void upload(RoutingContext context) {
+        HttpServerResponse response = context.response();
+        setHeaders(response);
+
+        final StringBuilder responseBuilder = new StringBuilder();
+
+        uploadFiles(context.fileUploads(), responseBuilder);
+        response.end(responseBuilder.toString());
+    }
+
+    @Route(path = "/load")
+    @Blocking
+    void load(RoutingContext context) {
+        HttpServerResponse response = context.response();
+        setHeaders(response);
+
+        final StringBuilder responseBuilder = new StringBuilder();
+
+        String lastFile = uploadFiles(context.fileUploads(), responseBuilder);
+        String filePath = jfrDir + File.separator + lastFile;
+
+        setFile(filePath, lastFile, response, responseBuilder);
+    }
+
+    @Route(path = "/list")
+    void list(RoutingContext context) {
+        HttpServerResponse response = context.response();
+        setHeaders(response);
+
+        File dir = new File(jfrDir);
+        StringBuilder responseBuilder = new StringBuilder();
+        if (dir.exists() && dir.isDirectory()) {
+            for (File f : dir.listFiles()) {
+                if (f.isFile()) {
+                    responseBuilder.append(f.getName());
+                    responseBuilder.append(System.lineSeparator());
+                }
+            }
         }
-      }
-      try {
-        Files.move(source, dest);
-        logUploadedFile(dest.getFileName().toString(), responseBuilder);
-        lastFile = dest.getFileName().toString();
-      } catch (IOException e) {
-        logUploadedFile(uploadedFile, responseBuilder);
-      }
+
+        response.end(responseBuilder.toString());
     }
 
-    return lastFile;
-  }
+    private String uploadFiles(Set<FileUpload> uploads, StringBuilder responseBuilder) {
+        String lastFile = "";
+        for (FileUpload fileUpload : uploads) {
+            Path source = Paths.get(fileUpload.uploadedFileName());
+            String uploadedFile = source.getFileName().toString();
+            lastFile = uploadedFile;
 
-  private void logUploadedFile(String file, StringBuilder responseBuilder) {
-    responseBuilder.append("Uploaded: " + file);
-    responseBuilder.append(System.lineSeparator());
-    LOGGER.info("Uploaded: " + file);
-  }
+            Path dest = source.resolveSibling(fileUpload.fileName());
 
-  private void setFile(String absolutePath, String filename, HttpServerResponse response,
-      StringBuilder responseBuilder) {
-    try {
-      service.loadEvents(absolutePath);
-      responseBuilder.append("Set: " + filename);
-      responseBuilder.append(System.lineSeparator());
-      response.end(responseBuilder.toString());
-    } catch (IOException e) {
-      response.setStatusCode(404);
-      response.end();
+            if (Files.exists(dest)) {
+                int attempts = 0;
+                while (Files.exists(dest) && attempts < 10) {
+                    dest =
+                            source.resolveSibling(
+                                    UUID.randomUUID().toString() + '-' + fileUpload.fileName());
+                    attempts++;
+                }
+            }
+            try {
+                Files.move(source, dest);
+                logUploadedFile(dest.getFileName().toString(), responseBuilder);
+                lastFile = dest.getFileName().toString();
+            } catch (IOException e) {
+                logUploadedFile(uploadedFile, responseBuilder);
+            }
+        }
+
+        return lastFile;
     }
-  }
 
-  private void setHeaders(HttpServerResponse response) {
-    response.putHeader("content-type", "application/json");
-    response.putHeader("Access-Control-Allow-Origin", "*");
-    response.putHeader("Access-Control-Allow-Methods", "POST");
-    response.putHeader("Access-Control-Allow-Headers", "accept, content-type");
-  }
+    private void logUploadedFile(String file, StringBuilder responseBuilder) {
+        responseBuilder.append("Uploaded: " + file);
+        responseBuilder.append(System.lineSeparator());
+        LOGGER.info("Uploaded: " + file);
+    }
+
+    private void setFile(
+            String absolutePath,
+            String filename,
+            HttpServerResponse response,
+            StringBuilder responseBuilder) {
+        try {
+            service.loadEvents(absolutePath);
+            responseBuilder.append("Set: " + filename);
+            responseBuilder.append(System.lineSeparator());
+            response.end(responseBuilder.toString());
+        } catch (IOException e) {
+            response.setStatusCode(404);
+            response.end();
+        }
+    }
+
+    private void setHeaders(HttpServerResponse response) {
+        response.putHeader("content-type", "application/json");
+        response.putHeader("Access-Control-Allow-Origin", "*");
+        response.putHeader("Access-Control-Allow-Methods", "POST");
+        response.putHeader("Access-Control-Allow-Headers", "accept, content-type");
+    }
 }
