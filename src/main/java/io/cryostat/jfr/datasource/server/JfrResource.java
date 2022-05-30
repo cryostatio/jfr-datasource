@@ -14,6 +14,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import io.cryostat.jfr.datasource.events.RecordingService;
 import io.quarkus.vertx.web.Route;
+import io.smallrye.common.annotation.Blocking;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
@@ -70,6 +71,7 @@ public class JfrResource {
   }
 
   @Route(path = "/set")
+  @Blocking
   void set(RoutingContext context) {
     HttpServerResponse response = context.response();
     setHeaders(response);
@@ -81,22 +83,25 @@ public class JfrResource {
   }
 
   @Route(path = "/upload")
+  @Blocking
   void upload(RoutingContext context) {
     HttpServerResponse response = context.response();
     setHeaders(response);
 
-    StringBuilder responseBuilder = new StringBuilder();
-    uploadFiles(context.fileUploads(), responseBuilder);
+    final StringBuilder responseBuilder = new StringBuilder();
 
+    uploadFiles(context.fileUploads(), responseBuilder);
     response.end(responseBuilder.toString());
   }
 
   @Route(path = "/load")
+  @Blocking
   void load(RoutingContext context) {
     HttpServerResponse response = context.response();
     setHeaders(response);
 
-    StringBuilder responseBuilder = new StringBuilder();
+    final StringBuilder responseBuilder = new StringBuilder();
+
     String lastFile = uploadFiles(context.fileUploads(), responseBuilder);
     String filePath = jfrDir + File.separator + lastFile;
 
