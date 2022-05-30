@@ -14,6 +14,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import io.cryostat.jfr.datasource.events.RecordingService;
 import io.quarkus.vertx.web.Route;
+import io.smallrye.common.annotation.Blocking;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
@@ -70,6 +71,7 @@ public class JfrResource {
   }
 
   @Route(path = "/set")
+  @Blocking
   void set(RoutingContext context) {
     HttpServerResponse response = context.response();
     setHeaders(response);
@@ -77,57 +79,33 @@ public class JfrResource {
     String file = context.getBodyAsString();
     String filePath = jfrDir + File.separator + file;
 
-    context.vertx().executeBlocking(
-      future -> {
-        future.complete();
-        setFile(filePath, file, response, new StringBuilder());
-      }, false,
-      result -> {}
-    );
+    setFile(filePath, file, response, new StringBuilder());
   }
 
   @Route(path = "/upload")
+  @Blocking
   void upload(RoutingContext context) {
     HttpServerResponse response = context.response();
     setHeaders(response);
 
     final StringBuilder responseBuilder = new StringBuilder();
-    
-    context.vertx().executeBlocking(
-      future -> {
-        uploadFiles(context.fileUploads(), responseBuilder);
-        future.complete();
-    }, false, 
-      result -> {
-        response.end(responseBuilder.toString());
-      }
-    );
+
+    uploadFiles(context.fileUploads(), responseBuilder);
+    response.end(responseBuilder.toString());
   }
 
   @Route(path = "/load")
+  @Blocking
   void load(RoutingContext context) {
     HttpServerResponse response = context.response();
     setHeaders(response);
 
     final StringBuilder responseBuilder = new StringBuilder();
 
-    context.vertx().executeBlocking(
-      future -> {
-        String lastFile = uploadFiles(context.fileUploads(), responseBuilder);
-        future.complete(lastFile);
-      }, false,
-      result -> {
-        String lastFile = (String) result.result();
-        String filePath = jfrDir + File.separator + lastFile;
-        context.vertx().executeBlocking(
-          nextFuture -> {
-            nextFuture.complete();
-            setFile(filePath, lastFile, response, responseBuilder);
-          }, false,
-          nextResult -> {}
-        );
-      }
-    );
+    String lastFile = uploadFiles(context.fileUploads(), responseBuilder);
+    String filePath = jfrDir + File.separator + lastFile;
+
+    setFile(filePath, lastFile, response, responseBuilder);
   }
 
   @Route(path = "/list")
