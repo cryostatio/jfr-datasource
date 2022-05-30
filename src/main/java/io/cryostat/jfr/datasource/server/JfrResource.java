@@ -77,7 +77,13 @@ public class JfrResource {
     String file = context.getBodyAsString();
     String filePath = jfrDir + File.separator + file;
 
-    setFile(filePath, file, response, new StringBuilder());
+    context.vertx().executeBlocking(
+      future -> {
+        future.complete();
+        setFile(filePath, file, response, new StringBuilder());
+      }, false,
+      result -> {}
+    );
   }
 
   @Route(path = "/upload")
@@ -86,9 +92,14 @@ public class JfrResource {
     setHeaders(response);
 
     StringBuilder responseBuilder = new StringBuilder();
-    uploadFiles(context.fileUploads(), responseBuilder);
-
-    response.end(responseBuilder.toString());
+    
+    context.vertx().executeBlocking(
+      future -> {
+      uploadFiles(context.fileUploads(), responseBuilder);
+      future.complete();
+    }, false, 
+      result -> response.end(responseBuilder.toString())
+    );
   }
 
   @Route(path = "/load")
@@ -96,11 +107,25 @@ public class JfrResource {
     HttpServerResponse response = context.response();
     setHeaders(response);
 
-    StringBuilder responseBuilder = new StringBuilder();
-    String lastFile = uploadFiles(context.fileUploads(), responseBuilder);
-    String filePath = jfrDir + File.separator + lastFile;
+    final StringBuilder responseBuilder = new StringBuilder();
 
-    setFile(filePath, lastFile, response, responseBuilder);
+    context.vertx().executeBlocking(
+      future -> {
+        String lastFile = uploadFiles(context.fileUploads(), responseBuilder);
+        future.complete(lastFile);
+      }, false,
+      result -> {
+        String lastFile = (String) result.result();
+        String filePath = jfrDir + File.separator + lastFile;
+        context.vertx().executeBlocking(
+          nextFuture -> {
+            nextFuture.complete();
+            setFile(filePath, lastFile, response, responseBuilder);
+          }, false,
+          nextResult -> {}
+        );
+      }
+    );
   }
 
   @Route(path = "/list")
