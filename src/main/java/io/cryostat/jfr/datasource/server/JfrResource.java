@@ -91,14 +91,16 @@ public class JfrResource {
     HttpServerResponse response = context.response();
     setHeaders(response);
 
-    StringBuilder responseBuilder = new StringBuilder();
+    final StringBuilder responseBuilder = new StringBuilder();
     
     context.vertx().executeBlocking(
       future -> {
-      uploadFiles(context.fileUploads(), responseBuilder);
-      future.complete();
+        uploadFiles(context.fileUploads(), responseBuilder);
+        future.complete();
     }, false, 
-      result -> response.end(responseBuilder.toString())
+      result -> {
+        response.end(responseBuilder.toString());
+      }
     );
   }
 
