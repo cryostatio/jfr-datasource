@@ -138,6 +138,19 @@ public class JfrResource {
         response.end(stringBuilder.toString());
     }
 
+    @Route(path = "/delete")
+    @Blocking
+    void delete(RoutingContext context) {
+        HttpServerResponse response = context.response();
+        setHeaders(response);
+
+        final StringBuilder stringBuilder = new StringBuilder();
+        String fileName = context.getBodyAsString();
+        deleteFile(fileName, stringBuilder);
+
+        response.end(stringBuilder.toString());
+    }
+
     private String uploadFiles(Set<FileUpload> uploads, StringBuilder responseBuilder) {
         String lastFile = "";
         for (FileUpload fileUpload : uploads) {
@@ -201,6 +214,18 @@ public class JfrResource {
                     } catch (IOException e) {
                     }
                 }
+            }
+        }
+    }
+
+    private void deleteFile(String filename, StringBuilder stringBuilder) {
+        File dir = new File(jfrDir);
+
+        if (dir.exists() && dir.isDirectory()) {
+            try {
+                Files.deleteIfExists(Paths.get(dir.getAbsolutePath(), filename));
+                logDeletedFile(filename, stringBuilder);
+            } catch (IOException e) {
             }
         }
     }
