@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -134,7 +136,12 @@ public class JfrResource {
         setHeaders(response);
 
         final StringBuilder stringBuilder = new StringBuilder();
-        deleteAllFiles(stringBuilder);
+        List<String> deletedFiles = deleteAllFiles();
+
+        for (String deletedFile : deletedFiles) {
+            stringBuilder.append(deletedFile);
+            stringBuilder.append(System.lineSeparator());
+        }
 
         response.end(stringBuilder.toString());
     }
@@ -145,9 +152,8 @@ public class JfrResource {
         HttpServerResponse response = context.response();
         setHeaders(response);
 
-        final StringBuilder stringBuilder = new StringBuilder();
         String fileName = context.getBodyAsString();
-        deleteFile(fileName, stringBuilder);
+        deleteFile(fileName);
 
         response.end(stringBuilder.toString());
     }
@@ -204,28 +210,31 @@ public class JfrResource {
         }
     }
 
-    private void deleteAllFiles(StringBuilder stringBuilder) {
+    private List<String> deleteAllFiles() {
         File dir = new File(jfrDir);
+        final List<String> deleteFiles = new ArrayList<>();
         if (dir.exists() && dir.isDirectory()) {
             for (File f : dir.listFiles()) {
                 if (f.isFile()) {
                     try {
                         Files.delete(f.toPath());
-                        logDeletedFile(f.getName(), stringBuilder);
+                        deleteFiles.add(f.getName());
+                        LOGGER.info("Deleted: " + f.getName());
                     } catch (IOException e) {
                     }
                 }
             }
         }
+        return deleteFiles;
     }
 
-    private void deleteFile(String filename, StringBuilder stringBuilder) {
+    private void deleteFile(String filename) {
         File dir = new File(jfrDir);
 
         if (dir.exists() && dir.isDirectory()) {
             try {
                 Files.deleteIfExists(Paths.get(dir.getAbsolutePath(), filename));
-                logDeletedFile(filename, stringBuilder);
+                LOGGER.info("Deleted: " + filename);
             } catch (IOException e) {
             }
         }
