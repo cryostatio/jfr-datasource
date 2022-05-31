@@ -205,6 +205,12 @@ public class JfrResource {
         }
     }
 
+    private void logDeletedFile(String file, StringBuilder stringBuilder) {
+        stringBuilder.append("Deleted: " + file);
+        stringBuilder.append(System.lineSeparator());
+        LOGGER.info("Deleted: " + file);
+    }
+
     private void setHeaders(HttpServerResponse response) {
         response.putHeader("content-type", "application/json");
         response.putHeader("Access-Control-Allow-Origin", "*");
