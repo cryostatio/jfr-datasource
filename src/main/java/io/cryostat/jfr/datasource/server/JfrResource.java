@@ -128,7 +128,7 @@ public class JfrResource {
 
     @Route(path = "/delete_all")
     @Blocking
-    void delete(RoutingContext context) {
+    void deleteAll(RoutingContext context) {
         HttpServerResponse response = context.response();
         setHeaders(response);
 
