@@ -14,6 +14,7 @@ import io.cryostat.jfr.datasource.events.RecordingService;
 
 import io.quarkus.vertx.web.Route;
 import io.smallrye.common.annotation.Blocking;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
@@ -126,7 +127,7 @@ public class JfrResource {
         response.end(responseBuilder.toString());
     }
 
-    @Route(path = "/delete_all")
+    @Route(path = "/delete_all", methods = HttpMethod.DELETE)
     @Blocking
     void deleteAll(RoutingContext context) {
         HttpServerResponse response = context.response();
@@ -138,7 +139,7 @@ public class JfrResource {
         response.end(stringBuilder.toString());
     }
 
-    @Route(path = "/delete")
+    @Route(path = "/delete", methods = HttpMethod.DELETE)
     @Blocking
     void delete(RoutingContext context) {
         HttpServerResponse response = context.response();
