@@ -139,7 +139,7 @@ public class JfrResource {
         List<String> deletedFiles = deleteAllFiles();
 
         for (String deletedFile : deletedFiles) {
-            stringBuilder.append(deletedFile);
+            stringBuilder.append("Deleted: " + deletedFile);
             stringBuilder.append(System.lineSeparator());
         }
 
