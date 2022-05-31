@@ -155,7 +155,7 @@ public class JfrResource {
         String fileName = context.getBodyAsString();
         deleteFile(fileName);
 
-        response.end(stringBuilder.toString());
+        response.setStatusCode(204).end();
     }
 
     private String uploadFiles(Set<FileUpload> uploads, StringBuilder responseBuilder) {
