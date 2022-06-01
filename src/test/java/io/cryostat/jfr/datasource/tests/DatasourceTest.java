@@ -147,4 +147,29 @@ public class DatasourceTest {
         expected = new String(Files.readAllBytes(outputFile.toPath()));
         given().body(input).when().post("/query").then().statusCode(200).body(is(expected));
     }
+
+    @Test
+    public void testDeleteFileExist() {
+        File jfrFile = new File("src/test/resources/jmc.cpu.jfr");
+        assertTrue(jfrFile.exists());
+
+        String expected = "Uploaded: jmc.cpu.jfr" + System.lineSeparator();
+        given().multiPart(jfrFile).when().post("/upload").then().statusCode(200).body(is(expected));
+
+        given().body("jmc.cpu.jfr").when().delete("/delete").then().statusCode(204).body(is(""));
+    }
+
+    @Test
+    public void testDeleteFileNotExist() {
+        given().body("jmc.cpu.jfr").when().delete("/delete").then().statusCode(404).body(is(""));
+
+        File jfrFile = new File("src/test/resources/jmc.cpu.jfr");
+        assertTrue(jfrFile.exists());
+
+        String expected = "Uploaded: jmc.cpu.jfr" + System.lineSeparator();
+        given().multiPart(jfrFile).when().post("/upload").then().statusCode(200).body(is(expected));
+
+        given().body("jmc.cpu.jfr").when().delete("/delete").then().statusCode(204).body(is(""));
+        given().body("jmc.cpu.jfr").when().delete("/delete").then().statusCode(404).body(is(""));
+    }
 }
