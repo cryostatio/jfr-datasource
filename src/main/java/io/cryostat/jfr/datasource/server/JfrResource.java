@@ -250,6 +250,8 @@ public class JfrResource {
             } else {
                 throw new FileNotFoundException(filename + " does not exist");
             }
+        } else {
+            throw new FileNotFoundException(filename + " does not exist");
         }
     }
 
