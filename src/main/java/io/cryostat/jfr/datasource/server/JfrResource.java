@@ -1,6 +1,7 @@
 package io.cryostat.jfr.datasource.server;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -136,14 +137,17 @@ public class JfrResource {
         setHeaders(response);
 
         final StringBuilder stringBuilder = new StringBuilder();
-        List<String> deletedFiles = deleteAllFiles();
-
-        for (String deletedFile : deletedFiles) {
-            stringBuilder.append("Deleted: " + deletedFile);
-            stringBuilder.append(System.lineSeparator());
+        try {
+            List<String> deletedFiles = deleteAllFiles();
+            for (String deletedFile : deletedFiles) {
+                stringBuilder.append("Deleted: " + deletedFile);
+                stringBuilder.append(System.lineSeparator());
+            }
+            response.end(stringBuilder.toString());
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage(), e);
+            response.setStatusCode(500).end();
         }
-
-        response.end(stringBuilder.toString());
     }
 
     @Route(path = "/delete", methods = HttpMethod.DELETE)
@@ -153,9 +157,21 @@ public class JfrResource {
         setHeaders(response);
 
         String fileName = context.getBodyAsString();
-        deleteFile(fileName);
-
-        response.setStatusCode(204).end();
+        if (fileName == null || fileName.isEmpty()) {
+            response.setStatusCode(400);
+        } else {
+            try {
+                deleteFile(fileName);
+                response.setStatusCode(204);
+            } catch (FileNotFoundException e) {
+                LOGGER.error(e.getMessage(), e);
+                response.setStatusCode(404);
+            } catch (IOException e) {
+                LOGGER.error(e.getMessage(), e);
+                response.setStatusCode(500);
+            }
+        }
+        response.end();
     }
 
     private String uploadFiles(Set<FileUpload> uploads, StringBuilder responseBuilder) {
@@ -210,32 +226,29 @@ public class JfrResource {
         }
     }
 
-    private List<String> deleteAllFiles() {
+    private List<String> deleteAllFiles() throws IOException {
         File dir = new File(jfrDir);
         final List<String> deleteFiles = new ArrayList<>();
         if (dir.exists() && dir.isDirectory()) {
             for (File f : dir.listFiles()) {
                 if (f.isFile()) {
-                    try {
-                        Files.delete(f.toPath());
-                        deleteFiles.add(f.getName());
-                        LOGGER.info("Deleted: " + f.getName());
-                    } catch (IOException e) {
-                    }
+                    Files.delete(f.toPath());
+                    deleteFiles.add(f.getName());
+                    LOGGER.info("Deleted: " + f.getName());
                 }
             }
         }
         return deleteFiles;
     }
 
-    private void deleteFile(String filename) {
+    private void deleteFile(String filename) throws IOException {
         File dir = new File(jfrDir);
 
         if (dir.exists() && dir.isDirectory()) {
-            try {
-                Files.deleteIfExists(Paths.get(dir.getAbsolutePath(), filename));
+            if (Files.deleteIfExists(Paths.get(dir.getAbsolutePath(), filename))) {
                 LOGGER.info("Deleted: " + filename);
-            } catch (IOException e) {
+            } else {
+                throw new FileNotFoundException(filename + " does not exist");
             }
         }
     }
