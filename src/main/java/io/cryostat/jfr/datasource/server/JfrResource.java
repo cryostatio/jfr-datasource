@@ -31,9 +31,15 @@ public class JfrResource {
     @ConfigProperty(name = "quarkus.http.body.uploads-directory")
     String jfrDir;
 
-    @Inject RecordingService recordingService;
+    RecordingService recordingService;
 
-    @Inject FileSystemService fsService;
+    FileSystemService fsService;
+
+    @Inject
+    public JfrResource(RecordingService recordingService, FileSystemService fsService) {
+        this.recordingService = recordingService;
+        this.fsService = fsService;
+    }
 
     @Route(path = "/")
     void root(RoutingContext context) {
