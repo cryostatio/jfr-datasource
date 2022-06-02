@@ -42,20 +42,20 @@ public class JfrResource {
     }
 
     @Route(path = "/")
-    void root(RoutingContext context) {
+    public void root(RoutingContext context) {
         HttpServerResponse response = context.response();
         response.end();
     }
 
     @Route(path = "/search")
-    void search(RoutingContext context) {
+    public void search(RoutingContext context) {
         HttpServerResponse response = context.response();
         setHeaders(response);
         response.end(recordingService.search());
     }
 
     @Route(path = "/query")
-    void query(RoutingContext context) {
+    public void query(RoutingContext context) {
         HttpServerResponse response = context.response();
         setHeaders(response);
         try {
@@ -74,7 +74,7 @@ public class JfrResource {
     }
 
     @Route(path = "/annotations")
-    void annotations(RoutingContext context) {
+    public void annotations(RoutingContext context) {
         HttpServerResponse response = context.response();
         setHeaders(response);
         response.end(recordingService.annotations());
@@ -82,7 +82,7 @@ public class JfrResource {
 
     @Route(path = "/set")
     @Blocking
-    void set(RoutingContext context) {
+    public void set(RoutingContext context) {
         HttpServerResponse response = context.response();
         setHeaders(response);
 
@@ -94,7 +94,7 @@ public class JfrResource {
 
     @Route(path = "/upload")
     @Blocking
-    void upload(RoutingContext context) {
+    public void upload(RoutingContext context) {
         HttpServerResponse response = context.response();
         setHeaders(response);
 
@@ -106,7 +106,7 @@ public class JfrResource {
 
     @Route(path = "/load")
     @Blocking
-    void load(RoutingContext context) {
+    public void load(RoutingContext context) {
         HttpServerResponse response = context.response();
         setHeaders(response);
 
@@ -119,7 +119,7 @@ public class JfrResource {
     }
 
     @Route(path = "/list")
-    void list(RoutingContext context) {
+    public void list(RoutingContext context) {
         HttpServerResponse response = context.response();
         setHeaders(response);
 
@@ -138,7 +138,7 @@ public class JfrResource {
 
     @Route(path = "/delete_all", methods = HttpMethod.DELETE)
     @Blocking
-    void deleteAll(RoutingContext context) {
+    public void deleteAll(RoutingContext context) {
         HttpServerResponse response = context.response();
         setHeaders(response);
 
@@ -158,7 +158,7 @@ public class JfrResource {
 
     @Route(path = "/delete", methods = HttpMethod.DELETE)
     @Blocking
-    void delete(RoutingContext context) {
+    public void delete(RoutingContext context) {
         HttpServerResponse response = context.response();
         setHeaders(response);
 
