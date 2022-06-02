@@ -3,9 +3,7 @@ package io.cryostat.jfr.datasource.server;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -14,6 +12,7 @@ import java.util.UUID;
 import javax.inject.Inject;
 
 import io.cryostat.jfr.datasource.events.RecordingService;
+import io.cryostat.jfr.datasource.sys.FileSystemService;
 
 import io.quarkus.vertx.web.Route;
 import io.smallrye.common.annotation.Blocking;
@@ -32,7 +31,9 @@ public class JfrResource {
     @ConfigProperty(name = "quarkus.http.body.uploads-directory")
     String jfrDir;
 
-    @Inject RecordingService service;
+    @Inject RecordingService recordingService;
+
+    @Inject FileSystemService fsService;
 
     @Route(path = "/")
     void root(RoutingContext context) {
@@ -44,7 +45,7 @@ public class JfrResource {
     void search(RoutingContext context) {
         HttpServerResponse response = context.response();
         setHeaders(response);
-        response.end(service.search());
+        response.end(recordingService.search());
     }
 
     @Route(path = "/query")
@@ -56,7 +57,7 @@ public class JfrResource {
             if (body != null && !body.isEmpty()) {
                 LOGGER.info(body);
                 Query query = new Query(body);
-                response.end(service.query(query));
+                response.end(recordingService.query(query));
                 return;
             }
         } catch (Exception e) {
@@ -70,7 +71,7 @@ public class JfrResource {
     void annotations(RoutingContext context) {
         HttpServerResponse response = context.response();
         setHeaders(response);
-        response.end(service.annotations());
+        response.end(recordingService.annotations());
     }
 
     @Route(path = "/set")
@@ -116,18 +117,17 @@ public class JfrResource {
         HttpServerResponse response = context.response();
         setHeaders(response);
 
-        File dir = new File(jfrDir);
-        StringBuilder responseBuilder = new StringBuilder();
-        if (dir.exists() && dir.isDirectory()) {
-            for (File f : dir.listFiles()) {
-                if (f.isFile()) {
-                    responseBuilder.append(f.getName());
-                    responseBuilder.append(System.lineSeparator());
-                }
+        try {
+            StringBuilder responseBuilder = new StringBuilder();
+            for (String filename : listFiles()) {
+                responseBuilder.append(filename);
+                responseBuilder.append(System.lineSeparator());
             }
+            response.end(responseBuilder.toString());
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage(), e);
+            response.setStatusCode(500).end();
         }
-
-        response.end(responseBuilder.toString());
     }
 
     @Route(path = "/delete_all", methods = HttpMethod.DELETE)
@@ -174,18 +174,32 @@ public class JfrResource {
         response.end();
     }
 
+    private List<String> listFiles() throws IOException {
+        final List<String> files = new ArrayList<>();
+        Path dir = fsService.pathOf(jfrDir);
+        if (fsService.exists(dir) && fsService.isDirectory(dir)) {
+            for (Path f : fsService.list(dir)) {
+                if (fsService.isRegularFile(f)) {
+                    fsService.delete(f);
+                    files.add(f.getFileName().toString());
+                }
+            }
+        }
+        return files;
+    }
+
     private String uploadFiles(Set<FileUpload> uploads, StringBuilder responseBuilder) {
         String lastFile = "";
         for (FileUpload fileUpload : uploads) {
-            Path source = Paths.get(fileUpload.uploadedFileName());
+            Path source = fsService.pathOf(fileUpload.uploadedFileName());
             String uploadedFile = source.getFileName().toString();
             lastFile = uploadedFile;
 
             Path dest = source.resolveSibling(fileUpload.fileName());
 
-            if (Files.exists(dest)) {
+            if (fsService.exists(dest)) {
                 int attempts = 0;
-                while (Files.exists(dest) && attempts < 10) {
+                while (fsService.exists(dest) && attempts < 10) {
                     dest =
                             source.resolveSibling(
                                     UUID.randomUUID().toString() + '-' + fileUpload.fileName());
@@ -193,7 +207,7 @@ public class JfrResource {
                 }
             }
             try {
-                Files.move(source, dest);
+                fsService.move(source, dest);
                 logUploadedFile(dest.getFileName().toString(), responseBuilder);
                 lastFile = dest.getFileName().toString();
             } catch (IOException e) {
@@ -216,7 +230,7 @@ public class JfrResource {
             HttpServerResponse response,
             StringBuilder responseBuilder) {
         try {
-            service.loadEvents(absolutePath);
+            recordingService.loadEvents(absolutePath);
             responseBuilder.append("Set: " + filename);
             responseBuilder.append(System.lineSeparator());
             response.end(responseBuilder.toString());
@@ -227,14 +241,14 @@ public class JfrResource {
     }
 
     private List<String> deleteAllFiles() throws IOException {
-        File dir = new File(jfrDir);
         final List<String> deleteFiles = new ArrayList<>();
-        if (dir.exists() && dir.isDirectory()) {
-            for (File f : dir.listFiles()) {
-                if (f.isFile()) {
-                    Files.delete(f.toPath());
-                    deleteFiles.add(f.getName());
-                    LOGGER.info("Deleted: " + f.getName());
+        Path dir = fsService.pathOf(jfrDir);
+        if (fsService.exists(dir) && fsService.isDirectory(dir)) {
+            for (Path f : fsService.list(dir)) {
+                if (fsService.isRegularFile(f)) {
+                    fsService.delete(f);
+                    deleteFiles.add(f.getFileName().toString());
+                    LOGGER.info("Deleted: " + f.getFileSystem().toString());
                 }
             }
         }
@@ -242,10 +256,11 @@ public class JfrResource {
     }
 
     private void deleteFile(String filename) throws IOException {
-        File dir = new File(jfrDir);
+        Path dir = fsService.pathOf(jfrDir);
 
-        if (dir.exists() && dir.isDirectory()) {
-            if (Files.deleteIfExists(Paths.get(dir.getAbsolutePath(), filename))) {
+        if (fsService.exists(dir) && fsService.isDirectory(dir)) {
+            if (fsService.deleteIfExists(
+                    fsService.pathOf(dir.toAbsolutePath().toString(), filename))) {
                 LOGGER.info("Deleted: " + filename);
             } else {
                 throw new FileNotFoundException(filename + " does not exist");
