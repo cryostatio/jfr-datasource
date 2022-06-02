@@ -134,7 +134,7 @@ Expects a JFR file upload. Performs `Upload` and `Set` in sequence. Responds wit
 The webserver sets a default maximum file upload size. If the file to be
 uploaded exceeds this size then either the limit can be raised or the `/load`
 operation can be decomposed into two steps and the size limit worked around.
-See the documentation for `POST /load` for further detail.
+See the documentation for `POST /upload` for further detail.
 
 CURL Example
 ```
