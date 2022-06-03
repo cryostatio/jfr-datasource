@@ -186,7 +186,6 @@ public class JfrResource {
         if (fsService.exists(dir) && fsService.isDirectory(dir)) {
             for (Path f : fsService.list(dir)) {
                 if (fsService.isRegularFile(f)) {
-                    fsService.delete(f);
                     files.add(f.getFileName().toString());
                 }
             }
