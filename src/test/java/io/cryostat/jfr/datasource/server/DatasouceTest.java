@@ -1,4 +1,4 @@
-package io.cryostat.jfr.datasource.tests;
+package io.cryostat.jfr.datasource.server;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
@@ -12,8 +12,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
-public class DatasourceTest {
-
+public class DatasouceTest {
     @AfterEach
     public void afterEachDatasourceTest() {
         File directory = new File(System.getProperty("java.io.tmpdir"), "jfr-file-uploads");
