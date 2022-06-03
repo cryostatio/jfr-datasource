@@ -4,7 +4,7 @@
 
 ![Build Status](https://github.com/cryostatio/jfr-datasource/actions/workflows/ci.yaml/badge.svg)
 
-This demonstrates how a simple json data source can be used in Grafana to read the events of a JFR file
+This demonstrates how a simple json data source can be used in Grafana to read the events of a JFR file.
 
 ## Usage
 
@@ -83,7 +83,7 @@ podman build -f src/main/docker/Dockerfile.native -t quay.io/cryostat/jfr-dataso
 
 #### GET /
 
-Responds with 200 OK. Used to verify server is available
+Responds with 200 OK. Used to verify server is available.
 
 CURL Example
 ```
@@ -120,7 +120,7 @@ $ curl -X POST --data "my-large-file.jfr" "https://cryostat-sample-jfr-datasourc
 
 #### POST /set
 
-Sets a JFR file for querying requests. Expects file name specified via POST body
+Sets a JFR file for querying requests. Expects file name specified via POST body.
 
 CURL Example
 ```
@@ -134,7 +134,7 @@ Expects a JFR file upload. Performs `Upload` and `Set` in sequence. Responds wit
 The webserver sets a default maximum file upload size. If the file to be
 uploaded exceeds this size then either the limit can be raised or the `/load`
 operation can be decomposed into two steps and the size limit worked around.
-See the documentation for `POST /load` for further detail.
+See the documentation for `POST /upload` for further detail.
 
 CURL Example
 ```
@@ -150,13 +150,31 @@ CURL Example
 $ curl "localhost:8080/list"
 ```
 
+#### DELETE /delete
+
+Deletes an individual JFR file. Expects file name specified via DELETE body.
+
+CURL Example
+```
+$ curl -X DELETE --data "some-file" "localhost:8080/delete"
+```
+
+#### DELETE /delete_all
+
+Delete all JFR files.
+
+CURL Example
+```
+$ curl -X DELETE "localhost:8080/delete_all"
+```
+
 ### Query Endpoints
 
-These endpoints match those used by the Grafana Simple JSON datasource
+These endpoints match those used by the Grafana Simple JSON datasource.
 
 #### GET /search
 
-Responds with a JSON array containing the selectable query elements
+Responds with a JSON array containing the selectable query elements.
 
 CURL Example
 ```
@@ -165,7 +183,7 @@ $ curl "localhost:8080/search"
 
 #### POST /query
 
-Responds with a JSON array containing elements for a query. The query body format matches that of the Grafana Simple JSON datasource
+Responds with a JSON array containing elements for a query. The query body format matches that of the Grafana Simple JSON datasource.
 
 CURL Example
 ```
@@ -265,7 +283,7 @@ jdk.ThreadContextSwitchRate
 
 ### Unsupported JFR Events
 
-This is a list of events which have no attributes that work out-of-the-box or no relevant attributes when visualized in Grafana
+This is a list of events which have no attributes that work out-of-the-box or no relevant attributes when visualized in Grafana.
 
 ```
 jdk.ActiveSetting
