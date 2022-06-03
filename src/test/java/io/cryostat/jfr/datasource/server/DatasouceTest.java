@@ -4,6 +4,7 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
 
 import java.io.File;
 import java.io.IOException;
@@ -498,7 +499,7 @@ public class DatasouceTest {
                                 System.getProperty("java.io.tmpdir"),
                                 "jfr-file-uploads",
                                 "jmc.cpu.jfr"));
-        
+
         Mockito.when(fsService.deleteIfExists(Mockito.any(Path.class)))
                 .thenAnswer(
                         new Answer<Boolean>() {
@@ -541,7 +542,7 @@ public class DatasouceTest {
                                 System.getProperty("java.io.tmpdir"),
                                 "jfr-file-uploads",
                                 "jmc.cpu.jfr"));
-        
+
         Mockito.when(fsService.deleteIfExists(Mockito.any(Path.class)))
                 .thenAnswer(
                         new Answer<Boolean>() {
@@ -552,6 +553,77 @@ public class DatasouceTest {
                             }
                         });
         given().body("jmc.cpu.jfr").when().delete("/delete").then().statusCode(404).body(is(""));
+    }
+
+    @Test
+    public void testDeleteFileIOFail() throws Exception {
+        File jfrFile = new File("src/test/resources/jmc.cpu.jfr");
+        assertTrue(jfrFile.exists());
+
+        Mockito.when(fsService.pathOf(Mockito.anyString()))
+                .thenAnswer(
+                        new Answer<Path>() {
+                            @Override
+                            public Path answer(InvocationOnMock invocation) throws IOException {
+                                String uploadedFileName = invocation.getArgument(0);
+                                return Path.of(uploadedFileName);
+                            }
+                        });
+        Mockito.when(fsService.exists(Mockito.any(Path.class)))
+                .thenAnswer(
+                        new Answer<Boolean>() {
+                            @Override
+                            public Boolean answer(InvocationOnMock invocation) throws IOException {
+                                Path target = invocation.getArgument(0);
+                                return Files.exists(target);
+                            }
+                        });
+        Mockito.when(fsService.move(Mockito.any(Path.class), Mockito.any(Path.class)))
+                .thenAnswer(
+                        new Answer<Path>() {
+                            @Override
+                            public Path answer(InvocationOnMock invocation) throws IOException {
+                                Path source = invocation.getArgument(0);
+                                Path dest = invocation.getArgument(1);
+                                return Files.move(source, dest);
+                            }
+                        });
+
+        String expected = "Uploaded: jmc.cpu.jfr" + System.lineSeparator();
+        given().multiPart(jfrFile).when().post("/upload").then().statusCode(200).body(is(expected));
+
+        Mockito.when(fsService.pathOf(Mockito.anyString()))
+                .thenReturn(Path.of(System.getProperty("java.io.tmpdir"), "jfr-file-uploads"));
+
+        Mockito.when(fsService.exists(Mockito.any(Path.class)))
+                .thenAnswer(
+                        new Answer<Boolean>() {
+                            @Override
+                            public Boolean answer(InvocationOnMock invocation) throws IOException {
+                                Path target = invocation.getArgument(0);
+                                return Files.exists(target);
+                            }
+                        });
+        Mockito.when(fsService.isDirectory(Mockito.any(Path.class)))
+                .thenAnswer(
+                        new Answer<Boolean>() {
+                            @Override
+                            public Boolean answer(InvocationOnMock invocation) throws IOException {
+                                Path target = invocation.getArgument(0);
+                                return Files.isDirectory(target);
+                            }
+                        });
+        Mockito.when(fsService.pathOf(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(
+                        Path.of(
+                                System.getProperty("java.io.tmpdir"),
+                                "jfr-file-uploads",
+                                "jmc.cpu.jfr"));
+
+        Mockito.when(fsService.deleteIfExists(Mockito.any(Path.class)))
+                .thenThrow(new IOException());
+
+        given().body("jmc.cpu.jfr").when().delete("/delete").then().statusCode(500).body(is(""));
     }
 
     @Test
@@ -653,5 +725,94 @@ public class DatasouceTest {
         expected = "Deleted: jmc.cpu.jfr" + System.lineSeparator();
         given().when().delete("/delete_all").then().statusCode(200).body(is(expected));
         given().when().delete("/delete_all").then().statusCode(200).body(is(""));
+    }
+
+    @Test
+    public void testDeleteAllIOFail() throws Exception {
+        File jfrFile = new File("src/test/resources/jmc.cpu.jfr");
+        assertTrue(jfrFile.exists());
+
+        Mockito.when(fsService.pathOf(Mockito.anyString()))
+                .thenAnswer(
+                        new Answer<Path>() {
+                            @Override
+                            public Path answer(InvocationOnMock invocation) throws IOException {
+                                String uploadedFileName = invocation.getArgument(0);
+                                return Path.of(uploadedFileName);
+                            }
+                        });
+        Mockito.when(fsService.exists(Mockito.any(Path.class)))
+                .thenAnswer(
+                        new Answer<Boolean>() {
+                            @Override
+                            public Boolean answer(InvocationOnMock invocation) throws IOException {
+                                Path target = invocation.getArgument(0);
+                                return Files.exists(target);
+                            }
+                        });
+        Mockito.when(fsService.move(Mockito.any(Path.class), Mockito.any(Path.class)))
+                .thenAnswer(
+                        new Answer<Path>() {
+                            @Override
+                            public Path answer(InvocationOnMock invocation) throws IOException {
+                                Path source = invocation.getArgument(0);
+                                Path dest = invocation.getArgument(1);
+                                return Files.move(source, dest);
+                            }
+                        });
+
+        String expected = "Uploaded: jmc.cpu.jfr" + System.lineSeparator();
+        given().multiPart(jfrFile).when().post("/upload").then().statusCode(200).body(is(expected));
+
+        Mockito.when(fsService.pathOf(Mockito.anyString()))
+                .thenReturn(Path.of(System.getProperty("java.io.tmpdir"), "jfr-file-uploads"));
+
+        Mockito.when(fsService.exists(Mockito.any(Path.class)))
+                .thenAnswer(
+                        new Answer<Boolean>() {
+                            @Override
+                            public Boolean answer(InvocationOnMock invocation) throws IOException {
+                                Path target = invocation.getArgument(0);
+                                return Files.exists(target);
+                            }
+                        });
+        Mockito.when(fsService.isDirectory(Mockito.any(Path.class)))
+                .thenAnswer(
+                        new Answer<Boolean>() {
+                            @Override
+                            public Boolean answer(InvocationOnMock invocation) throws IOException {
+                                Path target = invocation.getArgument(0);
+                                return Files.isDirectory(target);
+                            }
+                        });
+        Mockito.when(fsService.list(Mockito.any(Path.class)))
+                .thenAnswer(
+                        new Answer<List<Path>>() {
+                            @Override
+                            public List<Path> answer(InvocationOnMock invocation)
+                                    throws IOException {
+                                final List<Path> files = new ArrayList<>();
+                                Path dir =
+                                        Path.of(
+                                                System.getProperty("java.io.tmpdir"),
+                                                "jfr-file-uploads");
+                                for (Path file : Files.list(dir).collect(Collectors.toList())) {
+                                    files.add(file);
+                                }
+                                return files;
+                            }
+                        });
+        Mockito.when(fsService.isRegularFile(Mockito.any(Path.class)))
+                .thenAnswer(
+                        new Answer<Boolean>() {
+                            @Override
+                            public Boolean answer(InvocationOnMock invocation) throws IOException {
+                                Path target = invocation.getArgument(0);
+                                return Files.isRegularFile(target);
+                            }
+                        });
+        doThrow(new IOException()).when(fsService).delete(Mockito.any(Path.class));
+
+        given().when().delete("/delete_all").then().statusCode(500).body(is(""));
     }
 }
