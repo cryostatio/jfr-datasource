@@ -43,16 +43,16 @@ Native image builds may use more than 4G of RAM to complete.
 
 To build a native image within a container, for a consistent environment:
 ```
- mvn -Pnative -Dquarkus.native.container-build=true -Dquarkus.native.container-runtime=podman \
-    -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel:20.3.1.2-Final-java11 \
-    clean verify
+mvn -Pnative -Dquarkus.native.container-build=true -Dquarkus.native.container-runtime=podman \
+-Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel:20.3.1.2-Final-java11 \
+clean verify
 ```
 
 #### Run the server
 
 If you built a JAR:
 ```
-java -jar ./target/jfr-datasource-2.0.0-SNAPSHOT-runner.jar
+java -jar target/quarkus-app/quarkus-run.jar
 ```
 If you built a native image:
 ```
