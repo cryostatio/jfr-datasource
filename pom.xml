@@ -22,11 +22,10 @@
 
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
-    <quarkus.platform.version>1.13.7.Final</quarkus.platform.version>
-    <quarkus-plugin.version>1.13.7.Final</quarkus-plugin.version>
+    <quarkus.platform.version>2.0.3.Final</quarkus.platform.version>
+    <quarkus-plugin.version>2.0.3.Final</quarkus-plugin.version>
 
     <org.owasp.dependency.check.version>6.0.5</org.owasp.dependency.check.version>
-    <build-helper-maven-plugin.version>3.2.0</build-helper-maven-plugin.version>
 
     <quarkus.native.enable-http-url-handler>true</quarkus.native.enable-http-url-handler>
     <quarkus.native.additional-build-args>
