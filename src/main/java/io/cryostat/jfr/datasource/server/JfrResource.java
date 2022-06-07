@@ -22,14 +22,14 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.FileUpload;
 import io.vertx.ext.web.RoutingContext;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JfrResource {
+    private static final Logger LOGGER = LoggerFactory.getLogger(JfrResource.class);
 
     @ConfigProperty(name = "quarkus.http.body.uploads-directory")
     String jfrDir;
-
-    @Inject Logger logger;
 
     @Inject RecordingService recordingService;
 
@@ -55,7 +55,7 @@ public class JfrResource {
         try {
             JsonObject body = context.getBodyAsJson();
             if (body != null && !body.isEmpty()) {
-                logger.info(body);
+                LOGGER.info(body.toString());
                 Query query = new Query(body);
                 response.end(recordingService.query(query));
                 return;
@@ -125,7 +125,7 @@ public class JfrResource {
             }
             response.end(responseBuilder.toString());
         } catch (IOException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             response.setStatusCode(500).end();
         }
     }
@@ -145,7 +145,7 @@ public class JfrResource {
             }
             response.end(stringBuilder.toString());
         } catch (IOException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             response.setStatusCode(500).end();
         }
     }
@@ -164,10 +164,10 @@ public class JfrResource {
                 deleteFile(fileName);
                 response.setStatusCode(204);
             } catch (FileNotFoundException e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
                 response.setStatusCode(404);
             } catch (IOException e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
                 response.setStatusCode(500);
             }
         }
@@ -220,7 +220,7 @@ public class JfrResource {
     private void logUploadedFile(String file, StringBuilder responseBuilder) {
         responseBuilder.append("Uploaded: " + file);
         responseBuilder.append(System.lineSeparator());
-        logger.info("Uploaded: " + file);
+        LOGGER.info("Uploaded: " + file);
     }
 
     private void setFile(
@@ -247,7 +247,7 @@ public class JfrResource {
                 if (fsService.isRegularFile(f)) {
                     fsService.delete(f);
                     deleteFiles.add(f.getFileName().toString());
-                    logger.info("Deleted: " + f.getFileSystem().toString());
+                    LOGGER.info("Deleted: " + f.getFileSystem().toString());
                 }
             }
         }
@@ -260,7 +260,7 @@ public class JfrResource {
         if (fsService.exists(dir) && fsService.isDirectory(dir)) {
             if (fsService.deleteIfExists(
                     fsService.pathOf(dir.toAbsolutePath().toString(), filename))) {
-                logger.info("Deleted: " + filename);
+                LOGGER.info("Deleted: " + filename);
             } else {
                 throw new FileNotFoundException(filename + " does not exist");
             }
