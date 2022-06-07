@@ -44,7 +44,7 @@ Native image builds may use more than 4G of RAM to complete.
 To build a native image within a container, for a consistent environment:
 ```
 mvn -Pnative -Dquarkus.native.container-build=true -Dquarkus.native.container-runtime=podman \
--Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel:20.3.1.2-Final-java11 \
+-Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel:21.3-java11 \
 clean verify
 ```
 
