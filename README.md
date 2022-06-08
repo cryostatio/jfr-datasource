@@ -56,7 +56,7 @@ java -jar target/quarkus-app/quarkus-run.jar
 ```
 If you built a native image:
 ```
-./target/jfr-datasource-2.0.0-SNAPSHOT-runner
+./target/jfr-datasource-2.2.0-SNAPSHOT-runner
 ```
 
 ### Run Grafana
