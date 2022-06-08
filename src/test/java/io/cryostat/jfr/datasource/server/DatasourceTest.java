@@ -25,7 +25,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 @QuarkusTest
-public class DatasouceTest {
+public class DatasourceTest {
     @InjectMock FileSystemService fsService;
 
     @AfterEach
