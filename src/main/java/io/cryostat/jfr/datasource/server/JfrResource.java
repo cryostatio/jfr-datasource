@@ -15,31 +15,25 @@ import io.cryostat.jfr.datasource.events.RecordingService;
 import io.cryostat.jfr.datasource.sys.FileSystemService;
 
 import io.quarkus.vertx.web.Route;
+import io.quarkus.vertx.web.Route.HttpMethod;
 import io.smallrye.common.annotation.Blocking;
-import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.FileUpload;
 import io.vertx.ext.web.RoutingContext;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JfrResource {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RecordingService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JfrResource.class);
 
     @ConfigProperty(name = "quarkus.http.body.uploads-directory")
     String jfrDir;
 
-    RecordingService recordingService;
+    @Inject RecordingService recordingService;
 
-    FileSystemService fsService;
-
-    @Inject
-    JfrResource(RecordingService recordingService, FileSystemService fsService) {
-        this.recordingService = recordingService;
-        this.fsService = fsService;
-    }
+    @Inject FileSystemService fsService;
 
     @Route(path = "/")
     void root(RoutingContext context) {
@@ -61,7 +55,7 @@ public class JfrResource {
         try {
             JsonObject body = context.getBodyAsJson();
             if (body != null && !body.isEmpty()) {
-                LOGGER.info(body);
+                LOGGER.info(body.toString());
                 Query query = new Query(body);
                 response.end(recordingService.query(query));
                 return;
