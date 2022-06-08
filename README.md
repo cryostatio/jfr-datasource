@@ -16,7 +16,7 @@ https://github.com/graalvm/graalvm-ce-builds/releases
 ```
 
 After downloading, run
-```
+```bash
 /path/to/graal-install/bin/gu install native-image
 ```
 
@@ -32,17 +32,17 @@ https://podman.io/getting-started/installation.html
 This project uses [Quarkus](https://quarkus.io), which can produce a JAR to run in a JVM (JDK 11+), or an executable native image.
 
 To build a JAR:
-```
+```bash
 mvn clean verify
 ```
 To build a native image instead:
-```
+```bash
 mvn -Pnative clean verify
 ```
 Native image builds may use more than 4G of RAM to complete.
 
 To build a native image within a container, for a consistent environment:
-```
+```bash
 mvn -Pnative -Dquarkus.native.container-build=true -Dquarkus.native.container-runtime=podman \
 -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel:21.3-java11 \
 clean verify
@@ -51,18 +51,18 @@ clean verify
 #### Run the server
 
 If you built a JAR:
-```
+```bash
 java -jar target/quarkus-app/quarkus-run.jar
 ```
 If you built a native image:
-```
+```bash
 ./target/jfr-datasource-*-runner
 ```
 
 ### Run Grafana
 
 - Install SimpleJson data source if not already installed via
-```
+```bash
 grafana-cli --pluginsDir <path-to-your-plugins-directory> plugins install grafana-simple-json-datasource
 ```
 - Add a SimpleJson data source
@@ -73,7 +73,7 @@ grafana-cli --pluginsDir <path-to-your-plugins-directory> plugins install grafan
 
 This project comes with a Dockerfile to produce a container image with the native image result.
 
-```
+```bash
 podman build -f src/main/docker/Dockerfile.native -t quay.io/cryostat/jfr-datasource .
 ```
 
@@ -86,7 +86,7 @@ podman build -f src/main/docker/Dockerfile.native -t quay.io/cryostat/jfr-dataso
 Responds with 200 OK. Used to verify server is available.
 
 CURL Example
-```
+```bash
 $ curl "localhost:8080/"
 ```
 
@@ -100,7 +100,7 @@ This can be overridden on a deployed instance by setting the environment variabl
 `QUARKUS_HTTP_LIMITS_MAX_BODY_SIZE` and restarting the instance.
 
 CURL Example
-```
+```bash
 $ curl -F "file=@/home/user/some-file.jfr" "localhost:8080/upload"
 ```
 
@@ -113,7 +113,7 @@ user has sufficient permissions and that the `jfr-datasource` container has
 an OpenShift Service and Route exposing it to traffic from outside the cluster.
 
 `oc` and CURL Example
-```
+```bash
 $ oc cp my-large-file.jfr cryostat-sample-79cc897c8-smcrg:/tmp/jfr-file-uploads/my-large-file.jfr -c cryostat-sample-jfr-datasource
 $ curl -X POST --data "my-large-file.jfr" "https://cryostat-sample-jfr-datasource-myproject.apps-crc.testing/set"
 ```
@@ -123,7 +123,7 @@ $ curl -X POST --data "my-large-file.jfr" "https://cryostat-sample-jfr-datasourc
 Sets a JFR file for querying requests. Expects file name specified via POST body.
 
 CURL Example
-```
+```bash
 $ curl -X POST --data "some-file" "localhost:8080/set"
 ```
 
@@ -137,7 +137,7 @@ operation can be decomposed into two steps and the size limit worked around.
 See the documentation for `POST /upload` for further detail.
 
 CURL Example
-```
+```bash
 $ curl -F "file=@/home/user/some-file.jfr" "localhost:8080/load"
 ```
 
@@ -146,7 +146,7 @@ $ curl -F "file=@/home/user/some-file.jfr" "localhost:8080/load"
 Lists files available for `Set`
 
 CURL Example
-```
+```bash
 $ curl "localhost:8080/list"
 ```
 
@@ -155,7 +155,7 @@ $ curl "localhost:8080/list"
 Deletes an individual JFR file. Expects file name specified via DELETE body.
 
 CURL Example
-```
+```bash
 $ curl -X DELETE --data "some-file" "localhost:8080/delete"
 ```
 
@@ -164,7 +164,7 @@ $ curl -X DELETE --data "some-file" "localhost:8080/delete"
 Delete all JFR files.
 
 CURL Example
-```
+```bash
 $ curl -X DELETE "localhost:8080/delete_all"
 ```
 
@@ -177,7 +177,7 @@ These endpoints match those used by the Grafana Simple JSON datasource.
 Responds with a JSON array containing the selectable query elements.
 
 CURL Example
-```
+```bash
 $ curl "localhost:8080/search"
 ```
 
@@ -186,7 +186,7 @@ $ curl "localhost:8080/search"
 Responds with a JSON array containing elements for a query. The query body format matches that of the Grafana Simple JSON datasource.
 
 CURL Example
-```
+```bash
 $ curl -X POST --data "Query Body" "localhost:8080/query"
 ```
 
