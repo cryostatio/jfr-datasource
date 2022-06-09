@@ -14,9 +14,8 @@
     <maven-surefire-plugin.version>2.22.1</maven-surefire-plugin.version>
     <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
 
-    <java.version>11</java.version>
-    <junit.version>5.5.1</junit.version>
-    <rest-assured.version>3.0.0</rest-assured.version>
+    <java.version>17</java.version>
+    <rest-assured.version>5.1.0</rest-assured.version>
 
     <jmc.core.version>7.1.1</jmc.core.version>
 
@@ -31,7 +30,7 @@
     <quarkus.native.additional-build-args>
       -H:ReflectionConfigurationResources=reflection.json
     </quarkus.native.additional-build-args>
-    <com.diffplug.spotless.maven.plugin.version>2.10.1</com.diffplug.spotless.maven.plugin.version>
+    <com.diffplug.spotless.maven.plugin.version>2.22.6</com.diffplug.spotless.maven.plugin.version>
   </properties>
 
   <dependencyManagement>
@@ -209,8 +208,9 @@
         <configuration>
           <java>
             <googleJavaFormat>
-              <version>1.7</version>
+              <version>1.15.0</version>
               <style>AOSP</style>
+              <reflowLongStrings>true</reflowLongStrings>
             </googleJavaFormat>
             <trimTrailingWhitespace/>
             <endWithNewline/>
