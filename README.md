@@ -10,7 +10,7 @@ This demonstrates how a simple json data source can be used in Grafana to read t
 
 ### Dependencies
 
-For native image support, graalvm 20.3.0 (Java 11 version) is needed with path to it's directory set via environment variable `GRAALVM_HOME`. This can be downloaded from:
+For native image support, graalvm 21.3.0 (Java 17 version) is needed with path to it's directory set via environment variable `GRAALVM_HOME`. This can be downloaded from:
 ```
 https://github.com/graalvm/graalvm-ce-builds/releases
 ```
@@ -29,7 +29,7 @@ https://podman.io/getting-started/installation.html
 
 ### Build and run locally
 
-This project uses [Quarkus](https://quarkus.io), which can produce a JAR to run in a JVM (JDK 11+), or an executable native image.
+This project uses [Quarkus](https://quarkus.io), which can produce a JAR to run in a JVM (JDK 17+), or an executable native image.
 
 To build a JAR:
 ```bash
@@ -44,7 +44,7 @@ Native image builds may use more than 4G of RAM to complete.
 To build a native image within a container, for a consistent environment:
 ```bash
 mvn -Pnative -Dquarkus.native.container-build=true -Dquarkus.native.container-runtime=podman \
--Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel:21.3-java11 \
+-Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel:21.3-java17 \
 clean verify
 ```
 
