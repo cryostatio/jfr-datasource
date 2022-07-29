@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 import javax.inject.Inject;
 
@@ -123,9 +121,7 @@ public class JfrResource {
 
         try {
             StringBuilder responseBuilder = new StringBuilder();
-            System.out.println("LIST OF FILES: ");
             for (String filename : listFiles()) {
-                System.out.println(filename);
                 if (filename.equals(loadedFile)) {
                     filename = String.format("**%s**", filename);
                 }
@@ -144,11 +140,8 @@ public class JfrResource {
         HttpServerResponse response = context.response();
         setHeaders(response);
 
-        StringBuilder responseBuilder = new StringBuilder();
-        System.out.println(loadedFile);
-        responseBuilder.append(loadedFile);
-        responseBuilder.append(System.lineSeparator());
-        response.end(responseBuilder.toString());
+        LOGGER.info("Current: " + loadedFile);
+        response.end(loadedFile + System.lineSeparator());
     }
 
     @Route(path = "/delete_all", methods = HttpMethod.DELETE)
@@ -244,23 +237,8 @@ public class JfrResource {
         LOGGER.info("Uploaded: " + file);
     }
 
-    private synchronized void setLoadedFile(String filename) {
-        CompletableFuture<Void> taskFuture =
-                CompletableFuture.runAsync(
-                        () -> {
-                            try {
-                                loadedFile = filename;
-                                System.out.println(loadedFile);
-                            } catch (Exception e) {
-                                LOGGER.error(e.getMessage());
-                            }
-                        });
-        try {
-            taskFuture.get();
-        } catch (InterruptedException | ExecutionException e) {
-            LOGGER.error(e.getMessage(), e);
-            taskFuture.completeExceptionally(e);
-        }
+    private void setLoadedFile(String filename) {
+        this.loadedFile = filename;
     }
 
     private void setFile(
