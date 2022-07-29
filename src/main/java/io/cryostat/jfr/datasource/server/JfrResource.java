@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import javax.inject.Inject;
 
@@ -27,6 +29,8 @@ import org.slf4j.LoggerFactory;
 
 public class JfrResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(JfrResource.class);
+    private static final String UNSET_FILE = "";
+    private volatile String loadedFile = UNSET_FILE;
 
     @ConfigProperty(name = "quarkus.http.body.uploads-directory")
     String jfrDir;
@@ -119,7 +123,12 @@ public class JfrResource {
 
         try {
             StringBuilder responseBuilder = new StringBuilder();
+            System.out.println("LIST OF FILES: ");
             for (String filename : listFiles()) {
+                System.out.println(filename);
+                if (filename.equals(loadedFile)) {
+                    filename = String.format("**%s**", filename);
+                }
                 responseBuilder.append(filename);
                 responseBuilder.append(System.lineSeparator());
             }
@@ -128,6 +137,18 @@ public class JfrResource {
             LOGGER.error(e.getMessage(), e);
             response.setStatusCode(500).end();
         }
+    }
+
+    @Route(path = "/current")
+    void current(RoutingContext context) {
+        HttpServerResponse response = context.response();
+        setHeaders(response);
+
+        StringBuilder responseBuilder = new StringBuilder();
+        System.out.println(loadedFile);
+        responseBuilder.append(loadedFile);
+        responseBuilder.append(System.lineSeparator());
+        response.end(responseBuilder.toString());
     }
 
     @Route(path = "/delete_all", methods = HttpMethod.DELETE)
@@ -223,6 +244,25 @@ public class JfrResource {
         LOGGER.info("Uploaded: " + file);
     }
 
+    private synchronized void setLoadedFile(String filename) {
+        CompletableFuture<Void> taskFuture =
+                CompletableFuture.runAsync(
+                        () -> {
+                            try {
+                                loadedFile = filename;
+                                System.out.println(loadedFile);
+                            } catch (Exception e) {
+                                LOGGER.error(e.getMessage());
+                            }
+                        });
+        try {
+            taskFuture.get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOGGER.error(e.getMessage(), e);
+            taskFuture.completeExceptionally(e);
+        }
+    }
+
     private void setFile(
             String absolutePath,
             String filename,
@@ -232,6 +272,7 @@ public class JfrResource {
             recordingService.loadEvents(absolutePath);
             responseBuilder.append("Set: " + filename);
             responseBuilder.append(System.lineSeparator());
+            setLoadedFile(filename);
             response.end(responseBuilder.toString());
         } catch (IOException e) {
             response.setStatusCode(404);
@@ -250,6 +291,7 @@ public class JfrResource {
                     LOGGER.info("Deleted: " + f.getFileSystem().toString());
                 }
             }
+            setLoadedFile(UNSET_FILE);
         }
         return deleteFiles;
     }
@@ -261,6 +303,9 @@ public class JfrResource {
             if (fsService.deleteIfExists(
                     fsService.pathOf(dir.toAbsolutePath().toString(), filename))) {
                 LOGGER.info("Deleted: " + filename);
+                if (filename.equals(loadedFile)) {
+                    setLoadedFile(UNSET_FILE);
+                }
             } else {
                 throw new FileNotFoundException(filename + " does not exist");
             }
