@@ -27,6 +27,8 @@ import org.slf4j.LoggerFactory;
 
 public class JfrResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(JfrResource.class);
+    private static final String UNSET_FILE = "";
+    private volatile String loadedFile = UNSET_FILE;
 
     @ConfigProperty(name = "quarkus.http.body.uploads-directory")
     String jfrDir;
@@ -120,6 +122,9 @@ public class JfrResource {
         try {
             StringBuilder responseBuilder = new StringBuilder();
             for (String filename : listFiles()) {
+                if (filename.equals(loadedFile)) {
+                    filename = String.format("**%s**", filename);
+                }
                 responseBuilder.append(filename);
                 responseBuilder.append(System.lineSeparator());
             }
@@ -128,6 +133,15 @@ public class JfrResource {
             LOGGER.error(e.getMessage(), e);
             response.setStatusCode(500).end();
         }
+    }
+
+    @Route(path = "/current")
+    void current(RoutingContext context) {
+        HttpServerResponse response = context.response();
+        setHeaders(response);
+
+        LOGGER.info("Current: " + loadedFile);
+        response.end(loadedFile + System.lineSeparator());
     }
 
     @Route(path = "/delete_all", methods = HttpMethod.DELETE)
@@ -223,6 +237,10 @@ public class JfrResource {
         LOGGER.info("Uploaded: " + file);
     }
 
+    private void setLoadedFile(String filename) {
+        this.loadedFile = filename;
+    }
+
     private void setFile(
             String absolutePath,
             String filename,
@@ -232,6 +250,7 @@ public class JfrResource {
             recordingService.loadEvents(absolutePath);
             responseBuilder.append("Set: " + filename);
             responseBuilder.append(System.lineSeparator());
+            setLoadedFile(filename);
             response.end(responseBuilder.toString());
         } catch (IOException e) {
             response.setStatusCode(404);
@@ -250,6 +269,7 @@ public class JfrResource {
                     LOGGER.info("Deleted: " + f.getFileSystem().toString());
                 }
             }
+            setLoadedFile(UNSET_FILE);
         }
         return deleteFiles;
     }
@@ -261,6 +281,9 @@ public class JfrResource {
             if (fsService.deleteIfExists(
                     fsService.pathOf(dir.toAbsolutePath().toString(), filename))) {
                 LOGGER.info("Deleted: " + filename);
+                if (filename.equals(loadedFile)) {
+                    setLoadedFile(UNSET_FILE);
+                }
             } else {
                 throw new FileNotFoundException(filename + " does not exist");
             }

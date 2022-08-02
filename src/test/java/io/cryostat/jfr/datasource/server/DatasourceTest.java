@@ -19,11 +19,15 @@ import io.cryostat.jfr.datasource.sys.FileSystemService;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+@TestMethodOrder(OrderAnnotation.class)
 @QuarkusTest
 public class DatasourceTest {
     @InjectMock FileSystemService fsService;
@@ -41,9 +45,16 @@ public class DatasourceTest {
         directory.delete();
     }
 
+    @Order(1)
     @Test
     public void testGet() throws Exception {
         given().when().get("/").then().statusCode(200).body(is(""));
+    }
+
+    @Order(2)
+    @Test
+    public void testGetCurrentEndpoint() {
+        given().when().get("/current").then().statusCode(200).body(is(System.lineSeparator()));
     }
 
     @Test
@@ -123,6 +134,9 @@ public class DatasourceTest {
 
         expected = "Set: jmc.cpu.jfr" + System.lineSeparator();
         given().body("jmc.cpu.jfr").when().post("/set").then().statusCode(200).body(is(expected));
+
+        expected = "jmc.cpu.jfr" + System.lineSeparator();
+        given().when().get("/current").then().statusCode(200).body(is(expected));
     }
 
     @Test
@@ -164,6 +178,9 @@ public class DatasourceTest {
                         + "Set: jmc.cpu.jfr"
                         + System.lineSeparator();
         given().multiPart(jfrFile).when().post("/load").then().statusCode(200).body(is(expected));
+
+        expected = "jmc.cpu.jfr" + System.lineSeparator();
+        given().when().get("/current").then().statusCode(200).body(is(expected));
     }
 
     @Test
@@ -253,6 +270,12 @@ public class DatasourceTest {
 
         expected = "jmc.cpu.jfr" + System.lineSeparator();
         given().when().get("/list").then().statusCode(200).body(is(expected));
+
+        expected = "Set: jmc.cpu.jfr" + System.lineSeparator();
+        given().body("jmc.cpu.jfr").when().post("/set").then().statusCode(200).body(is(expected));
+
+        expected = "**jmc.cpu.jfr**" + System.lineSeparator();
+        given().when().get("/list").then().statusCode(200).body(is(expected));
     }
 
     @Test
@@ -306,6 +329,80 @@ public class DatasourceTest {
 
         String expected = "";
         given().when().get("/list").then().statusCode(200).body(is(expected));
+    }
+
+    @Test
+    public void testGetCurrentAfterSettingAndAfterDeleting() throws IOException {
+        File jfrFile = new File("src/test/resources/jmc.cpu.jfr");
+        assertTrue(jfrFile.exists());
+
+        Mockito.when(fsService.pathOf(Mockito.anyString()))
+                .thenAnswer(
+                        new Answer<Path>() {
+                            @Override
+                            public Path answer(InvocationOnMock invocation) throws IOException {
+                                String uploadedFileName = invocation.getArgument(0);
+                                return Path.of(uploadedFileName);
+                            }
+                        });
+        Mockito.when(fsService.exists(Mockito.any(Path.class)))
+                .thenAnswer(
+                        new Answer<Boolean>() {
+                            @Override
+                            public Boolean answer(InvocationOnMock invocation) throws IOException {
+                                Path target = invocation.getArgument(0);
+                                return Files.exists(target);
+                            }
+                        });
+        Mockito.when(fsService.move(Mockito.any(Path.class), Mockito.any(Path.class)))
+                .thenAnswer(
+                        new Answer<Path>() {
+                            @Override
+                            public Path answer(InvocationOnMock invocation) throws IOException {
+                                Path source = invocation.getArgument(0);
+                                Path dest = invocation.getArgument(1);
+                                return Files.move(source, dest);
+                            }
+                        });
+
+        String expected = "Uploaded: jmc.cpu.jfr" + System.lineSeparator();
+        given().multiPart(jfrFile).when().post("/upload").then().statusCode(200).body(is(expected));
+
+        expected = "Set: jmc.cpu.jfr" + System.lineSeparator();
+        given().body("jmc.cpu.jfr").when().post("/set").then().statusCode(200).body(is(expected));
+
+        expected = "jmc.cpu.jfr" + System.lineSeparator();
+        given().when().get("/current").then().statusCode(200).body(is(expected));
+
+        Mockito.when(fsService.isDirectory(Mockito.any(Path.class)))
+                .thenAnswer(
+                        new Answer<Boolean>() {
+                            @Override
+                            public Boolean answer(InvocationOnMock invocation) throws IOException {
+                                Path target = invocation.getArgument(0);
+                                return Files.isDirectory(target);
+                            }
+                        });
+        Mockito.when(fsService.pathOf(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(
+                        Path.of(
+                                System.getProperty("java.io.tmpdir"),
+                                "jfr-file-uploads",
+                                "jmc.cpu.jfr"));
+
+        Mockito.when(fsService.deleteIfExists(Mockito.any(Path.class)))
+                .thenAnswer(
+                        new Answer<Boolean>() {
+                            @Override
+                            public Boolean answer(InvocationOnMock invocation) throws IOException {
+                                Path target = invocation.getArgument(0);
+                                return Files.deleteIfExists(target);
+                            }
+                        });
+
+        given().body("jmc.cpu.jfr").when().delete("/delete").then().statusCode(204).body(is(""));
+
+        given().when().get("/current").then().statusCode(200).body(is(System.lineSeparator()));
     }
 
     @Test
@@ -475,15 +572,6 @@ public class DatasourceTest {
         Mockito.when(fsService.pathOf(Mockito.anyString()))
                 .thenReturn(Path.of(System.getProperty("java.io.tmpdir"), "jfr-file-uploads"));
 
-        Mockito.when(fsService.exists(Mockito.any(Path.class)))
-                .thenAnswer(
-                        new Answer<Boolean>() {
-                            @Override
-                            public Boolean answer(InvocationOnMock invocation) throws IOException {
-                                Path target = invocation.getArgument(0);
-                                return Files.exists(target);
-                            }
-                        });
         Mockito.when(fsService.isDirectory(Mockito.any(Path.class)))
                 .thenAnswer(
                         new Answer<Boolean>() {

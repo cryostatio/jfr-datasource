@@ -143,16 +143,33 @@ $ curl -F "file=@/home/user/some-file.jfr" "localhost:8080/load"
 
 #### GET /list
 
-Lists files available for `Set`
+Lists files available for `Set`.
+If a file is currently `Set`, it is highlighted with enclosing double asterisks `**<filename>.jfr**`
 
 CURL Example
 ```bash
 $ curl "localhost:8080/list"
+
+file1.jfr
+file2.jfr
+**setFile.jfr**
+```
+
+#### GET /current
+
+Responds with the name of the  currently `Set` file.
+
+CURL Example
+```bash
+$ curl "localhost:8080/current"
+
+setFile.jfr
 ```
 
 #### DELETE /delete
 
 Deletes an individual JFR file. Expects file name specified via DELETE body.
+If the specified file was `Set`, then it is unset.
 
 CURL Example
 ```bash
