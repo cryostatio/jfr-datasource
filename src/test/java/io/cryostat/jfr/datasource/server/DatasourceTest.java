@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,13 +49,21 @@ public class DatasourceTest {
     @Order(1)
     @Test
     public void testGet() throws Exception {
-        given().when().get("/").then().statusCode(200).body(is(""));
+        given().when().get("/").then().statusCode(200).body(is("")).headers(Collections.emptyMap());
     }
 
     @Order(2)
     @Test
-    public void testGetCurrentEndpoint() {
-        given().when().get("/current").then().statusCode(200).body(is(System.lineSeparator()));
+    public void testGetCurrent() {
+        given().when()
+                .get("/current")
+                .then()
+                .statusCode(200)
+                .body(is(System.lineSeparator()))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("GET"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
     }
 
     @Test
@@ -92,7 +101,16 @@ public class DatasourceTest {
                         });
 
         String expected = "Uploaded: jmc.cpu.jfr" + System.lineSeparator();
-        given().multiPart(jfrFile).when().post("/upload").then().statusCode(200).body(is(expected));
+        given().multiPart(jfrFile)
+                .when()
+                .post("/upload")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("POST"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
     }
 
     @Test
@@ -130,13 +148,39 @@ public class DatasourceTest {
                         });
 
         String expected = "Uploaded: jmc.cpu.jfr" + System.lineSeparator();
-        given().multiPart(jfrFile).when().post("/upload").then().statusCode(200).body(is(expected));
+        given().multiPart(jfrFile)
+                .when()
+                .post("/upload")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("POST"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
 
         expected = "Set: jmc.cpu.jfr" + System.lineSeparator();
-        given().body("jmc.cpu.jfr").when().post("/set").then().statusCode(200).body(is(expected));
+        given().body("jmc.cpu.jfr")
+                .when()
+                .post("/set")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("POST"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
 
         expected = "jmc.cpu.jfr" + System.lineSeparator();
-        given().when().get("/current").then().statusCode(200).body(is(expected));
+        given().when()
+                .get("/current")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("GET"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
     }
 
     @Test
@@ -177,10 +221,27 @@ public class DatasourceTest {
                         + System.lineSeparator()
                         + "Set: jmc.cpu.jfr"
                         + System.lineSeparator();
-        given().multiPart(jfrFile).when().post("/load").then().statusCode(200).body(is(expected));
+        given().multiPart(jfrFile)
+                .when()
+                .post("/load")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("POST"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
 
         expected = "jmc.cpu.jfr" + System.lineSeparator();
-        given().when().get("/current").then().statusCode(200).body(is(expected));
+        given().when()
+                .get("/current")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("GET"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
     }
 
     @Test
@@ -218,7 +279,16 @@ public class DatasourceTest {
                         });
 
         String expected = "Uploaded: jmc.cpu.jfr" + System.lineSeparator();
-        given().multiPart(jfrFile).when().post("/upload").then().statusCode(200).body(is(expected));
+        given().multiPart(jfrFile)
+                .when()
+                .post("/upload")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("POST"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
 
         Mockito.when(fsService.pathOf(Mockito.anyString()))
                 .thenAnswer(
@@ -273,26 +343,51 @@ public class DatasourceTest {
         ;
 
         expected = "jmc.cpu.jfr" + System.lineSeparator();
-        given().when().get("/list").then().statusCode(200).body(is(expected));
+        given().when()
+                .get("/list")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("GET"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
 
         expected = "Set: jmc.cpu.jfr" + System.lineSeparator();
-        given().body("jmc.cpu.jfr").when().post("/set").then().statusCode(200).body(is(expected));
+        given().body("jmc.cpu.jfr")
+                .when()
+                .post("/set")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("POST"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
 
         expected = "**jmc.cpu.jfr**" + System.lineSeparator();
-        given().when().get("/list").then().statusCode(200).body(is(expected));
+        given().when()
+                .get("/list")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("GET"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
     }
 
     @Test
     public void testGetListEmpty() throws Exception {
-      Mockito.when(fsService.pathOf(Mockito.anyString()))
-      .thenAnswer(
-              new Answer<Path>() {
-                  @Override
-                  public Path answer(InvocationOnMock invocation) throws IOException {
-                      String target = invocation.getArgument(0);
-                      return Path.of(target);
-                  }
-              });
+        Mockito.when(fsService.pathOf(Mockito.anyString()))
+                .thenAnswer(
+                        new Answer<Path>() {
+                            @Override
+                            public Path answer(InvocationOnMock invocation) throws IOException {
+                                String target = invocation.getArgument(0);
+                                return Path.of(target);
+                            }
+                        });
         Mockito.when(fsService.exists(Mockito.any(Path.class)))
                 .thenAnswer(
                         new Answer<Boolean>() {
@@ -336,7 +431,15 @@ public class DatasourceTest {
                         });
 
         String expected = "";
-        given().when().get("/list").then().statusCode(200).body(is(expected));
+        given().when()
+                .get("/list")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("GET"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
     }
 
     @Test
@@ -374,13 +477,39 @@ public class DatasourceTest {
                         });
 
         String expected = "Uploaded: jmc.cpu.jfr" + System.lineSeparator();
-        given().multiPart(jfrFile).when().post("/upload").then().statusCode(200).body(is(expected));
+        given().multiPart(jfrFile)
+                .when()
+                .post("/upload")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("POST"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
 
         expected = "Set: jmc.cpu.jfr" + System.lineSeparator();
-        given().body("jmc.cpu.jfr").when().post("/set").then().statusCode(200).body(is(expected));
+        given().body("jmc.cpu.jfr")
+                .when()
+                .post("/set")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("POST"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
 
         expected = "jmc.cpu.jfr" + System.lineSeparator();
-        given().when().get("/current").then().statusCode(200).body(is(expected));
+        given().when()
+                .get("/current")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("GET"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
 
         Mockito.when(fsService.isDirectory(Mockito.any(Path.class)))
                 .thenAnswer(
@@ -408,9 +537,26 @@ public class DatasourceTest {
                             }
                         });
 
-        given().body("jmc.cpu.jfr").when().delete("/delete").then().statusCode(204).body(is(""));
+        given().body("jmc.cpu.jfr")
+                .when()
+                .delete("/delete")
+                .then()
+                .statusCode(204)
+                .body(is(""))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("DELETE"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
 
-        given().when().get("/current").then().statusCode(200).body(is(System.lineSeparator()));
+        given().when()
+                .get("/current")
+                .then()
+                .statusCode(200)
+                .body(is(System.lineSeparator()))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("GET"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
     }
 
     @Test
@@ -444,12 +590,29 @@ public class DatasourceTest {
                         + System.lineSeparator()
                         + "Set: jmc.cpu.jfr"
                         + System.lineSeparator();
-        given().multiPart(jfrFile).when().post("/load").then().statusCode(200).body(is(expected));
+        given().multiPart(jfrFile)
+                .when()
+                .post("/load")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("POST"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
 
         File outputFile = new File("src/test/resources/search.output.txt");
         assertTrue(outputFile.exists());
         expected = new String(Files.readAllBytes(outputFile.toPath()));
-        given().when().get("/search").then().statusCode(200).body(is(expected));
+        given().when()
+                .get("/search")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("application/json"))
+                .header("Access-Control-Allow-Methods", is("GET"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
     }
 
     @Test
@@ -483,7 +646,16 @@ public class DatasourceTest {
                         + System.lineSeparator()
                         + "Set: jmc.cpu.jfr"
                         + System.lineSeparator();
-        given().multiPart(jfrFile).when().post("/load").then().statusCode(200).body(is(expected));
+        given().multiPart(jfrFile)
+                .when()
+                .post("/load")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("POST"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
 
         File inputFile = new File("src/test/resources/query.timeseries.input.txt");
         assertTrue(inputFile.exists());
@@ -493,7 +665,16 @@ public class DatasourceTest {
 
         assertTrue(outputFile.exists());
         expected = new String(Files.readAllBytes(outputFile.toPath()));
-        given().body(input).when().post("/query").then().statusCode(200).body(is(expected));
+        given().body(input)
+                .when()
+                .post("/query")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("application/json"))
+                .header("Access-Control-Allow-Methods", is("POST"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
     }
 
     @Test
@@ -527,7 +708,16 @@ public class DatasourceTest {
                         + System.lineSeparator()
                         + "Set: jmc.cpu.jfr"
                         + System.lineSeparator();
-        given().multiPart(jfrFile).when().post("/load").then().statusCode(200).body(is(expected));
+        given().multiPart(jfrFile)
+                .when()
+                .post("/load")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("POST"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
 
         File inputFile = new File("src/test/resources/query.table.input.txt");
         assertTrue(inputFile.exists());
@@ -537,7 +727,16 @@ public class DatasourceTest {
 
         assertTrue(outputFile.exists());
         expected = new String(Files.readAllBytes(outputFile.toPath()));
-        given().body(input).when().post("/query").then().statusCode(200).body(is(expected));
+        given().body(input)
+                .when()
+                .post("/query")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("application/json"))
+                .header("Access-Control-Allow-Methods", is("POST"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
     }
 
     @Test
@@ -575,7 +774,16 @@ public class DatasourceTest {
                         });
 
         String expected = "Uploaded: jmc.cpu.jfr" + System.lineSeparator();
-        given().multiPart(jfrFile).when().post("/upload").then().statusCode(200).body(is(expected));
+        given().multiPart(jfrFile)
+                .when()
+                .post("/upload")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("POST"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
 
         Mockito.when(fsService.pathOf(Mockito.anyString()))
                 .thenReturn(Path.of(System.getProperty("java.io.tmpdir"), "jfr-file-uploads"));
@@ -606,7 +814,16 @@ public class DatasourceTest {
                             }
                         });
 
-        given().body("jmc.cpu.jfr").when().delete("/delete").then().statusCode(204).body(is(""));
+        given().body("jmc.cpu.jfr")
+                .when()
+                .delete("/delete")
+                .then()
+                .statusCode(204)
+                .body(is(""))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("DELETE"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
     }
 
     @Test
@@ -648,7 +865,16 @@ public class DatasourceTest {
                                 return Files.deleteIfExists(target);
                             }
                         });
-        given().body("jmc.cpu.jfr").when().delete("/delete").then().statusCode(404).body(is(""));
+        given().body("jmc.cpu.jfr")
+                .when()
+                .delete("/delete")
+                .then()
+                .statusCode(404)
+                .body(is(""))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("DELETE"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
     }
 
     @Test
@@ -686,7 +912,16 @@ public class DatasourceTest {
                         });
 
         String expected = "Uploaded: jmc.cpu.jfr" + System.lineSeparator();
-        given().multiPart(jfrFile).when().post("/upload").then().statusCode(200).body(is(expected));
+        given().multiPart(jfrFile)
+                .when()
+                .post("/upload")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("POST"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
 
         Mockito.when(fsService.pathOf(Mockito.anyString()))
                 .thenReturn(Path.of(System.getProperty("java.io.tmpdir"), "jfr-file-uploads"));
@@ -719,7 +954,16 @@ public class DatasourceTest {
         Mockito.when(fsService.deleteIfExists(Mockito.any(Path.class)))
                 .thenThrow(new IOException());
 
-        given().body("jmc.cpu.jfr").when().delete("/delete").then().statusCode(500).body(is(""));
+        given().body("jmc.cpu.jfr")
+                .when()
+                .delete("/delete")
+                .then()
+                .statusCode(500)
+                .body(is(""))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("DELETE"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
     }
 
     @Test
@@ -757,7 +1001,16 @@ public class DatasourceTest {
                         });
 
         String expected = "Uploaded: jmc.cpu.jfr" + System.lineSeparator();
-        given().multiPart(jfrFile).when().post("/upload").then().statusCode(200).body(is(expected));
+        given().multiPart(jfrFile)
+                .when()
+                .post("/upload")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("POST"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
 
         Mockito.when(fsService.pathOf(Mockito.anyString()))
                 .thenReturn(Path.of(System.getProperty("java.io.tmpdir"), "jfr-file-uploads"));
@@ -819,8 +1072,24 @@ public class DatasourceTest {
                 .delete(Mockito.any(Path.class));
 
         expected = "Deleted: jmc.cpu.jfr" + System.lineSeparator();
-        given().when().delete("/delete_all").then().statusCode(200).body(is(expected));
-        given().when().delete("/delete_all").then().statusCode(200).body(is(""));
+        given().when()
+                .delete("/delete_all")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("DELETE"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+        given().when()
+                .delete("/delete_all")
+                .then()
+                .statusCode(200)
+                .body(is(""))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("DELETE"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
     }
 
     @Test
@@ -858,7 +1127,16 @@ public class DatasourceTest {
                         });
 
         String expected = "Uploaded: jmc.cpu.jfr" + System.lineSeparator();
-        given().multiPart(jfrFile).when().post("/upload").then().statusCode(200).body(is(expected));
+        given().multiPart(jfrFile)
+                .when()
+                .post("/upload")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("POST"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
 
         Mockito.when(fsService.pathOf(Mockito.anyString()))
                 .thenReturn(Path.of(System.getProperty("java.io.tmpdir"), "jfr-file-uploads"));
@@ -909,7 +1187,15 @@ public class DatasourceTest {
                         });
         doThrow(new IOException()).when(fsService).delete(Mockito.any(Path.class));
 
-        given().when().delete("/delete_all").then().statusCode(500).body(is(""));
+        given().when()
+                .delete("/delete_all")
+                .then()
+                .statusCode(500)
+                .body(is(""))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("DELETE"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
     }
 
     @Test
