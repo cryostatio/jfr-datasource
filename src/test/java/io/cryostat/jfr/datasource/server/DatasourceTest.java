@@ -903,4 +903,28 @@ public class DatasourceTest {
 
         given().when().delete("/delete_all").then().statusCode(500).body(is(""));
     }
+
+    @Test
+    public void testNotAllowedMethods() {
+        given().when().post("/").then().statusCode(405);
+        given().when().post("/search").then().statusCode(405);
+        given().body("{targets: [], range: { from: '', to: ''}}")
+                .header("content-type", "application/json")
+                .when()
+                .get("/query")
+                .then()
+                .statusCode(405);
+        given().when().post("/annotations").then().statusCode(405);
+        given().body("jmc.cpu.jfr").when().get("/set").then().statusCode(405);
+
+        File jfrFile = new File("src/test/resources/jmc.cpu.jfr");
+        assertTrue(jfrFile.exists());
+
+        given().multiPart(jfrFile).when().get("/upload").then().statusCode(405);
+        given().multiPart(jfrFile).when().get("/load").then().statusCode(405);
+        given().when().post("/list").then().statusCode(405);
+        given().when().post("/current").then().statusCode(405);
+        given().when().post("/delete_all").then().statusCode(405);
+        given().body("jmc.cpu.jfr").when().post("/delete").then().statusCode(405);
+    }
 }
