@@ -467,22 +467,14 @@ public class DatasourceTest {
                             }
                         });
 
-        String expected = "Uploaded: jmc.cpu.jfr" + System.lineSeparator();
+        String expected =
+                "Uploaded: jmc.cpu.jfr"
+                        + System.lineSeparator()
+                        + "Set: jmc.cpu.jfr"
+                        + System.lineSeparator();
         given().multiPart(jfrFile)
                 .when()
-                .post("/upload")
-                .then()
-                .statusCode(200)
-                .body(is(expected))
-                .header("content-type", is("text/plain"))
-                .header("Access-Control-Allow-Methods", is("POST"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
-
-        expected = "Set: jmc.cpu.jfr" + System.lineSeparator();
-        given().body("jmc.cpu.jfr")
-                .when()
-                .post("/set")
+                .post("/load")
                 .then()
                 .statusCode(200)
                 .body(is(expected))

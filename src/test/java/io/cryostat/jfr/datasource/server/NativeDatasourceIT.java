@@ -10,8 +10,12 @@ import java.util.Collections;
 
 import io.quarkus.test.junit.NativeImageTest;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 
+@TestMethodOrder(OrderAnnotation.class)
 @NativeImageTest
 public class NativeDatasourceIT {
 
@@ -28,9 +32,24 @@ public class NativeDatasourceIT {
         directory.delete();
     }
 
+    @Order(1)
     @Test
     public void testGet() throws Exception {
         given().when().get("/").then().statusCode(200).body(is("")).headers(Collections.emptyMap());
+    }
+
+    @Order(2)
+    @Test
+    public void testGetCurrent() {
+        given().when()
+                .get("/current")
+                .then()
+                .statusCode(200)
+                .body(is(System.lineSeparator()))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("GET"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
     }
 
     @Test
@@ -140,6 +159,60 @@ public class NativeDatasourceIT {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("GET"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+    }
+
+    @Test
+    public void testGetCurrentAfterSettingAndAfterDeleting() throws Exception {
+        File jfrFile = new File("src/test/resources/jmc.cpu.jfr");
+        assertTrue(jfrFile.exists());
+
+        String expected =
+                "Uploaded: jmc.cpu.jfr"
+                        + System.lineSeparator()
+                        + "Set: jmc.cpu.jfr"
+                        + System.lineSeparator();
+        given().multiPart(jfrFile)
+                .when()
+                .post("/load")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("POST"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+
+        expected = "jmc.cpu.jfr" + System.lineSeparator();
+        given().when()
+                .get("/current")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("GET"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+
+        given().body("jmc.cpu.jfr")
+                .when()
+                .delete("/delete")
+                .then()
+                .statusCode(204)
+                .body(is(""))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("DELETE"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+
+        given().when()
+                .get("/current")
+                .then()
+                .statusCode(200)
+                .body(is(System.lineSeparator()))
                 .header("content-type", is("text/plain"))
                 .header("Access-Control-Allow-Methods", is("GET"))
                 .header("Access-Control-Allow-Origin", is("*"))
