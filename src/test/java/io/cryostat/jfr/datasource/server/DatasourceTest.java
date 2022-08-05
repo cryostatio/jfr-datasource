@@ -221,7 +221,14 @@ public class DatasourceTest {
         given().multiPart(jfrFile).when().post("/upload").then().statusCode(200).body(is(expected));
 
         Mockito.when(fsService.pathOf(Mockito.anyString()))
-                .thenReturn(Path.of(System.getProperty("java.io.tmpdir"), "jfr-file-uploads"));
+                .thenAnswer(
+                        new Answer<Path>() {
+                            @Override
+                            public Path answer(InvocationOnMock invocation) throws IOException {
+                                String target = invocation.getArgument(0);
+                                return Path.of(target);
+                            }
+                        });
         Mockito.when(fsService.exists(Mockito.any(Path.class)))
                 .thenAnswer(
                         new Answer<Boolean>() {
@@ -247,10 +254,7 @@ public class DatasourceTest {
                             public List<Path> answer(InvocationOnMock invocation)
                                     throws IOException {
                                 final List<Path> files = new ArrayList<>();
-                                Path dir =
-                                        Path.of(
-                                                System.getProperty("java.io.tmpdir"),
-                                                "jfr-file-uploads");
+                                Path dir = invocation.getArgument(0);
                                 for (Path file : Files.list(dir).collect(Collectors.toList())) {
                                     files.add(file);
                                 }
@@ -280,8 +284,15 @@ public class DatasourceTest {
 
     @Test
     public void testGetListEmpty() throws Exception {
-        Mockito.when(fsService.pathOf(Mockito.anyString()))
-                .thenReturn(Path.of(System.getProperty("java.io.tmpdir"), "jfr-file-uploads"));
+      Mockito.when(fsService.pathOf(Mockito.anyString()))
+      .thenAnswer(
+              new Answer<Path>() {
+                  @Override
+                  public Path answer(InvocationOnMock invocation) throws IOException {
+                      String target = invocation.getArgument(0);
+                      return Path.of(target);
+                  }
+              });
         Mockito.when(fsService.exists(Mockito.any(Path.class)))
                 .thenAnswer(
                         new Answer<Boolean>() {
@@ -307,10 +318,7 @@ public class DatasourceTest {
                             public List<Path> answer(InvocationOnMock invocation)
                                     throws IOException {
                                 final List<Path> files = new ArrayList<>();
-                                Path dir =
-                                        Path.of(
-                                                System.getProperty("java.io.tmpdir"),
-                                                "jfr-file-uploads");
+                                Path dir = invocation.getArgument(0);
                                 for (Path file : Files.list(dir).collect(Collectors.toList())) {
                                     files.add(file);
                                 }
