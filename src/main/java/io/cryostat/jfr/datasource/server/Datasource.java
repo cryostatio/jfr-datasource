@@ -62,8 +62,8 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JfrResource {
-    private static final Logger LOGGER = LoggerFactory.getLogger(JfrResource.class);
+public class Datasource {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Datasource.class);
     private static final String UNSET_FILE = "";
     private volatile String loadedFile = UNSET_FILE;
 
@@ -80,11 +80,22 @@ public class JfrResource {
         response.end();
     }
 
-    @Route(path = "/search", methods = HttpMethod.GET)
+    @Route(path = "/search", methods = HttpMethod.POST)
     void search(RoutingContext context) {
         HttpServerResponse response = context.response();
-        setHeaders(response, "application/json", "GET");
-        response.end(recordingService.search());
+        setHeaders(response, "application/json", "POST");
+
+        JsonObject body = context.getBodyAsJson();
+        try {
+            if (body != null && !body.isEmpty()) {
+                LOGGER.info(body.toString());
+                response.end(recordingService.search(new Search(body)));
+                return;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        response.setStatusCode(400).end("Error: invalid search body");
     }
 
     @Route(path = "/query", methods = HttpMethod.POST)

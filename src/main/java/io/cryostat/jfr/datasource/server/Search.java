@@ -37,50 +37,18 @@
  */
 package io.cryostat.jfr.datasource.server;
 
-import java.time.Instant;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAccessor;
+import java.util.Optional;
 
-import io.cryostat.jfr.datasource.utils.ArgRunnable;
-import io.cryostat.jfr.datasource.utils.InvalidQueryException;
-
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
-public class Query {
+public class Search {
+    private Optional<String> target;
 
-    DateTimeFormatter dateFormat = DateTimeFormatter.ISO_INSTANT;
-
-    private JsonObject query;
-
-    public Query(JsonObject query) {
-        this.query = query;
+    public Search(JsonObject body) {
+        this.target = Optional.ofNullable(body.getString("target"));
     }
 
-    public JsonArray getTargets() {
-        return this.query.getJsonArray("targets");
-    }
-
-    public void applyTargets(ArgRunnable<Target> runnable) throws InvalidQueryException {
-        JsonArray targets = this.query.getJsonArray("targets");
-        for (int i = 0; i < targets.size(); i++) {
-            JsonObject target = targets.getJsonObject(i);
-            Target t = new Target(target.getString("target"), target.getString("type"));
-            runnable.run(t);
-        }
-    }
-
-    public long getFrom() {
-        TemporalAccessor accessor =
-                dateFormat.parse(this.query.getJsonObject("range").getString("from"));
-        Instant instant = Instant.from(accessor);
-        return instant.toEpochMilli();
-    }
-
-    public long getTo() {
-        TemporalAccessor accessor =
-                dateFormat.parse(this.query.getJsonObject("range").getString("to"));
-        Instant instant = Instant.from(accessor);
-        return instant.toEpochMilli();
+    public Optional<String> getTarget() {
+        return this.target;
     }
 }
