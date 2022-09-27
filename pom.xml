@@ -30,6 +30,7 @@
       -H:ReflectionConfigurationResources=reflection.json
     </quarkus.native.additional-build-args>
     <com.diffplug.spotless.maven.plugin.version>2.22.7</com.diffplug.spotless.maven.plugin.version>
+    <com.mycila.license.maven.plugin.version>4.0</com.mycila.license.maven.plugin.version>
   </properties>
 
   <dependencyManagement>
@@ -217,6 +218,31 @@
             </importOrder>
             <removeUnusedImports/>
           </java>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.mycila</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <version>${com.mycila.license.maven.plugin.version}</version>
+        <executions>
+          <execution>
+            <id>check-license</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <licenseSets>
+            <licenseSet>
+              <header>LICENSE</header>
+              <includes>
+                <include>src/main/**/*.java</include>
+                <include>src/test/**/*.java</include>
+              </includes>
+            </licenseSet>
+          </licenseSets>
         </configuration>
       </plugin>
     </plugins>
