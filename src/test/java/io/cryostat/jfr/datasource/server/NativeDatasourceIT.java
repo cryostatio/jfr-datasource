@@ -633,7 +633,7 @@ public class NativeDatasourceIT {
                 .header("Access-Control-Allow-Origin", is("*"))
                 .header("Access-Control-Allow-Headers", is("accept, content-type"));
     }
-    
+
     @Test
     public void testDeleteAllFiles() throws Exception {
         File jfrFile = new File("src/test/resources/recording.jfr");
