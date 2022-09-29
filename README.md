@@ -189,7 +189,7 @@ $ curl -X DELETE "localhost:8080/delete_all"
 
 These endpoints match those used by the [Grafana Simple JSON datasource](https://grafana.com/grafana/plugins/grafana-simple-json-datasource/).
 
-#### GET /search
+#### POST /search
 
 Responds with a JSON array containing selectable values of an event field (e.g. `jdk.ObjectAllocationSample.objectClass`) specified in the JSON body's `target` field. Used to define available selections for [dashboard variables](https://grafana.com/docs/grafana/v7.5/variables/).
 
@@ -206,7 +206,7 @@ $ curl -X POST --data '{ "target": "jdk.ObjectAllocationSample.objectClass" }' "
 
 Responds with a JSON array containing data points for a query. The query body format matches that of the Grafana Simple JSON datasource.
 
-The `target` field can have parameters to filter matching data points If there is no paramater, no matching is performed. If a parameter is specified with "*", matching is done for all possible value of that paramter.
+The `target` field can have parameters to filter matching data points If there is no parameter, no matching is performed. If a parameter is specified with "*", matching is done for all possible value of that parameter.
 
 CURL Example
 ```bash
