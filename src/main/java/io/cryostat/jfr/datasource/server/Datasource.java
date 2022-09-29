@@ -51,6 +51,7 @@ import javax.inject.Inject;
 import io.cryostat.jfr.datasource.events.RecordingService;
 import io.cryostat.jfr.datasource.sys.FileSystemService;
 
+import io.quarkus.vertx.web.ReactiveRoutes;
 import io.quarkus.vertx.web.Route;
 import io.quarkus.vertx.web.Route.HttpMethod;
 import io.smallrye.common.annotation.Blocking;
@@ -62,8 +63,8 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JfrResource {
-    private static final Logger LOGGER = LoggerFactory.getLogger(JfrResource.class);
+public class Datasource {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Datasource.class);
     private static final String UNSET_FILE = "";
     private volatile String loadedFile = UNSET_FILE;
 
@@ -80,17 +81,31 @@ public class JfrResource {
         response.end();
     }
 
-    @Route(path = "/search", methods = HttpMethod.GET)
+    @Route(
+            path = "/search",
+            methods = HttpMethod.POST,
+            produces = {ReactiveRoutes.APPLICATION_JSON})
     void search(RoutingContext context) {
         HttpServerResponse response = context.response();
-        setHeaders(response, "application/json", "GET");
-        response.end(recordingService.search());
+        JsonObject body = context.getBodyAsJson();
+        try {
+            if (body != null && !body.isEmpty()) {
+                LOGGER.info(body.toString());
+                response.end(recordingService.search(new Search(body)));
+                return;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        response.setStatusCode(400).end("Error: invalid search body");
     }
 
-    @Route(path = "/query", methods = HttpMethod.POST)
+    @Route(
+            path = "/query",
+            methods = HttpMethod.POST,
+            produces = {ReactiveRoutes.APPLICATION_JSON})
     void query(RoutingContext context) {
         HttpServerResponse response = context.response();
-        setHeaders(response, "application/json", "POST");
         try {
             JsonObject body = context.getBodyAsJson();
             if (body != null && !body.isEmpty()) {
@@ -106,18 +121,22 @@ public class JfrResource {
         response.end("Error: invalid query body");
     }
 
-    @Route(path = "/annotations", methods = HttpMethod.GET)
+    @Route(
+            path = "/annotations",
+            methods = HttpMethod.POST,
+            produces = {"text/plain"})
     void annotations(RoutingContext context) {
         HttpServerResponse response = context.response();
-        setHeaders(response, "text/plain", "GET");
         response.end(recordingService.annotations());
     }
 
-    @Route(path = "/set", methods = HttpMethod.POST)
+    @Route(
+            path = "/set",
+            methods = HttpMethod.POST,
+            produces = {"text/plain"})
     @Blocking
     void set(RoutingContext context) {
         HttpServerResponse response = context.response();
-        setHeaders(response, "text/plain", "POST");
 
         String file = context.getBodyAsString();
         String filePath = jfrDir + File.separator + file;
@@ -125,11 +144,13 @@ public class JfrResource {
         setFile(filePath, file, response, new StringBuilder());
     }
 
-    @Route(path = "/upload", methods = HttpMethod.POST)
+    @Route(
+            path = "/upload",
+            methods = HttpMethod.POST,
+            produces = {"text/plain"})
     @Blocking
     void upload(RoutingContext context) {
         HttpServerResponse response = context.response();
-        setHeaders(response, "text/plain", "POST");
 
         final StringBuilder responseBuilder = new StringBuilder();
 
@@ -137,11 +158,13 @@ public class JfrResource {
         response.end(responseBuilder.toString());
     }
 
-    @Route(path = "/load", methods = HttpMethod.POST)
+    @Route(
+            path = "/load",
+            methods = HttpMethod.POST,
+            produces = {"text/plain"})
     @Blocking
     void load(RoutingContext context) {
         HttpServerResponse response = context.response();
-        setHeaders(response, "text/plain", "POST");
 
         final StringBuilder responseBuilder = new StringBuilder();
 
@@ -151,10 +174,12 @@ public class JfrResource {
         setFile(filePath, lastFile, response, responseBuilder);
     }
 
-    @Route(path = "/list", methods = HttpMethod.GET)
+    @Route(
+            path = "/list",
+            methods = HttpMethod.GET,
+            produces = {"text/plain"})
     void list(RoutingContext context) {
         HttpServerResponse response = context.response();
-        setHeaders(response, "text/plain", "GET");
 
         try {
             StringBuilder responseBuilder = new StringBuilder();
@@ -172,20 +197,24 @@ public class JfrResource {
         }
     }
 
-    @Route(path = "/current", methods = HttpMethod.GET)
+    @Route(
+            path = "/current",
+            methods = HttpMethod.GET,
+            produces = {"text/plain"})
     void current(RoutingContext context) {
         HttpServerResponse response = context.response();
-        setHeaders(response, "text/plain", "GET");
 
         LOGGER.info("Current: " + loadedFile);
         response.end(loadedFile + System.lineSeparator());
     }
 
-    @Route(path = "/delete_all", methods = HttpMethod.DELETE)
+    @Route(
+            path = "/delete_all",
+            methods = HttpMethod.DELETE,
+            produces = {"text/plain"})
     @Blocking
     void deleteAll(RoutingContext context) {
         HttpServerResponse response = context.response();
-        setHeaders(response, "text/plain", "DELETE");
 
         final StringBuilder stringBuilder = new StringBuilder();
         try {
@@ -201,11 +230,13 @@ public class JfrResource {
         }
     }
 
-    @Route(path = "/delete", methods = HttpMethod.DELETE)
+    @Route(
+            path = "/delete",
+            methods = HttpMethod.DELETE,
+            produces = {"text/plain"})
     @Blocking
     void delete(RoutingContext context) {
         HttpServerResponse response = context.response();
-        setHeaders(response, "text/plain", "DELETE");
 
         String fileName = context.getBodyAsString();
         if (fileName == null || fileName.isEmpty()) {
@@ -327,12 +358,5 @@ public class JfrResource {
         } else {
             throw new FileNotFoundException(filename + " does not exist");
         }
-    }
-
-    private void setHeaders(HttpServerResponse response, String contentType, String allowedMethod) {
-        response.putHeader("content-type", contentType);
-        response.putHeader("Access-Control-Allow-Methods", allowedMethod);
-        response.putHeader("Access-Control-Allow-Origin", "*");
-        response.putHeader("Access-Control-Allow-Headers", "accept, content-type");
     }
 }
