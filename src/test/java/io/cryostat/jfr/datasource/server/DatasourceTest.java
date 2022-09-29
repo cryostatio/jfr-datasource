@@ -1391,7 +1391,7 @@ public class DatasourceTest {
                 .get("/query")
                 .then()
                 .statusCode(405);
-        given().when().post("/annotations").then().statusCode(405);
+        given().when().get("/annotations").then().statusCode(405);
         given().body("recording.jfr").when().get("/set").then().statusCode(405);
 
         File jfrFile = new File("src/test/resources/recording.jfr");

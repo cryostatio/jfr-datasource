@@ -123,7 +123,7 @@ public class Datasource {
 
     @Route(
             path = "/annotations",
-            methods = HttpMethod.GET,
+            methods = HttpMethod.POST,
             produces = {"text/plain"})
     void annotations(RoutingContext context) {
         HttpServerResponse response = context.response();

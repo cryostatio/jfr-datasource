@@ -543,6 +543,7 @@ public class RecordingService {
             return JsonUtils.EMPTY_ARRAY;
         }
         // TODO: Implement annotation support
+        // Reference: https://grafana.com/grafana/plugins/grafana-simple-json-datasource/
         return JsonUtils.EMPTY_ARRAY;
     }
 
