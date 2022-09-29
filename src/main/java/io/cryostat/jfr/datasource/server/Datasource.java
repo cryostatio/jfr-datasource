@@ -87,8 +87,6 @@ public class Datasource {
             produces = {ReactiveRoutes.APPLICATION_JSON})
     void search(RoutingContext context) {
         HttpServerResponse response = context.response();
-        setHeaders(response, "POST");
-
         JsonObject body = context.getBodyAsJson();
         try {
             if (body != null && !body.isEmpty()) {
@@ -108,7 +106,6 @@ public class Datasource {
             produces = {ReactiveRoutes.APPLICATION_JSON})
     void query(RoutingContext context) {
         HttpServerResponse response = context.response();
-        setHeaders(response, "POST");
         try {
             JsonObject body = context.getBodyAsJson();
             if (body != null && !body.isEmpty()) {
@@ -130,7 +127,6 @@ public class Datasource {
             produces = {"text/plain"})
     void annotations(RoutingContext context) {
         HttpServerResponse response = context.response();
-        setHeaders(response, "GET");
         response.end(recordingService.annotations());
     }
 
@@ -141,7 +137,6 @@ public class Datasource {
     @Blocking
     void set(RoutingContext context) {
         HttpServerResponse response = context.response();
-        setHeaders(response, "POST");
 
         String file = context.getBodyAsString();
         String filePath = jfrDir + File.separator + file;
@@ -156,7 +151,6 @@ public class Datasource {
     @Blocking
     void upload(RoutingContext context) {
         HttpServerResponse response = context.response();
-        setHeaders(response, "POST");
 
         final StringBuilder responseBuilder = new StringBuilder();
 
@@ -171,7 +165,6 @@ public class Datasource {
     @Blocking
     void load(RoutingContext context) {
         HttpServerResponse response = context.response();
-        setHeaders(response, "POST");
 
         final StringBuilder responseBuilder = new StringBuilder();
 
@@ -187,7 +180,6 @@ public class Datasource {
             produces = {"text/plain"})
     void list(RoutingContext context) {
         HttpServerResponse response = context.response();
-        setHeaders(response, "GET");
 
         try {
             StringBuilder responseBuilder = new StringBuilder();
@@ -211,7 +203,6 @@ public class Datasource {
             produces = {"text/plain"})
     void current(RoutingContext context) {
         HttpServerResponse response = context.response();
-        setHeaders(response, "GET");
 
         LOGGER.info("Current: " + loadedFile);
         response.end(loadedFile + System.lineSeparator());
@@ -224,7 +215,6 @@ public class Datasource {
     @Blocking
     void deleteAll(RoutingContext context) {
         HttpServerResponse response = context.response();
-        setHeaders(response, "DELETE");
 
         final StringBuilder stringBuilder = new StringBuilder();
         try {
@@ -247,7 +237,6 @@ public class Datasource {
     @Blocking
     void delete(RoutingContext context) {
         HttpServerResponse response = context.response();
-        setHeaders(response, "DELETE");
 
         String fileName = context.getBodyAsString();
         if (fileName == null || fileName.isEmpty()) {
@@ -369,11 +358,5 @@ public class Datasource {
         } else {
             throw new FileNotFoundException(filename + " does not exist");
         }
-    }
-
-    private void setHeaders(HttpServerResponse response, String allowedMethod) {
-        response.putHeader("Access-Control-Allow-Methods", allowedMethod);
-        response.putHeader("Access-Control-Allow-Origin", "*");
-        response.putHeader("Access-Control-Allow-Headers", "accept, content-type");
     }
 }

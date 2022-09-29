@@ -96,10 +96,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(System.lineSeparator()))
-                .header("content-type", is("text/plain"))
-                .header("Access-Control-Allow-Methods", is("GET"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("text/plain"));
     }
 
     @Test
@@ -143,10 +140,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"))
-                .header("Access-Control-Allow-Methods", is("POST"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("text/plain"));
     }
 
     @Test
@@ -190,10 +184,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"))
-                .header("Access-Control-Allow-Methods", is("POST"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("text/plain"));
 
         expected = "Set: recording.jfr" + System.lineSeparator();
         given().body("recording.jfr")
@@ -202,10 +193,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"))
-                .header("Access-Control-Allow-Methods", is("POST"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("text/plain"));
 
         expected = "recording.jfr" + System.lineSeparator();
         given().when()
@@ -213,10 +201,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"))
-                .header("Access-Control-Allow-Methods", is("GET"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("text/plain"));
     }
 
     @Test
@@ -263,10 +248,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"))
-                .header("Access-Control-Allow-Methods", is("POST"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("text/plain"));
 
         expected = "recording.jfr" + System.lineSeparator();
         given().when()
@@ -274,10 +256,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"))
-                .header("Access-Control-Allow-Methods", is("GET"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("text/plain"));
     }
 
     @Test
@@ -321,10 +300,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"))
-                .header("Access-Control-Allow-Methods", is("POST"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("text/plain"));
 
         Mockito.when(fsService.pathOf(Mockito.anyString()))
                 .thenAnswer(
@@ -379,10 +355,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"))
-                .header("Access-Control-Allow-Methods", is("GET"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("text/plain"));
 
         expected = "Set: recording.jfr" + System.lineSeparator();
         given().body("recording.jfr")
@@ -391,10 +364,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"))
-                .header("Access-Control-Allow-Methods", is("POST"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("text/plain"));
 
         expected = "**recording.jfr**" + System.lineSeparator();
         given().when()
@@ -402,10 +372,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"))
-                .header("Access-Control-Allow-Methods", is("GET"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("text/plain"));
     }
 
     @Test
@@ -463,10 +430,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"))
-                .header("Access-Control-Allow-Methods", is("GET"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("text/plain"));
     }
 
     @Test
@@ -514,10 +478,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"))
-                .header("Access-Control-Allow-Methods", is("POST"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("text/plain"));
 
         expected = "recording.jfr" + System.lineSeparator();
         given().when()
@@ -525,10 +486,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"))
-                .header("Access-Control-Allow-Methods", is("GET"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("text/plain"));
 
         Mockito.when(fsService.isDirectory(Mockito.any(Path.class)))
                 .thenAnswer(
@@ -562,20 +520,14 @@ public class DatasourceTest {
                 .then()
                 .statusCode(204)
                 .body(is(""))
-                .header("content-type", is("text/plain"))
-                .header("Access-Control-Allow-Methods", is("DELETE"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("text/plain"));
 
         given().when()
                 .get("/current")
                 .then()
                 .statusCode(200)
                 .body(is(System.lineSeparator()))
-                .header("content-type", is("text/plain"))
-                .header("Access-Control-Allow-Methods", is("GET"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("text/plain"));
     }
 
     @Test
@@ -615,10 +567,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"))
-                .header("Access-Control-Allow-Methods", is("POST"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("text/plain"));
 
         File inputFile = new File("src/test/resources/searches/search.events.input.txt");
         assertTrue(inputFile.exists());
@@ -634,10 +583,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("application/json"))
-                .header("Access-Control-Allow-Methods", is("POST"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("application/json"));
     }
 
     @Test
@@ -677,10 +623,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"))
-                .header("Access-Control-Allow-Methods", is("POST"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("text/plain"));
 
         File inputFile = new File("src/test/resources/searches/search.target.input.txt");
         assertTrue(inputFile.exists());
@@ -696,10 +639,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("application/json"))
-                .header("Access-Control-Allow-Methods", is("POST"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("application/json"));
     }
 
     @Test
@@ -739,10 +679,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"))
-                .header("Access-Control-Allow-Methods", is("POST"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("text/plain"));
 
         File inputFile = new File("src/test/resources/queries/query.timeseries.input.txt");
         assertTrue(inputFile.exists());
@@ -758,10 +695,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("application/json"))
-                .header("Access-Control-Allow-Methods", is("POST"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("application/json"));
     }
 
     @Test
@@ -801,10 +735,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"))
-                .header("Access-Control-Allow-Methods", is("POST"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("text/plain"));
 
         File inputFile = new File("src/test/resources/queries/query.timeseries.params.input.txt");
         assertTrue(inputFile.exists());
@@ -820,10 +751,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("application/json"))
-                .header("Access-Control-Allow-Methods", is("POST"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("application/json"));
     }
 
     @Test
@@ -863,10 +791,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"))
-                .header("Access-Control-Allow-Methods", is("POST"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("text/plain"));
 
         File inputFile = new File("src/test/resources/queries/query.table.input.txt");
         assertTrue(inputFile.exists());
@@ -882,10 +807,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("application/json"))
-                .header("Access-Control-Allow-Methods", is("POST"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("application/json"));
     }
 
     @Test
@@ -925,10 +847,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"))
-                .header("Access-Control-Allow-Methods", is("POST"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("text/plain"));
 
         File inputFile = new File("src/test/resources/queries/query.recording_duration.input.txt");
         assertTrue(inputFile.exists());
@@ -945,10 +864,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(output))
-                .header("content-type", is("application/json"))
-                .header("Access-Control-Allow-Methods", is("POST"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("application/json"));
     }
 
     @Test
@@ -988,10 +904,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"))
-                .header("Access-Control-Allow-Methods", is("POST"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("text/plain"));
 
         File inputFile =
                 new File("src/test/resources/queries/query.recording_start_time.input.txt");
@@ -1009,10 +922,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(output))
-                .header("content-type", is("application/json"))
-                .header("Access-Control-Allow-Methods", is("POST"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("application/json"));
     }
 
     @Test
@@ -1056,10 +966,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"))
-                .header("Access-Control-Allow-Methods", is("POST"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("text/plain"));
 
         Mockito.when(fsService.pathOf(Mockito.anyString()))
                 .thenAnswer(
@@ -1107,10 +1014,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(204)
                 .body(is(""))
-                .header("content-type", is("text/plain"))
-                .header("Access-Control-Allow-Methods", is("DELETE"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("text/plain"));
     }
 
     @Test
@@ -1169,10 +1073,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(404)
                 .body(is(""))
-                .header("content-type", is("text/plain"))
-                .header("Access-Control-Allow-Methods", is("DELETE"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("text/plain"));
     }
 
     @Test
@@ -1216,10 +1117,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"))
-                .header("Access-Control-Allow-Methods", is("POST"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("text/plain"));
 
         Mockito.when(fsService.pathOf(Mockito.anyString()))
                 .thenAnswer(
@@ -1269,10 +1167,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(500)
                 .body(is(""))
-                .header("content-type", is("text/plain"))
-                .header("Access-Control-Allow-Methods", is("DELETE"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("text/plain"));
     }
 
     @Test
@@ -1316,10 +1211,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"))
-                .header("Access-Control-Allow-Methods", is("POST"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("text/plain"));
 
         Mockito.when(fsService.pathOf(Mockito.anyString()))
                 .thenAnswer(
@@ -1386,19 +1278,14 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"))
-                .header("Access-Control-Allow-Methods", is("DELETE"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("text/plain"));
+
         given().when()
                 .delete("/delete_all")
                 .then()
                 .statusCode(200)
                 .body(is(""))
-                .header("content-type", is("text/plain"))
-                .header("Access-Control-Allow-Methods", is("DELETE"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("text/plain"));
     }
 
     @Test
@@ -1442,10 +1329,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"))
-                .header("Access-Control-Allow-Methods", is("POST"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("text/plain"));
 
         Mockito.when(fsService.pathOf(Mockito.anyString()))
                 .thenReturn(Path.of(System.getProperty("java.io.tmpdir"), "jfr-file-uploads"));
@@ -1494,10 +1378,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(500)
                 .body(is(""))
-                .header("content-type", is("text/plain"))
-                .header("Access-Control-Allow-Methods", is("DELETE"))
-                .header("Access-Control-Allow-Origin", is("*"))
-                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+                .header("content-type", is("text/plain"));
     }
 
     @Test
