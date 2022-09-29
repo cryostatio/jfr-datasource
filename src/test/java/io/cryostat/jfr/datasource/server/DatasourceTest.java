@@ -104,7 +104,7 @@ public class DatasourceTest {
 
     @Test
     public void testPostUpload() throws Exception {
-        File jfrFile = new File("src/test/resources/jmc.cpu.jfr");
+        File jfrFile = new File("src/test/resources/recording.jfr");
         assertTrue(jfrFile.exists());
 
         Mockito.when(fsService.pathOf(Mockito.anyString()))
@@ -136,7 +136,7 @@ public class DatasourceTest {
                             }
                         });
 
-        String expected = "Uploaded: jmc.cpu.jfr" + System.lineSeparator();
+        String expected = "Uploaded: recording.jfr" + System.lineSeparator();
         given().multiPart(jfrFile)
                 .when()
                 .post("/upload")
@@ -151,7 +151,7 @@ public class DatasourceTest {
 
     @Test
     public void testPostSet() throws Exception {
-        File jfrFile = new File("src/test/resources/jmc.cpu.jfr");
+        File jfrFile = new File("src/test/resources/recording.jfr");
         assertTrue(jfrFile.exists());
 
         Mockito.when(fsService.pathOf(Mockito.anyString()))
@@ -183,7 +183,7 @@ public class DatasourceTest {
                             }
                         });
 
-        String expected = "Uploaded: jmc.cpu.jfr" + System.lineSeparator();
+        String expected = "Uploaded: recording.jfr" + System.lineSeparator();
         given().multiPart(jfrFile)
                 .when()
                 .post("/upload")
@@ -195,8 +195,8 @@ public class DatasourceTest {
                 .header("Access-Control-Allow-Origin", is("*"))
                 .header("Access-Control-Allow-Headers", is("accept, content-type"));
 
-        expected = "Set: jmc.cpu.jfr" + System.lineSeparator();
-        given().body("jmc.cpu.jfr")
+        expected = "Set: recording.jfr" + System.lineSeparator();
+        given().body("recording.jfr")
                 .when()
                 .post("/set")
                 .then()
@@ -207,7 +207,7 @@ public class DatasourceTest {
                 .header("Access-Control-Allow-Origin", is("*"))
                 .header("Access-Control-Allow-Headers", is("accept, content-type"));
 
-        expected = "jmc.cpu.jfr" + System.lineSeparator();
+        expected = "recording.jfr" + System.lineSeparator();
         given().when()
                 .get("/current")
                 .then()
@@ -221,7 +221,7 @@ public class DatasourceTest {
 
     @Test
     public void testPostLoad() throws Exception {
-        File jfrFile = new File("src/test/resources/jmc.cpu.jfr");
+        File jfrFile = new File("src/test/resources/recording.jfr");
         assertTrue(jfrFile.exists());
 
         Mockito.when(fsService.pathOf(Mockito.anyString()))
@@ -253,9 +253,9 @@ public class DatasourceTest {
                             }
                         });
         String expected =
-                "Uploaded: jmc.cpu.jfr"
+                "Uploaded: recording.jfr"
                         + System.lineSeparator()
-                        + "Set: jmc.cpu.jfr"
+                        + "Set: recording.jfr"
                         + System.lineSeparator();
         given().multiPart(jfrFile)
                 .when()
@@ -268,7 +268,7 @@ public class DatasourceTest {
                 .header("Access-Control-Allow-Origin", is("*"))
                 .header("Access-Control-Allow-Headers", is("accept, content-type"));
 
-        expected = "jmc.cpu.jfr" + System.lineSeparator();
+        expected = "recording.jfr" + System.lineSeparator();
         given().when()
                 .get("/current")
                 .then()
@@ -282,7 +282,7 @@ public class DatasourceTest {
 
     @Test
     public void testGetList() throws Exception {
-        File jfrFile = new File("src/test/resources/jmc.cpu.jfr");
+        File jfrFile = new File("src/test/resources/recording.jfr");
         assertTrue(jfrFile.exists());
 
         Mockito.when(fsService.pathOf(Mockito.anyString()))
@@ -314,7 +314,7 @@ public class DatasourceTest {
                             }
                         });
 
-        String expected = "Uploaded: jmc.cpu.jfr" + System.lineSeparator();
+        String expected = "Uploaded: recording.jfr" + System.lineSeparator();
         given().multiPart(jfrFile)
                 .when()
                 .post("/upload")
@@ -372,9 +372,8 @@ public class DatasourceTest {
                                 return Files.isRegularFile(target);
                             }
                         });
-        ;
 
-        expected = "jmc.cpu.jfr" + System.lineSeparator();
+        expected = "recording.jfr" + System.lineSeparator();
         given().when()
                 .get("/list")
                 .then()
@@ -385,8 +384,8 @@ public class DatasourceTest {
                 .header("Access-Control-Allow-Origin", is("*"))
                 .header("Access-Control-Allow-Headers", is("accept, content-type"));
 
-        expected = "Set: jmc.cpu.jfr" + System.lineSeparator();
-        given().body("jmc.cpu.jfr")
+        expected = "Set: recording.jfr" + System.lineSeparator();
+        given().body("recording.jfr")
                 .when()
                 .post("/set")
                 .then()
@@ -397,7 +396,7 @@ public class DatasourceTest {
                 .header("Access-Control-Allow-Origin", is("*"))
                 .header("Access-Control-Allow-Headers", is("accept, content-type"));
 
-        expected = "**jmc.cpu.jfr**" + System.lineSeparator();
+        expected = "**recording.jfr**" + System.lineSeparator();
         given().when()
                 .get("/list")
                 .then()
@@ -472,7 +471,7 @@ public class DatasourceTest {
 
     @Test
     public void testGetCurrentAfterSettingAndAfterDeleting() throws IOException {
-        File jfrFile = new File("src/test/resources/jmc.cpu.jfr");
+        File jfrFile = new File("src/test/resources/recording.jfr");
         assertTrue(jfrFile.exists());
 
         Mockito.when(fsService.pathOf(Mockito.anyString()))
@@ -505,9 +504,9 @@ public class DatasourceTest {
                         });
 
         String expected =
-                "Uploaded: jmc.cpu.jfr"
+                "Uploaded: recording.jfr"
                         + System.lineSeparator()
-                        + "Set: jmc.cpu.jfr"
+                        + "Set: recording.jfr"
                         + System.lineSeparator();
         given().multiPart(jfrFile)
                 .when()
@@ -520,7 +519,7 @@ public class DatasourceTest {
                 .header("Access-Control-Allow-Origin", is("*"))
                 .header("Access-Control-Allow-Headers", is("accept, content-type"));
 
-        expected = "jmc.cpu.jfr" + System.lineSeparator();
+        expected = "recording.jfr" + System.lineSeparator();
         given().when()
                 .get("/current")
                 .then()
@@ -545,7 +544,7 @@ public class DatasourceTest {
                         Path.of(
                                 System.getProperty("java.io.tmpdir"),
                                 "jfr-file-uploads",
-                                "jmc.cpu.jfr"));
+                                "recording.jfr"));
 
         Mockito.when(fsService.deleteIfExists(Mockito.any(Path.class)))
                 .thenAnswer(
@@ -557,7 +556,7 @@ public class DatasourceTest {
                             }
                         });
 
-        given().body("jmc.cpu.jfr")
+        given().body("recording.jfr")
                 .when()
                 .delete("/delete")
                 .then()
@@ -580,8 +579,8 @@ public class DatasourceTest {
     }
 
     @Test
-    public void testGetSearch() throws Exception {
-        File jfrFile = new File("src/test/resources/jmc.cpu.jfr");
+    public void testPostSearchEvents() throws Exception {
+        File jfrFile = new File("src/test/resources/recording.jfr");
         assertTrue(jfrFile.exists());
 
         Mockito.when(fsService.pathOf(Mockito.anyString()))
@@ -606,9 +605,9 @@ public class DatasourceTest {
                         });
 
         String expected =
-                "Uploaded: jmc.cpu.jfr"
+                "Uploaded: recording.jfr"
                         + System.lineSeparator()
-                        + "Set: jmc.cpu.jfr"
+                        + "Set: recording.jfr"
                         + System.lineSeparator();
         given().multiPart(jfrFile)
                 .when()
@@ -621,23 +620,91 @@ public class DatasourceTest {
                 .header("Access-Control-Allow-Origin", is("*"))
                 .header("Access-Control-Allow-Headers", is("accept, content-type"));
 
-        File outputFile = new File("src/test/resources/search.output.txt");
+        File inputFile = new File("src/test/resources/searches/search.events.input.txt");
+        assertTrue(inputFile.exists());
+        String input = new String(Files.readAllBytes(inputFile.toPath()));
+
+        File outputFile = new File("src/test/resources/searches/search.events.output.txt");
         assertTrue(outputFile.exists());
         expected = new String(Files.readAllBytes(outputFile.toPath()));
-        given().when()
-                .get("/search")
+
+        given().body(input)
+                .when()
+                .post("/search")
                 .then()
                 .statusCode(200)
                 .body(is(expected))
                 .header("content-type", is("application/json"))
-                .header("Access-Control-Allow-Methods", is("GET"))
+                .header("Access-Control-Allow-Methods", is("POST"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+    }
+
+    @Test
+    public void testPostSearchTarget() throws Exception {
+        File jfrFile = new File("src/test/resources/recording.jfr");
+        assertTrue(jfrFile.exists());
+
+        Mockito.when(fsService.pathOf(Mockito.anyString()))
+                .thenAnswer(
+                        new Answer<Path>() {
+                            @Override
+                            public Path answer(InvocationOnMock invocation) throws IOException {
+                                String uploadedFileName = invocation.getArgument(0);
+                                return Path.of(uploadedFileName);
+                            }
+                        });
+        Mockito.when(fsService.exists(Mockito.any(Path.class))).thenReturn(false);
+        Mockito.when(fsService.move(Mockito.any(Path.class), Mockito.any(Path.class)))
+                .thenAnswer(
+                        new Answer<Path>() {
+                            @Override
+                            public Path answer(InvocationOnMock invocation) throws IOException {
+                                Path source = invocation.getArgument(0);
+                                Path dest = invocation.getArgument(1);
+                                return Files.move(source, dest);
+                            }
+                        });
+
+        String expected =
+                "Uploaded: recording.jfr"
+                        + System.lineSeparator()
+                        + "Set: recording.jfr"
+                        + System.lineSeparator();
+        given().multiPart(jfrFile)
+                .when()
+                .post("/load")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("POST"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+
+        File inputFile = new File("src/test/resources/searches/search.target.input.txt");
+        assertTrue(inputFile.exists());
+        String input = new String(Files.readAllBytes(inputFile.toPath()));
+
+        File outputFile = new File("src/test/resources/searches/search.target.output.txt");
+        assertTrue(outputFile.exists());
+        expected = new String(Files.readAllBytes(outputFile.toPath()));
+
+        given().body(input)
+                .when()
+                .post("/search")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("application/json"))
+                .header("Access-Control-Allow-Methods", is("POST"))
                 .header("Access-Control-Allow-Origin", is("*"))
                 .header("Access-Control-Allow-Headers", is("accept, content-type"));
     }
 
     @Test
     public void testPostQueryTimeseries() throws Exception {
-        File jfrFile = new File("src/test/resources/jmc.cpu.jfr");
+        File jfrFile = new File("src/test/resources/recording.jfr");
         assertTrue(jfrFile.exists());
 
         Mockito.when(fsService.pathOf(Mockito.anyString()))
@@ -662,9 +729,9 @@ public class DatasourceTest {
                         });
 
         String expected =
-                "Uploaded: jmc.cpu.jfr"
+                "Uploaded: recording.jfr"
                         + System.lineSeparator()
-                        + "Set: jmc.cpu.jfr"
+                        + "Set: recording.jfr"
                         + System.lineSeparator();
         given().multiPart(jfrFile)
                 .when()
@@ -677,14 +744,76 @@ public class DatasourceTest {
                 .header("Access-Control-Allow-Origin", is("*"))
                 .header("Access-Control-Allow-Headers", is("accept, content-type"));
 
-        File inputFile = new File("src/test/resources/query.timeseries.input.txt");
+        File inputFile = new File("src/test/resources/queries/query.timeseries.input.txt");
         assertTrue(inputFile.exists());
         String input = new String(Files.readAllBytes(inputFile.toPath()));
 
-        File outputFile = new File("src/test/resources/query.timeseries.output.txt");
-
+        File outputFile = new File("src/test/resources/queries/query.timeseries.output.txt");
         assertTrue(outputFile.exists());
         expected = new String(Files.readAllBytes(outputFile.toPath()));
+
+        given().body(input)
+                .when()
+                .post("/query")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("application/json"))
+                .header("Access-Control-Allow-Methods", is("POST"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+    }
+
+    @Test
+    public void testPostQueryTimeseriesWithParams() throws Exception {
+        File jfrFile = new File("src/test/resources/recording.jfr");
+        assertTrue(jfrFile.exists());
+
+        Mockito.when(fsService.pathOf(Mockito.anyString()))
+                .thenAnswer(
+                        new Answer<Path>() {
+                            @Override
+                            public Path answer(InvocationOnMock invocation) throws IOException {
+                                String uploadedFileName = invocation.getArgument(0);
+                                return Path.of(uploadedFileName);
+                            }
+                        });
+        Mockito.when(fsService.exists(Mockito.any(Path.class))).thenReturn(false);
+        Mockito.when(fsService.move(Mockito.any(Path.class), Mockito.any(Path.class)))
+                .thenAnswer(
+                        new Answer<Path>() {
+                            @Override
+                            public Path answer(InvocationOnMock invocation) throws IOException {
+                                Path source = invocation.getArgument(0);
+                                Path dest = invocation.getArgument(1);
+                                return Files.move(source, dest);
+                            }
+                        });
+
+        String expected =
+                "Uploaded: recording.jfr"
+                        + System.lineSeparator()
+                        + "Set: recording.jfr"
+                        + System.lineSeparator();
+        given().multiPart(jfrFile)
+                .when()
+                .post("/load")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("POST"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+
+        File inputFile = new File("src/test/resources/queries/query.timeseries.params.input.txt");
+        assertTrue(inputFile.exists());
+        String input = new String(Files.readAllBytes(inputFile.toPath()));
+
+        File outputFile = new File("src/test/resources/queries/query.timeseries.params.output.txt");
+        assertTrue(outputFile.exists());
+        expected = new String(Files.readAllBytes(outputFile.toPath()));
+
         given().body(input)
                 .when()
                 .post("/query")
@@ -699,7 +828,7 @@ public class DatasourceTest {
 
     @Test
     public void testPostQueryTable() throws Exception {
-        File jfrFile = new File("src/test/resources/jmc.cpu.jfr");
+        File jfrFile = new File("src/test/resources/recording.jfr");
         assertTrue(jfrFile.exists());
 
         Mockito.when(fsService.pathOf(Mockito.anyString()))
@@ -724,9 +853,9 @@ public class DatasourceTest {
                         });
 
         String expected =
-                "Uploaded: jmc.cpu.jfr"
+                "Uploaded: recording.jfr"
                         + System.lineSeparator()
-                        + "Set: jmc.cpu.jfr"
+                        + "Set: recording.jfr"
                         + System.lineSeparator();
         given().multiPart(jfrFile)
                 .when()
@@ -739,11 +868,11 @@ public class DatasourceTest {
                 .header("Access-Control-Allow-Origin", is("*"))
                 .header("Access-Control-Allow-Headers", is("accept, content-type"));
 
-        File inputFile = new File("src/test/resources/query.table.input.txt");
+        File inputFile = new File("src/test/resources/queries/query.table.input.txt");
         assertTrue(inputFile.exists());
         String input = new String(Files.readAllBytes(inputFile.toPath()));
 
-        File outputFile = new File("src/test/resources/query.table.output.txt");
+        File outputFile = new File("src/test/resources/queries/query.table.output.txt");
 
         assertTrue(outputFile.exists());
         expected = new String(Files.readAllBytes(outputFile.toPath()));
@@ -760,8 +889,135 @@ public class DatasourceTest {
     }
 
     @Test
+    public void testPostQueryRecordingDuration() throws Exception {
+        File jfrFile = new File("src/test/resources/recording.jfr");
+        assertTrue(jfrFile.exists());
+
+        Mockito.when(fsService.pathOf(Mockito.anyString()))
+                .thenAnswer(
+                        new Answer<Path>() {
+                            @Override
+                            public Path answer(InvocationOnMock invocation) throws IOException {
+                                String uploadedFileName = invocation.getArgument(0);
+                                return Path.of(uploadedFileName);
+                            }
+                        });
+        Mockito.when(fsService.exists(Mockito.any(Path.class))).thenReturn(false);
+        Mockito.when(fsService.move(Mockito.any(Path.class), Mockito.any(Path.class)))
+                .thenAnswer(
+                        new Answer<Path>() {
+                            @Override
+                            public Path answer(InvocationOnMock invocation) throws IOException {
+                                Path source = invocation.getArgument(0);
+                                Path dest = invocation.getArgument(1);
+                                return Files.move(source, dest);
+                            }
+                        });
+
+        String expected =
+                "Uploaded: recording.jfr"
+                        + System.lineSeparator()
+                        + "Set: recording.jfr"
+                        + System.lineSeparator();
+        given().multiPart(jfrFile)
+                .when()
+                .post("/load")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("POST"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+
+        File inputFile = new File("src/test/resources/queries/query.recording_duration.input.txt");
+        assertTrue(inputFile.exists());
+        String input = new String(Files.readAllBytes(inputFile.toPath()));
+
+        File outputFile =
+                new File("src/test/resources/queries/query.recording_duration.output.txt");
+        assertTrue(inputFile.exists());
+        String output = new String(Files.readAllBytes(outputFile.toPath()));
+
+        given().body(input)
+                .when()
+                .post("query")
+                .then()
+                .statusCode(200)
+                .body(is(output))
+                .header("content-type", is("application/json"))
+                .header("Access-Control-Allow-Methods", is("POST"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+    }
+
+    @Test
+    public void testPostQueryRecordingStartTime() throws Exception {
+        File jfrFile = new File("src/test/resources/recording.jfr");
+        assertTrue(jfrFile.exists());
+
+        Mockito.when(fsService.pathOf(Mockito.anyString()))
+                .thenAnswer(
+                        new Answer<Path>() {
+                            @Override
+                            public Path answer(InvocationOnMock invocation) throws IOException {
+                                String uploadedFileName = invocation.getArgument(0);
+                                return Path.of(uploadedFileName);
+                            }
+                        });
+        Mockito.when(fsService.exists(Mockito.any(Path.class))).thenReturn(false);
+        Mockito.when(fsService.move(Mockito.any(Path.class), Mockito.any(Path.class)))
+                .thenAnswer(
+                        new Answer<Path>() {
+                            @Override
+                            public Path answer(InvocationOnMock invocation) throws IOException {
+                                Path source = invocation.getArgument(0);
+                                Path dest = invocation.getArgument(1);
+                                return Files.move(source, dest);
+                            }
+                        });
+
+        String expected =
+                "Uploaded: recording.jfr"
+                        + System.lineSeparator()
+                        + "Set: recording.jfr"
+                        + System.lineSeparator();
+        given().multiPart(jfrFile)
+                .when()
+                .post("/load")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"))
+                .header("Access-Control-Allow-Methods", is("POST"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+
+        File inputFile =
+                new File("src/test/resources/queries/query.recording_start_time.input.txt");
+        assertTrue(inputFile.exists());
+        String input = new String(Files.readAllBytes(inputFile.toPath()));
+
+        File outputFile =
+                new File("src/test/resources/queries/query.recording_start_time.output.txt");
+        assertTrue(inputFile.exists());
+        String output = new String(Files.readAllBytes(outputFile.toPath()));
+
+        given().body(input)
+                .when()
+                .post("query")
+                .then()
+                .statusCode(200)
+                .body(is(output))
+                .header("content-type", is("application/json"))
+                .header("Access-Control-Allow-Methods", is("POST"))
+                .header("Access-Control-Allow-Origin", is("*"))
+                .header("Access-Control-Allow-Headers", is("accept, content-type"));
+    }
+
+    @Test
     public void testDeleteFileExist() throws Exception {
-        File jfrFile = new File("src/test/resources/jmc.cpu.jfr");
+        File jfrFile = new File("src/test/resources/recording.jfr");
         assertTrue(jfrFile.exists());
 
         Mockito.when(fsService.pathOf(Mockito.anyString()))
@@ -793,7 +1049,7 @@ public class DatasourceTest {
                             }
                         });
 
-        String expected = "Uploaded: jmc.cpu.jfr" + System.lineSeparator();
+        String expected = "Uploaded: recording.jfr" + System.lineSeparator();
         given().multiPart(jfrFile)
                 .when()
                 .post("/upload")
@@ -845,7 +1101,7 @@ public class DatasourceTest {
                             }
                         });
 
-        given().body("jmc.cpu.jfr")
+        given().body("recording.jfr")
                 .when()
                 .delete("/delete")
                 .then()
@@ -907,7 +1163,7 @@ public class DatasourceTest {
                                 return Files.deleteIfExists(target);
                             }
                         });
-        given().body("jmc.cpu.jfr")
+        given().body("recording.jfr")
                 .when()
                 .delete("/delete")
                 .then()
@@ -921,7 +1177,7 @@ public class DatasourceTest {
 
     @Test
     public void testDeleteFileIOFail() throws Exception {
-        File jfrFile = new File("src/test/resources/jmc.cpu.jfr");
+        File jfrFile = new File("src/test/resources/recording.jfr");
         assertTrue(jfrFile.exists());
 
         Mockito.when(fsService.pathOf(Mockito.anyString()))
@@ -953,7 +1209,7 @@ public class DatasourceTest {
                             }
                         });
 
-        String expected = "Uploaded: jmc.cpu.jfr" + System.lineSeparator();
+        String expected = "Uploaded: recording.jfr" + System.lineSeparator();
         given().multiPart(jfrFile)
                 .when()
                 .post("/upload")
@@ -1007,7 +1263,7 @@ public class DatasourceTest {
         Mockito.when(fsService.deleteIfExists(Mockito.any(Path.class)))
                 .thenThrow(new IOException());
 
-        given().body("jmc.cpu.jfr")
+        given().body("recording.jfr")
                 .when()
                 .delete("/delete")
                 .then()
@@ -1021,7 +1277,7 @@ public class DatasourceTest {
 
     @Test
     public void testDeleteAllFiles() throws Exception {
-        File jfrFile = new File("src/test/resources/jmc.cpu.jfr");
+        File jfrFile = new File("src/test/resources/recording.jfr");
         assertTrue(jfrFile.exists());
 
         Mockito.when(fsService.pathOf(Mockito.anyString()))
@@ -1053,7 +1309,7 @@ public class DatasourceTest {
                             }
                         });
 
-        String expected = "Uploaded: jmc.cpu.jfr" + System.lineSeparator();
+        String expected = "Uploaded: recording.jfr" + System.lineSeparator();
         given().multiPart(jfrFile)
                 .when()
                 .post("/upload")
@@ -1124,7 +1380,7 @@ public class DatasourceTest {
                 .when(fsService)
                 .delete(Mockito.any(Path.class));
 
-        expected = "Deleted: jmc.cpu.jfr" + System.lineSeparator();
+        expected = "Deleted: recording.jfr" + System.lineSeparator();
         given().when()
                 .delete("/delete_all")
                 .then()
@@ -1147,7 +1403,7 @@ public class DatasourceTest {
 
     @Test
     public void testDeleteAllIOFail() throws Exception {
-        File jfrFile = new File("src/test/resources/jmc.cpu.jfr");
+        File jfrFile = new File("src/test/resources/recording.jfr");
         assertTrue(jfrFile.exists());
 
         Mockito.when(fsService.pathOf(Mockito.anyString()))
@@ -1179,7 +1435,7 @@ public class DatasourceTest {
                             }
                         });
 
-        String expected = "Uploaded: jmc.cpu.jfr" + System.lineSeparator();
+        String expected = "Uploaded: recording.jfr" + System.lineSeparator();
         given().multiPart(jfrFile)
                 .when()
                 .post("/upload")
@@ -1247,7 +1503,7 @@ public class DatasourceTest {
     @Test
     public void testNotAllowedMethods() {
         given().when().post("/").then().statusCode(405);
-        given().when().post("/search").then().statusCode(405);
+        given().when().get("/search").then().statusCode(405);
         given().body("{targets: [], range: { from: '', to: ''}}")
                 .header("content-type", "application/json")
                 .when()
@@ -1255,9 +1511,9 @@ public class DatasourceTest {
                 .then()
                 .statusCode(405);
         given().when().post("/annotations").then().statusCode(405);
-        given().body("jmc.cpu.jfr").when().get("/set").then().statusCode(405);
+        given().body("recording.jfr").when().get("/set").then().statusCode(405);
 
-        File jfrFile = new File("src/test/resources/jmc.cpu.jfr");
+        File jfrFile = new File("src/test/resources/recording.jfr");
         assertTrue(jfrFile.exists());
 
         given().multiPart(jfrFile).when().get("/upload").then().statusCode(405);
@@ -1265,6 +1521,6 @@ public class DatasourceTest {
         given().when().post("/list").then().statusCode(405);
         given().when().post("/current").then().statusCode(405);
         given().when().post("/delete_all").then().statusCode(405);
-        given().body("jmc.cpu.jfr").when().post("/delete").then().statusCode(405);
+        given().body("recording.jfr").when().post("/delete").then().statusCode(405);
     }
 }
