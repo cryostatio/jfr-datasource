@@ -51,6 +51,7 @@ import javax.inject.Inject;
 import io.cryostat.jfr.datasource.events.RecordingService;
 import io.cryostat.jfr.datasource.sys.FileSystemService;
 
+import io.quarkus.vertx.web.ReactiveRoutes;
 import io.quarkus.vertx.web.Route;
 import io.quarkus.vertx.web.Route.HttpMethod;
 import io.smallrye.common.annotation.Blocking;
@@ -80,10 +81,13 @@ public class Datasource {
         response.end();
     }
 
-    @Route(path = "/search", methods = HttpMethod.POST)
+    @Route(
+            path = "/search",
+            methods = HttpMethod.POST,
+            produces = {ReactiveRoutes.APPLICATION_JSON})
     void search(RoutingContext context) {
         HttpServerResponse response = context.response();
-        setHeaders(response, "application/json", "POST");
+        setHeaders(response, "POST");
 
         JsonObject body = context.getBodyAsJson();
         try {
@@ -98,10 +102,13 @@ public class Datasource {
         response.setStatusCode(400).end("Error: invalid search body");
     }
 
-    @Route(path = "/query", methods = HttpMethod.POST)
+    @Route(
+            path = "/query",
+            methods = HttpMethod.POST,
+            produces = {ReactiveRoutes.APPLICATION_JSON})
     void query(RoutingContext context) {
         HttpServerResponse response = context.response();
-        setHeaders(response, "application/json", "POST");
+        setHeaders(response, "POST");
         try {
             JsonObject body = context.getBodyAsJson();
             if (body != null && !body.isEmpty()) {
@@ -117,18 +124,24 @@ public class Datasource {
         response.end("Error: invalid query body");
     }
 
-    @Route(path = "/annotations", methods = HttpMethod.GET)
+    @Route(
+            path = "/annotations",
+            methods = HttpMethod.GET,
+            produces = {"text/plain"})
     void annotations(RoutingContext context) {
         HttpServerResponse response = context.response();
-        setHeaders(response, "text/plain", "GET");
+        setHeaders(response, "GET");
         response.end(recordingService.annotations());
     }
 
-    @Route(path = "/set", methods = HttpMethod.POST)
+    @Route(
+            path = "/set",
+            methods = HttpMethod.POST,
+            produces = {"text/plain"})
     @Blocking
     void set(RoutingContext context) {
         HttpServerResponse response = context.response();
-        setHeaders(response, "text/plain", "POST");
+        setHeaders(response, "POST");
 
         String file = context.getBodyAsString();
         String filePath = jfrDir + File.separator + file;
@@ -136,11 +149,14 @@ public class Datasource {
         setFile(filePath, file, response, new StringBuilder());
     }
 
-    @Route(path = "/upload", methods = HttpMethod.POST)
+    @Route(
+            path = "/upload",
+            methods = HttpMethod.POST,
+            produces = {"text/plain"})
     @Blocking
     void upload(RoutingContext context) {
         HttpServerResponse response = context.response();
-        setHeaders(response, "text/plain", "POST");
+        setHeaders(response, "POST");
 
         final StringBuilder responseBuilder = new StringBuilder();
 
@@ -148,11 +164,14 @@ public class Datasource {
         response.end(responseBuilder.toString());
     }
 
-    @Route(path = "/load", methods = HttpMethod.POST)
+    @Route(
+            path = "/load",
+            methods = HttpMethod.POST,
+            produces = {"text/plain"})
     @Blocking
     void load(RoutingContext context) {
         HttpServerResponse response = context.response();
-        setHeaders(response, "text/plain", "POST");
+        setHeaders(response, "POST");
 
         final StringBuilder responseBuilder = new StringBuilder();
 
@@ -162,10 +181,13 @@ public class Datasource {
         setFile(filePath, lastFile, response, responseBuilder);
     }
 
-    @Route(path = "/list", methods = HttpMethod.GET)
+    @Route(
+            path = "/list",
+            methods = HttpMethod.GET,
+            produces = {"text/plain"})
     void list(RoutingContext context) {
         HttpServerResponse response = context.response();
-        setHeaders(response, "text/plain", "GET");
+        setHeaders(response, "GET");
 
         try {
             StringBuilder responseBuilder = new StringBuilder();
@@ -183,20 +205,26 @@ public class Datasource {
         }
     }
 
-    @Route(path = "/current", methods = HttpMethod.GET)
+    @Route(
+            path = "/current",
+            methods = HttpMethod.GET,
+            produces = {"text/plain"})
     void current(RoutingContext context) {
         HttpServerResponse response = context.response();
-        setHeaders(response, "text/plain", "GET");
+        setHeaders(response, "GET");
 
         LOGGER.info("Current: " + loadedFile);
         response.end(loadedFile + System.lineSeparator());
     }
 
-    @Route(path = "/delete_all", methods = HttpMethod.DELETE)
+    @Route(
+            path = "/delete_all",
+            methods = HttpMethod.DELETE,
+            produces = {"text/plain"})
     @Blocking
     void deleteAll(RoutingContext context) {
         HttpServerResponse response = context.response();
-        setHeaders(response, "text/plain", "DELETE");
+        setHeaders(response, "DELETE");
 
         final StringBuilder stringBuilder = new StringBuilder();
         try {
@@ -212,11 +240,14 @@ public class Datasource {
         }
     }
 
-    @Route(path = "/delete", methods = HttpMethod.DELETE)
+    @Route(
+            path = "/delete",
+            methods = HttpMethod.DELETE,
+            produces = {"text/plain"})
     @Blocking
     void delete(RoutingContext context) {
         HttpServerResponse response = context.response();
-        setHeaders(response, "text/plain", "DELETE");
+        setHeaders(response, "DELETE");
 
         String fileName = context.getBodyAsString();
         if (fileName == null || fileName.isEmpty()) {
@@ -340,8 +371,7 @@ public class Datasource {
         }
     }
 
-    private void setHeaders(HttpServerResponse response, String contentType, String allowedMethod) {
-        response.putHeader("content-type", contentType);
+    private void setHeaders(HttpServerResponse response, String allowedMethod) {
         response.putHeader("Access-Control-Allow-Methods", allowedMethod);
         response.putHeader("Access-Control-Allow-Origin", "*");
         response.putHeader("Access-Control-Allow-Headers", "accept, content-type");
