@@ -13,6 +13,7 @@
     <maven-failsafe-plugin.version>2.22.1</maven-failsafe-plugin.version>
     <maven-surefire-plugin.version>2.22.1</maven-surefire-plugin.version>
     <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
+    <maven-assembly-plugin.version>3.4.2</maven-assembly-plugin.version>
 
     <java.version>17</java.version>
 
@@ -121,6 +122,35 @@
             <configuration>
               <trimStackTrace>false</trimStackTrace>
             </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>native-sources</id>
+      <properties>
+        <quarkus.package.type>native-sources</quarkus.package.type>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <version>${maven-assembly-plugin.version}</version>
+            <configuration>
+              <descriptors>
+                <descriptor>src/assembly/native-sources.xml</descriptor>
+              </descriptors>
+              <tarLongFileMode>posix</tarLongFileMode>
+            </configuration>
+            <executions>
+              <execution>
+                <id>assemble-native-sources</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>single</goal>
+                </goals>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>
