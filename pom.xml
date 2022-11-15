@@ -32,6 +32,7 @@
     </quarkus.native.additional-build-args>
     <com.diffplug.spotless.maven.plugin.version>2.22.7</com.diffplug.spotless.maven.plugin.version>
     <com.mycila.license.maven.plugin.version>4.0</com.mycila.license.maven.plugin.version>
+    <org.codehaus.mojo.build.helper.plugin.version>3.3.0</org.codehaus.mojo.build.helper.plugin.version>
   </properties>
 
   <dependencyManagement>
@@ -274,6 +275,27 @@
             </licenseSet>
           </licenseSets>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>${org.codehaus.mojo.build.helper.plugin.version}</version>
+        <executions>
+          <execution>
+            <id>image-tag-to-lower</id>
+            <goals>
+              <goal>regex-property</goal>
+            </goals>
+            <configuration>
+              <name>imageVersionLower</name>
+              <regex>^.*$</regex>
+              <value>${project.version}</value>
+              <replacement>${project.version}</replacement>
+              <toLowerCase>true</toLowerCase>
+              <failIfNoMatch>false</failIfNoMatch>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
