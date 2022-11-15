@@ -49,12 +49,13 @@ jobs:
     - name: Tag images
       id: tag-image
       env:
+        IMAGE_NAME: ${{ needs.get-pom-properties.outputs.image-name }}
         IMAGE_VERSION: ${{ needs.get-pom-properties.outputs.image-version }}
       run: |
         if [ "$GITHUB_REF" == "refs/heads/main" ]; then
           podman tag \
-          ${{ env.CRYOSTAT_IMG }}:$IMAGE_VERSION \
-          ${{ env.CRYOSTAT_IMG }}:latest
+          quay.io/cryostat/$IMAGE_NAME:$IMAGE_VERSION \
+          quay.io/cryostat/$IMAGE_NAME:latest
           echo "::set-output name=tags::$IMAGE_VERSION latest"
         else
           echo "::set-output name=tags::$IMAGE_VERSION"
