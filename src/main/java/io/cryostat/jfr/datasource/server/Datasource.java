@@ -156,7 +156,7 @@ public class Datasource {
 
         final StringBuilder responseBuilder = new StringBuilder();
 
-        boolean overwrite = Boolean.valueOf(extractQueryParam(context, "overwrite", "false"));
+        boolean overwrite = Boolean.parseBoolean(extractQueryParam(context, "overwrite", "false"));
         uploadFiles(context.fileUploads(), responseBuilder, overwrite);
         response.end(responseBuilder.toString());
     }
@@ -171,7 +171,7 @@ public class Datasource {
 
         final StringBuilder responseBuilder = new StringBuilder();
 
-        boolean overwrite = Boolean.valueOf(extractQueryParam(context, "overwrite", "false"));
+        boolean overwrite = Boolean.parseBoolean(extractQueryParam(context, "overwrite", "false"));
         String lastFile = uploadFiles(context.fileUploads(), responseBuilder, overwrite);
         String filePath = jfrDir + File.separator + lastFile;
 
