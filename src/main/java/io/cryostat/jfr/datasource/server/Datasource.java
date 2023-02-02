@@ -41,6 +41,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -55,6 +56,7 @@ import io.quarkus.vertx.web.ReactiveRoutes;
 import io.quarkus.vertx.web.Route;
 import io.quarkus.vertx.web.Route.HttpMethod;
 import io.smallrye.common.annotation.Blocking;
+import io.vertx.core.MultiMap;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.FileUpload;
@@ -154,7 +156,8 @@ public class Datasource {
 
         final StringBuilder responseBuilder = new StringBuilder();
 
-        uploadFiles(context.fileUploads(), responseBuilder);
+        boolean overwrite = Boolean.parseBoolean(extractQueryParam(context, "overwrite", "false"));
+        uploadFiles(context.fileUploads(), responseBuilder, overwrite);
         response.end(responseBuilder.toString());
     }
 
@@ -168,7 +171,8 @@ public class Datasource {
 
         final StringBuilder responseBuilder = new StringBuilder();
 
-        String lastFile = uploadFiles(context.fileUploads(), responseBuilder);
+        boolean overwrite = Boolean.parseBoolean(extractQueryParam(context, "overwrite", "false"));
+        String lastFile = uploadFiles(context.fileUploads(), responseBuilder, overwrite);
         String filePath = jfrDir + File.separator + lastFile;
 
         setFile(filePath, lastFile, response, responseBuilder);
@@ -223,6 +227,7 @@ public class Datasource {
                 stringBuilder.append("Deleted: " + deletedFile);
                 stringBuilder.append(System.lineSeparator());
             }
+            setLoadedFile(UNSET_FILE);
             response.end(stringBuilder.toString());
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
@@ -244,6 +249,9 @@ public class Datasource {
         } else {
             try {
                 deleteFile(fileName);
+                if (fileName.equals(loadedFile)) {
+                    setLoadedFile(UNSET_FILE);
+                }
                 response.setStatusCode(204);
             } catch (FileNotFoundException e) {
                 LOGGER.error(e.getMessage(), e);
@@ -269,7 +277,8 @@ public class Datasource {
         return files;
     }
 
-    private String uploadFiles(Set<FileUpload> uploads, StringBuilder responseBuilder) {
+    private String uploadFiles(
+            Set<FileUpload> uploads, StringBuilder responseBuilder, boolean overwrite) {
         String lastFile = "";
         for (FileUpload fileUpload : uploads) {
             Path source = fsService.pathOf(fileUpload.uploadedFileName());
@@ -279,16 +288,25 @@ public class Datasource {
             Path dest = source.resolveSibling(fileUpload.fileName());
 
             if (fsService.exists(dest)) {
-                int attempts = 0;
-                while (fsService.exists(dest) && attempts < 10) {
-                    dest =
-                            source.resolveSibling(
-                                    UUID.randomUUID().toString() + '-' + fileUpload.fileName());
-                    attempts++;
+                if (overwrite) {
+                    LOGGER.info(fileUpload.fileName() + " exists and will be overwritten.");
+                } else {
+                    int attempts = 0;
+                    while (fsService.exists(dest) && attempts < 10) {
+                        dest =
+                                source.resolveSibling(
+                                        UUID.randomUUID().toString() + '-' + fileUpload.fileName());
+                        attempts++;
+                    }
                 }
             }
+
             try {
-                fsService.move(source, dest);
+                if (overwrite) {
+                    fsService.move(source, dest, StandardCopyOption.REPLACE_EXISTING);
+                } else {
+                    fsService.move(source, dest);
+                }
                 logUploadedFile(dest.getFileName().toString(), responseBuilder);
                 lastFile = dest.getFileName().toString();
             } catch (IOException e) {
@@ -358,5 +376,11 @@ public class Datasource {
         } else {
             throw new FileNotFoundException(filename + " does not exist");
         }
+    }
+
+    private String extractQueryParam(RoutingContext context, String name, String defaultValue) {
+        final MultiMap queries = context.queryParams();
+        final String val = queries.get(name);
+        return val != null ? val : defaultValue;
     }
 }

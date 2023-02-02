@@ -94,6 +94,8 @@ $ curl "localhost:8080/"
 
 Expects a JFR file upload. Used to upload a JFR file to the server. Responds with the uploaded filename.
 
+If `overwrite` query parameter is set to `true`, the uploaded file will overwrite the existing one with the same name.
+
 The webserver sets a default maximum file upload size of 10GB
 (`application.properties`: `quarkus.http.limits.max-body-size=10G`).
 This can be overridden on a deployed instance by setting the environment variable
@@ -130,6 +132,8 @@ $ curl -X POST --data "some-file" "localhost:8080/set"
 #### POST /load
 
 Expects a JFR file upload. Performs `Upload` and `Set` in sequence. Responds with the uploaded and selected filename.
+
+If `overwrite` query parameter is set to `true`, the uploaded file will overwrite the existing one with the same name.
 
 The webserver sets a default maximum file upload size. If the file to be
 uploaded exceeds this size then either the limit can be raised or the `/load`
