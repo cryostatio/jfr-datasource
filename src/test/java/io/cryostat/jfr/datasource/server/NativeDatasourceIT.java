@@ -139,6 +139,59 @@ public class NativeDatasourceIT {
     }
 
     @Test
+    @Order(5)
+    public void testGetList() throws Exception {
+        File jfrFile = new File("src/test/resources/recording.jfr");
+        assertTrue(jfrFile.exists());
+
+        String expected = "Uploaded: recording.jfr" + System.lineSeparator();
+        given().multiPart(jfrFile)
+                .when()
+                .post("/upload")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"));
+
+        expected = "recording.jfr" + System.lineSeparator();
+        given().when()
+                .get("/list")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"));
+
+        expected = "Set: recording.jfr" + System.lineSeparator();
+        given().body("recording.jfr")
+                .when()
+                .post("/set")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"));
+
+        expected = "**recording.jfr**" + System.lineSeparator();
+        given().when()
+                .get("/list")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"));
+    }
+
+    @Test
+    @Order(6)
+    public void testGetListEmpty() throws Exception {
+        String expected = "";
+        given().when()
+                .get("/list")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"));
+    }
+
+    @Test
     public void testPostSet() throws Exception {
         File jfrFile = new File("src/test/resources/recording.jfr");
         assertTrue(jfrFile.exists());
@@ -227,57 +280,6 @@ public class NativeDatasourceIT {
         expected = "recording.jfr" + System.lineSeparator();
         given().when()
                 .get("/current")
-                .then()
-                .statusCode(200)
-                .body(is(expected))
-                .header("content-type", is("text/plain"));
-    }
-
-    @Test
-    public void testGetList() throws Exception {
-        File jfrFile = new File("src/test/resources/recording.jfr");
-        assertTrue(jfrFile.exists());
-
-        String expected = "Uploaded: recording.jfr" + System.lineSeparator();
-        given().multiPart(jfrFile)
-                .when()
-                .post("/upload")
-                .then()
-                .statusCode(200)
-                .body(is(expected))
-                .header("content-type", is("text/plain"));
-
-        expected = "recording.jfr" + System.lineSeparator();
-        given().when()
-                .get("/list")
-                .then()
-                .statusCode(200)
-                .body(is(expected))
-                .header("content-type", is("text/plain"));
-
-        expected = "Set: recording.jfr" + System.lineSeparator();
-        given().body("recording.jfr")
-                .when()
-                .post("/set")
-                .then()
-                .statusCode(200)
-                .body(is(expected))
-                .header("content-type", is("text/plain"));
-
-        expected = "**recording.jfr**" + System.lineSeparator();
-        given().when()
-                .get("/list")
-                .then()
-                .statusCode(200)
-                .body(is(expected))
-                .header("content-type", is("text/plain"));
-    }
-
-    @Test
-    public void testGetListEmpty() throws Exception {
-        String expected = "";
-        given().when()
-                .get("/list")
                 .then()
                 .statusCode(200)
                 .body(is(expected))

@@ -227,6 +227,7 @@ public class Datasource {
                 stringBuilder.append("Deleted: " + deletedFile);
                 stringBuilder.append(System.lineSeparator());
             }
+            setLoadedFile(UNSET_FILE);
             response.end(stringBuilder.toString());
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
@@ -248,6 +249,9 @@ public class Datasource {
         } else {
             try {
                 deleteFile(fileName);
+                if (fileName.equals(loadedFile)) {
+                    setLoadedFile(UNSET_FILE);
+                }
                 response.setStatusCode(204);
             } catch (FileNotFoundException e) {
                 LOGGER.error(e.getMessage(), e);

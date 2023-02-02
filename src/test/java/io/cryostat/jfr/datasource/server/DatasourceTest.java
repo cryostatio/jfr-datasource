@@ -85,14 +85,14 @@ public class DatasourceTest {
         directory.delete();
     }
 
-    @Order(1)
     @Test
+    @Order(1)
     public void testGet() throws Exception {
         given().when().get("/").then().statusCode(200).body(is("")).headers(Collections.emptyMap());
     }
 
-    @Order(2)
     @Test
+    @Order(2)
     public void testGetCurrent() {
         given().when()
                 .get("/current")
@@ -240,6 +240,182 @@ public class DatasourceTest {
 
         // There should only be 1 file when /list
         expected = "recording.jfr" + System.lineSeparator();
+        given().when()
+                .get("/list")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"));
+    }
+
+    @Test
+    @Order(5)
+    public void testGetList() throws Exception {
+        File jfrFile = new File("src/test/resources/recording.jfr");
+        assertTrue(jfrFile.exists());
+
+        Mockito.when(fsService.pathOf(Mockito.anyString()))
+                .thenAnswer(
+                        new Answer<Path>() {
+                            @Override
+                            public Path answer(InvocationOnMock invocation) throws IOException {
+                                String uploadedFileName = invocation.getArgument(0);
+                                return Path.of(uploadedFileName);
+                            }
+                        });
+        Mockito.when(fsService.exists(Mockito.any(Path.class)))
+                .thenAnswer(
+                        new Answer<Boolean>() {
+                            @Override
+                            public Boolean answer(InvocationOnMock invocation) throws IOException {
+                                Path target = invocation.getArgument(0);
+                                return Files.exists(target);
+                            }
+                        });
+        Mockito.when(fsService.move(Mockito.any(Path.class), Mockito.any(Path.class)))
+                .thenAnswer(
+                        new Answer<Path>() {
+                            @Override
+                            public Path answer(InvocationOnMock invocation) throws IOException {
+                                Path source = invocation.getArgument(0);
+                                Path dest = invocation.getArgument(1);
+                                return Files.move(source, dest);
+                            }
+                        });
+
+        String expected = "Uploaded: recording.jfr" + System.lineSeparator();
+        given().multiPart(jfrFile)
+                .when()
+                .post("/upload")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"));
+
+        Mockito.when(fsService.pathOf(Mockito.anyString()))
+                .thenAnswer(
+                        new Answer<Path>() {
+                            @Override
+                            public Path answer(InvocationOnMock invocation) throws IOException {
+                                String target = invocation.getArgument(0);
+                                return Path.of(target);
+                            }
+                        });
+        Mockito.when(fsService.exists(Mockito.any(Path.class)))
+                .thenAnswer(
+                        new Answer<Boolean>() {
+                            @Override
+                            public Boolean answer(InvocationOnMock invocation) throws IOException {
+                                Path target = invocation.getArgument(0);
+                                return Files.exists(target);
+                            }
+                        });
+        Mockito.when(fsService.isDirectory(Mockito.any(Path.class)))
+                .thenAnswer(
+                        new Answer<Boolean>() {
+                            @Override
+                            public Boolean answer(InvocationOnMock invocation) throws IOException {
+                                Path target = invocation.getArgument(0);
+                                return Files.isDirectory(target);
+                            }
+                        });
+        Mockito.when(fsService.list(Mockito.any(Path.class)))
+                .thenAnswer(
+                        new Answer<List<Path>>() {
+                            @Override
+                            public List<Path> answer(InvocationOnMock invocation)
+                                    throws IOException {
+                                Path dir = invocation.getArgument(0);
+                                return Files.list(dir).collect(Collectors.toList());
+                            }
+                        });
+        Mockito.when(fsService.isRegularFile(Mockito.any(Path.class)))
+                .thenAnswer(
+                        new Answer<Boolean>() {
+                            @Override
+                            public Boolean answer(InvocationOnMock invocation) throws IOException {
+                                Path target = invocation.getArgument(0);
+                                return Files.isRegularFile(target);
+                            }
+                        });
+
+        expected = "recording.jfr" + System.lineSeparator();
+        given().when()
+                .get("/list")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"));
+
+        expected = "Set: recording.jfr" + System.lineSeparator();
+        given().body("recording.jfr")
+                .when()
+                .post("/set")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"));
+
+        expected = "**recording.jfr**" + System.lineSeparator();
+        given().when()
+                .get("/list")
+                .then()
+                .statusCode(200)
+                .body(is(expected))
+                .header("content-type", is("text/plain"));
+    }
+
+    @Test
+    @Order(6)
+    public void testGetListEmpty() throws Exception {
+        Mockito.when(fsService.pathOf(Mockito.anyString()))
+                .thenAnswer(
+                        new Answer<Path>() {
+                            @Override
+                            public Path answer(InvocationOnMock invocation) throws IOException {
+                                String target = invocation.getArgument(0);
+                                return Path.of(target);
+                            }
+                        });
+        Mockito.when(fsService.exists(Mockito.any(Path.class)))
+                .thenAnswer(
+                        new Answer<Boolean>() {
+                            @Override
+                            public Boolean answer(InvocationOnMock invocation) throws IOException {
+                                Path target = invocation.getArgument(0);
+                                return Files.exists(target);
+                            }
+                        });
+        Mockito.when(fsService.isDirectory(Mockito.any(Path.class)))
+                .thenAnswer(
+                        new Answer<Boolean>() {
+                            @Override
+                            public Boolean answer(InvocationOnMock invocation) throws IOException {
+                                Path target = invocation.getArgument(0);
+                                return Files.isDirectory(target);
+                            }
+                        });
+        Mockito.when(fsService.list(Mockito.any(Path.class)))
+                .thenAnswer(
+                        new Answer<List<Path>>() {
+                            @Override
+                            public List<Path> answer(InvocationOnMock invocation)
+                                    throws IOException {
+                                Path dir = invocation.getArgument(0);
+                                return Files.list(dir).collect(Collectors.toList());
+                            }
+                        });
+        Mockito.when(fsService.isRegularFile(Mockito.any(Path.class)))
+                .thenAnswer(
+                        new Answer<Boolean>() {
+                            @Override
+                            public Boolean answer(InvocationOnMock invocation) throws IOException {
+                                Path target = invocation.getArgument(0);
+                                return Files.isRegularFile(target);
+                            }
+                        });
+
+        String expected = "";
         given().when()
                 .get("/list")
                 .then()
@@ -431,180 +607,6 @@ public class DatasourceTest {
         expected = "recording.jfr" + System.lineSeparator();
         given().when()
                 .get("/current")
-                .then()
-                .statusCode(200)
-                .body(is(expected))
-                .header("content-type", is("text/plain"));
-    }
-
-    @Test
-    public void testGetList() throws Exception {
-        File jfrFile = new File("src/test/resources/recording.jfr");
-        assertTrue(jfrFile.exists());
-
-        Mockito.when(fsService.pathOf(Mockito.anyString()))
-                .thenAnswer(
-                        new Answer<Path>() {
-                            @Override
-                            public Path answer(InvocationOnMock invocation) throws IOException {
-                                String uploadedFileName = invocation.getArgument(0);
-                                return Path.of(uploadedFileName);
-                            }
-                        });
-        Mockito.when(fsService.exists(Mockito.any(Path.class)))
-                .thenAnswer(
-                        new Answer<Boolean>() {
-                            @Override
-                            public Boolean answer(InvocationOnMock invocation) throws IOException {
-                                Path target = invocation.getArgument(0);
-                                return Files.exists(target);
-                            }
-                        });
-        Mockito.when(fsService.move(Mockito.any(Path.class), Mockito.any(Path.class)))
-                .thenAnswer(
-                        new Answer<Path>() {
-                            @Override
-                            public Path answer(InvocationOnMock invocation) throws IOException {
-                                Path source = invocation.getArgument(0);
-                                Path dest = invocation.getArgument(1);
-                                return Files.move(source, dest);
-                            }
-                        });
-
-        String expected = "Uploaded: recording.jfr" + System.lineSeparator();
-        given().multiPart(jfrFile)
-                .when()
-                .post("/upload")
-                .then()
-                .statusCode(200)
-                .body(is(expected))
-                .header("content-type", is("text/plain"));
-
-        Mockito.when(fsService.pathOf(Mockito.anyString()))
-                .thenAnswer(
-                        new Answer<Path>() {
-                            @Override
-                            public Path answer(InvocationOnMock invocation) throws IOException {
-                                String target = invocation.getArgument(0);
-                                return Path.of(target);
-                            }
-                        });
-        Mockito.when(fsService.exists(Mockito.any(Path.class)))
-                .thenAnswer(
-                        new Answer<Boolean>() {
-                            @Override
-                            public Boolean answer(InvocationOnMock invocation) throws IOException {
-                                Path target = invocation.getArgument(0);
-                                return Files.exists(target);
-                            }
-                        });
-        Mockito.when(fsService.isDirectory(Mockito.any(Path.class)))
-                .thenAnswer(
-                        new Answer<Boolean>() {
-                            @Override
-                            public Boolean answer(InvocationOnMock invocation) throws IOException {
-                                Path target = invocation.getArgument(0);
-                                return Files.isDirectory(target);
-                            }
-                        });
-        Mockito.when(fsService.list(Mockito.any(Path.class)))
-                .thenAnswer(
-                        new Answer<List<Path>>() {
-                            @Override
-                            public List<Path> answer(InvocationOnMock invocation)
-                                    throws IOException {
-                                Path dir = invocation.getArgument(0);
-                                return Files.list(dir).collect(Collectors.toList());
-                            }
-                        });
-        Mockito.when(fsService.isRegularFile(Mockito.any(Path.class)))
-                .thenAnswer(
-                        new Answer<Boolean>() {
-                            @Override
-                            public Boolean answer(InvocationOnMock invocation) throws IOException {
-                                Path target = invocation.getArgument(0);
-                                return Files.isRegularFile(target);
-                            }
-                        });
-
-        expected = "recording.jfr" + System.lineSeparator();
-        given().when()
-                .get("/list")
-                .then()
-                .statusCode(200)
-                .body(is(expected))
-                .header("content-type", is("text/plain"));
-
-        expected = "Set: recording.jfr" + System.lineSeparator();
-        given().body("recording.jfr")
-                .when()
-                .post("/set")
-                .then()
-                .statusCode(200)
-                .body(is(expected))
-                .header("content-type", is("text/plain"));
-
-        expected = "**recording.jfr**" + System.lineSeparator();
-        given().when()
-                .get("/list")
-                .then()
-                .statusCode(200)
-                .body(is(expected))
-                .header("content-type", is("text/plain"));
-    }
-
-    @Test
-    public void testGetListEmpty() throws Exception {
-        Mockito.when(fsService.pathOf(Mockito.anyString()))
-                .thenAnswer(
-                        new Answer<Path>() {
-                            @Override
-                            public Path answer(InvocationOnMock invocation) throws IOException {
-                                String target = invocation.getArgument(0);
-                                return Path.of(target);
-                            }
-                        });
-        Mockito.when(fsService.exists(Mockito.any(Path.class)))
-                .thenAnswer(
-                        new Answer<Boolean>() {
-                            @Override
-                            public Boolean answer(InvocationOnMock invocation) throws IOException {
-                                Path target = invocation.getArgument(0);
-                                return Files.exists(target);
-                            }
-                        });
-        Mockito.when(fsService.isDirectory(Mockito.any(Path.class)))
-                .thenAnswer(
-                        new Answer<Boolean>() {
-                            @Override
-                            public Boolean answer(InvocationOnMock invocation) throws IOException {
-                                Path target = invocation.getArgument(0);
-                                return Files.isDirectory(target);
-                            }
-                        });
-        Mockito.when(fsService.list(Mockito.any(Path.class)))
-                .thenAnswer(
-                        new Answer<List<Path>>() {
-                            @Override
-                            public List<Path> answer(InvocationOnMock invocation)
-                                    throws IOException {
-                                Path dir = invocation.getArgument(0);
-                                return Files.list(dir).collect(Collectors.toList());
-                            }
-                        });
-        Mockito.when(fsService.isRegularFile(Mockito.any(Path.class)))
-                .thenAnswer(
-                        new Answer<Boolean>() {
-                            @Override
-                            public Boolean answer(InvocationOnMock invocation) throws IOException {
-                                Path target = invocation.getArgument(0);
-                                return Files.isRegularFile(target);
-                            }
-                        });
-
-        String expected = "";
-        given().when()
-                .get("/list")
                 .then()
                 .statusCode(200)
                 .body(is(expected))
