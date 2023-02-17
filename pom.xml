@@ -22,7 +22,7 @@
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
     <quarkus.platform.version>2.7.6.Final</quarkus.platform.version>
-    <quarkus-plugin.version>2.7.6.Final</quarkus-plugin.version>
+    <quarkus-plugin.version>2.16.3.Final</quarkus-plugin.version>
 
     <org.owasp.dependency.check.version>6.0.5</org.owasp.dependency.check.version>
 
