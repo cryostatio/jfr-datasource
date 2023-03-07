@@ -47,7 +47,7 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collections;
 
-import io.quarkus.test.junit.NativeImageTest;
+import io.quarkus.test.junit.QuarkusIntegrationTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
@@ -55,7 +55,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 @TestMethodOrder(OrderAnnotation.class)
-@NativeImageTest
+@QuarkusIntegrationTest
 public class NativeDatasourceIT {
     @AfterEach
     public void afterEachDatasourceTest() {
