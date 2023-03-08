@@ -44,7 +44,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -89,7 +88,7 @@ public class Datasource {
             produces = {ReactiveRoutes.APPLICATION_JSON})
     void search(RoutingContext context) {
         HttpServerResponse response = context.response();
-        JsonObject body = context.getBodyAsJson();
+        JsonObject body = context.body().asJsonObject();
         try {
             if (body != null && !body.isEmpty()) {
                 LOGGER.info(body.toString());
@@ -109,7 +108,7 @@ public class Datasource {
     void query(RoutingContext context) {
         HttpServerResponse response = context.response();
         try {
-            JsonObject body = context.getBodyAsJson();
+            JsonObject body = context.body().asJsonObject();
             if (body != null && !body.isEmpty()) {
                 LOGGER.info(body.toString());
                 Query query = new Query(body);
@@ -140,7 +139,7 @@ public class Datasource {
     void set(RoutingContext context) {
         HttpServerResponse response = context.response();
 
-        String file = context.getBodyAsString();
+        String file = context.body().asString();
         String filePath = jfrDir + File.separator + file;
 
         setFile(filePath, file, response, new StringBuilder());
@@ -243,7 +242,7 @@ public class Datasource {
     void delete(RoutingContext context) {
         HttpServerResponse response = context.response();
 
-        String fileName = context.getBodyAsString();
+        String fileName = context.body().asString();
         if (fileName == null || fileName.isEmpty()) {
             response.setStatusCode(400);
         } else {
@@ -278,7 +277,7 @@ public class Datasource {
     }
 
     private String uploadFiles(
-            Set<FileUpload> uploads, StringBuilder responseBuilder, boolean overwrite) {
+            List<FileUpload> uploads, StringBuilder responseBuilder, boolean overwrite) {
         String lastFile = "";
         for (FileUpload fileUpload : uploads) {
             Path source = fsService.pathOf(fileUpload.uploadedFileName());
