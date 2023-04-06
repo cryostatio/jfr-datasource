@@ -17,7 +17,7 @@
 
     <java.version>17</java.version>
 
-    <jmc.core.version>7.1.1</jmc.core.version>
+    <jmc.core.version>8.3.0</jmc.core.version>
 
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
