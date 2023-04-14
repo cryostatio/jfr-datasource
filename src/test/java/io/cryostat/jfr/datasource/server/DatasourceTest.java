@@ -762,7 +762,7 @@ public class DatasourceTest {
                 .post("/search")
                 .then()
                 .statusCode(200)
-                .body(is(expected))
+                .body(is(expected.trim()))
                 .header("content-type", is("application/json"));
     }
 
