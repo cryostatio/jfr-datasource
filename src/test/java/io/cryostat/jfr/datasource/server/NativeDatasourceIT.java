@@ -359,7 +359,7 @@ public class NativeDatasourceIT {
                 .post("/search")
                 .then()
                 .statusCode(200)
-                .body(is(expected))
+                .body(is(expected.trim()))
                 .header("content-type", is("application/json"));
     }
 
