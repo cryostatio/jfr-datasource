@@ -4,13 +4,13 @@
 
 ![Build Status](https://github.com/cryostatio/jfr-datasource/actions/workflows/ci.yaml/badge.svg)
 
-This demonstrates how a simple json data source can be used in Grafana to read the events of a JFR file.
+This demonstrates how a simple JSON data source can be used in Grafana to read the events from a JFR file.
 
 ## Usage
 
 ### Dependencies
 
-For native image support, graalvm 22.3 (Java 17 version) is needed with path to it's directory set via environment variable `GRAALVM_HOME`. This can be downloaded from:
+For native image support, GraalVM 22.3 (Java 17 version) is needed with the environment variable `GRAALVM_HOME` set to its path. It can be downloaded from:
 ```
 https://github.com/graalvm/graalvm-ce-builds/releases
 ```
@@ -22,7 +22,7 @@ After downloading, run
 
 `libz.a` is also required to complete native image builds. On Fedora, `dnf install zlib-devel`.
 
-For containers, podman is needed. Installation instructions are here:
+For containers, podman is required. Installation instructions are here:
 ```
 https://podman.io/getting-started/installation.html
 ```
@@ -39,7 +39,7 @@ To build a native image instead:
 ```bash
 mvn -Pnative clean verify
 ```
-Native image builds may use more than 4G of RAM to complete.
+Native image builds may use more than 4G of RAM to finish.
 
 To build a native image within a container, for a consistent environment:
 ```bash
@@ -61,12 +61,12 @@ If you built a native image:
 
 ### Run Grafana
 
-- Install SimpleJson data source if not already installed via
+- Install `SimpleJson` data source if not already installed via
 ```bash
 grafana-cli --pluginsDir <path-to-your-plugins-directory> plugins install grafana-simple-json-datasource
 ```
-- Add a SimpleJson data source
-- Set the URL to the jfr-datasource (default: `http://localhost:8080`)
+- Add a `SimpleJson` data source
+- Set the URL to the `jfr-datasource` (default: `http://localhost:8080`)
 - Create a panel that pulls from the data source and plots a timeseries
 
 ### Building a container image
@@ -83,7 +83,7 @@ podman build -f src/main/docker/Dockerfile.native -t quay.io/cryostat/jfr-dataso
 
 #### GET /
 
-Responds with 200 OK. Used to verify server is available.
+Responds with 200 OK. Used to verify if the server is available.
 
 CURL Example
 ```bash
@@ -161,7 +161,7 @@ file2.jfr
 
 #### GET /current
 
-Responds with the name of the  currently `Set` file.
+Responds with the name of the currently `Set` file.
 
 CURL Example
 ```bash
