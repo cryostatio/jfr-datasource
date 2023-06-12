@@ -24,7 +24,7 @@
     <quarkus.platform.version>2.13.7.Final</quarkus.platform.version>
     <quarkus-plugin.version>2.13.7.Final</quarkus-plugin.version>
 
-    <org.owasp.dependency.check.version>8.2.1</org.owasp.dependency.check.version>
+    <org.owasp.dependency.check.version>8.3.1</org.owasp.dependency.check.version>
 
     <quarkus.native.enable-http-url-handler>true</quarkus.native.enable-http-url-handler>
     <quarkus.native.additional-build-args>
