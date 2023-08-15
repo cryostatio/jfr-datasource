@@ -77,6 +77,11 @@ This project comes with a Dockerfile to produce a container image with the nativ
 podman build -f src/main/docker/Dockerfile.native -t quay.io/cryostat/jfr-datasource .
 ```
 
+To produce a container image of the JVM mode result:
+```bash
+podman build -f src/main/docker/Dockerfile.jvm -t quay.io/cryostat/jfr-datasource .
+```
+
 ## API
 
 ### JFR Endpoints
