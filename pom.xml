@@ -10,19 +10,22 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+    <java.version>17</java.version>
+    <maven.compiler.release>${java.version}</maven.compiler.release>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
+
     <maven-failsafe-plugin.version>3.1.2</maven-failsafe-plugin.version>
     <maven-surefire-plugin.version>3.1.2</maven-surefire-plugin.version>
     <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
     <maven-assembly-plugin.version>3.6.0</maven-assembly-plugin.version>
 
-    <java.version>17</java.version>
-
     <jmc.core.version>8.2.0</jmc.core.version>
 
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
-    <quarkus.platform.version>2.13.7.Final</quarkus.platform.version>
-    <quarkus-plugin.version>2.13.7.Final</quarkus-plugin.version>
+    <quarkus.platform.version>3.2.4.Final</quarkus.platform.version>
+    <quarkus-plugin.version>3.2.4.Final</quarkus-plugin.version>
 
     <org.owasp.dependency.check.version>8.3.1</org.owasp.dependency.check.version>
 

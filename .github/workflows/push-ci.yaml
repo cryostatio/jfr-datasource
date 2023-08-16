@@ -40,7 +40,7 @@ jobs:
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
           ${{ runner.os }}-maven-
-    - run: mvn -Pnative -Dquarkus.native.container-build=true -Dquarkus.native.container-runtime=podman -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel:22.3-java17 clean verify
+    - run: mvn -Pnative -Dquarkus.native.container-build=true -Dquarkus.native.container-runtime=podman -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel-builder-image:23.0-java17 clean verify
     - run: podman build -f src/main/docker/Dockerfile.native -t "quay.io/cryostat/$IMAGE_NAME:$IMAGE_VERSION" .
       env:
         IMAGE_NAME: ${{ needs.get-pom-properties.outputs.image-name }}
