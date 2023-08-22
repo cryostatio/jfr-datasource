@@ -160,6 +160,32 @@
       </build>
     </profile>
     <profile>
+      <id>quarkus-app</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <version>${maven-assembly-plugin.version}</version>
+            <configuration>
+              <descriptors>
+                <descriptor>src/assembly/quarkus-app.xml</descriptor>
+              </descriptors>
+              <tarLongFileMode>posix</tarLongFileMode>
+            </configuration>
+            <executions>
+              <execution>
+                <id>assemble-quarkus-app</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>single</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
       <id>dep-check</id>
       <build>
         <plugins>
