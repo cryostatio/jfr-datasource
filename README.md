@@ -10,7 +10,7 @@ This demonstrates how a simple JSON data source can be used in Grafana to read t
 
 ### Dependencies
 
-For native image support, GraalVM 22.3 (Java 17 version) is needed with the environment variable `GRAALVM_HOME` set to its path. It can be downloaded from:
+For native image support, GraalVM 23.0 (Java 17 version) is needed with the environment variable `GRAALVM_HOME` set to its path. It can be downloaded from:
 ```
 https://github.com/graalvm/graalvm-ce-builds/releases
 ```
@@ -75,6 +75,11 @@ This project comes with a Dockerfile to produce a container image with the nativ
 
 ```bash
 podman build -f src/main/docker/Dockerfile.native -t quay.io/cryostat/jfr-datasource .
+```
+
+To produce a container image of the JVM mode result:
+```bash
+podman build -f src/main/docker/Dockerfile.jvm -t quay.io/cryostat/jfr-datasource .
 ```
 
 ## API
