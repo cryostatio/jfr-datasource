@@ -20,7 +20,7 @@
     <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
     <maven-assembly-plugin.version>3.6.0</maven-assembly-plugin.version>
 
-    <jmc.core.version>8.2.0</jmc.core.version>
+    <jmc.core.version>8.3.0</jmc.core.version>
 
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
