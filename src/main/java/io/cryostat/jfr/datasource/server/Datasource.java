@@ -18,11 +18,16 @@ package io.cryostat.jfr.datasource.server;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
+import org.openjdk.jmc.common.io.IOToolkit;
+import org.openjdk.jmc.common.util.Pair;
 
 import io.cryostat.jfr.datasource.events.RecordingService;
 import io.cryostat.jfr.datasource.sys.FileSystemService;
@@ -48,6 +53,12 @@ public class Datasource {
 
     @ConfigProperty(name = "quarkus.http.body.uploads-directory")
     String jfrDir;
+
+    @ConfigProperty(name = "io.cryostat.jfr-datasource.memory-factor", defaultValue = "10")
+    String memoryFactor;
+
+    @ConfigProperty(name = "io.cryostat.jfr-datasource.timeout", defaultValue = "29000")
+    String timeoutMs;
 
     @Inject RecordingService recordingService;
 
@@ -127,13 +138,13 @@ public class Datasource {
             methods = HttpMethod.POST,
             produces = {"text/plain"})
     @Blocking
-    void upload(RoutingContext context) {
+    void upload(RoutingContext context) throws IOException {
         HttpServerResponse response = context.response();
 
         final StringBuilder responseBuilder = new StringBuilder();
 
         boolean overwrite = Boolean.parseBoolean(extractQueryParam(context, "overwrite", "false"));
-        uploadFiles(context.fileUploads(), responseBuilder, overwrite);
+        uploadFiles(context.fileUploads(), responseBuilder, overwrite, response);
         response.end(responseBuilder.toString());
     }
 
@@ -142,13 +153,13 @@ public class Datasource {
             methods = HttpMethod.POST,
             produces = {"text/plain"})
     @Blocking
-    void load(RoutingContext context) {
+    void load(RoutingContext context) throws IOException {
         HttpServerResponse response = context.response();
 
         final StringBuilder responseBuilder = new StringBuilder();
 
         boolean overwrite = Boolean.parseBoolean(extractQueryParam(context, "overwrite", "false"));
-        String lastFile = uploadFiles(context.fileUploads(), responseBuilder, overwrite);
+        String lastFile = uploadFiles(context.fileUploads(), responseBuilder, overwrite, response);
         String filePath = jfrDir + File.separator + lastFile;
 
         setFile(filePath, lastFile, response, responseBuilder);
@@ -254,13 +265,17 @@ public class Datasource {
     }
 
     private String uploadFiles(
-            List<FileUpload> uploads, StringBuilder responseBuilder, boolean overwrite) {
+            List<FileUpload> uploads,
+            StringBuilder responseBuilder,
+            boolean overwrite,
+            HttpServerResponse response)
+            throws IOException {
         String lastFile = "";
         for (FileUpload fileUpload : uploads) {
-            Path source = fsService.pathOf(fileUpload.uploadedFileName());
-            String uploadedFile = source.getFileName().toString();
+            Pair<String, Path> pairHelper = uploadHelper(fileUpload, response);
+            String uploadedFile = pairHelper.left;
+            Path source = pairHelper.right;
             lastFile = uploadedFile;
-
             Path dest = source.resolveSibling(fileUpload.fileName());
 
             if (fsService.exists(dest)) {
@@ -291,6 +306,56 @@ public class Datasource {
         }
 
         return lastFile;
+    }
+
+    private Pair<String, Path> uploadHelper(FileUpload fileUpload, HttpServerResponse response)
+            throws IOException {
+        Path source = fsService.pathOf(fileUpload.uploadedFileName());
+        long timeout = TimeUnit.MILLISECONDS.toNanos(Long.parseLong(timeoutMs));
+        String uploadedFile = source.getFileName().toString();
+        long start = System.nanoTime();
+        long now = start;
+        long elapsed = 0;
+
+        LOGGER.info("Received request for %s (%d bytes)", fileUpload.fileName(), fileUpload.size());
+
+        if (IOToolkit.isCompressedFile(source.toFile())) {
+            source = decompress(source);
+            now = System.nanoTime();
+            elapsed = now - start;
+            LOGGER.info(
+                    "%s was compressed. Decompressed size: %d bytes. Decompression took %dms",
+                    fileUpload.fileName(),
+                    source.toFile().length(),
+                    TimeUnit.NANOSECONDS.toMillis(elapsed));
+        }
+
+        Runtime runtime = Runtime.getRuntime();
+        System.gc();
+        long availableMemory = runtime.maxMemory() - runtime.totalMemory() + runtime.freeMemory();
+        long maxHandleableSize = availableMemory / Long.parseLong(memoryFactor);
+        if (source.toFile().length() > maxHandleableSize) {
+            response.setStatusCode(413);
+            response.end();
+        }
+
+        now = System.nanoTime();
+        elapsed = now - start;
+        if (elapsed > timeout) {
+            response.setStatusCode(504);
+            response.end();
+        }
+        return new Pair<>(uploadedFile, source);
+    }
+
+    private Path decompress(Path source) throws IOException {
+        Path tmp = Files.createTempFile(null, null);
+        try (var stream = IOToolkit.openUncompressedStream(source.toFile())) {
+            Files.copy(stream, tmp, StandardCopyOption.REPLACE_EXISTING);
+            return tmp;
+        } finally {
+            Files.deleteIfExists(source);
+        }
     }
 
     private void logUploadedFile(String file, StringBuilder responseBuilder) {
