@@ -33,17 +33,17 @@ This project uses [Quarkus](https://quarkus.io), which can produce a JAR to run 
 
 To build a JAR:
 ```bash
-mvn clean verify
+./mvnw clean verify
 ```
 To build a native image instead:
 ```bash
-mvn -Pnative clean verify
+./mvnw -Pnative clean verify
 ```
 Native image builds may use more than 4G of RAM to finish.
 
 To build a native image within a container, for a consistent environment:
 ```bash
-mvn -Pnative -Dquarkus.native.container-build=true -Dquarkus.native.container-runtime=podman \
+./mvnw -Pnative -Dquarkus.native.container-build=true -Dquarkus.native.container-runtime=podman \
 -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel-builder-image:23.0-java17 \
 clean verify
 ```
