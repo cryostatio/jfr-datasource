@@ -26,14 +26,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import org.openjdk.jmc.common.item.IAttribute;
+import org.openjdk.jmc.common.item.IAccessorKey;
 import org.openjdk.jmc.common.item.IItem;
 import org.openjdk.jmc.common.item.IItemCollection;
 import org.openjdk.jmc.common.item.IItemIterable;
 import org.openjdk.jmc.common.item.IMemberAccessor;
 import org.openjdk.jmc.common.item.IType;
 import org.openjdk.jmc.common.item.ItemFilters;
-import org.openjdk.jmc.common.item.ItemToolkit;
 import org.openjdk.jmc.common.unit.IQuantity;
 import org.openjdk.jmc.common.unit.IRange;
 import org.openjdk.jmc.common.unit.IUnit;
@@ -88,11 +87,16 @@ public class RecordingService {
                 IItemIterable item = i.next();
                 if (item.hasItems()) {
                     IType<IItem> type = item.getType();
-                    List<IAttribute<?>> attributes = type.getAttributes();
-                    for (IAttribute<?> attribute : attributes) {
-                        if (attribute.getIdentifier().contains("eventType")
-                                || attribute.getIdentifier().contains("startTime")
-                                || attribute.getIdentifier().contains("endTime")) {
+                    for (IAccessorKey<?> attribute : type.getAccessorKeys().keySet()) {
+                        if (attribute
+                                        .getIdentifier()
+                                        .contains(JfrAttributes.EVENT_TYPE.getIdentifier())
+                                || attribute
+                                        .getIdentifier()
+                                        .contains(JfrAttributes.START_TIME.getIdentifier())
+                                || attribute
+                                        .getIdentifier()
+                                        .contains(JfrAttributes.END_TIME.getIdentifier())) {
                             continue;
                         }
                         String name = type.getIdentifier() + "." + attribute.getIdentifier();
@@ -118,12 +122,10 @@ public class RecordingService {
         // Should be only 0 or 1 iterator as filtered by name
         for (IItemIterable itemIterable : filteredEvents) {
             IType<IItem> type = itemIterable.getType();
-            List<IAttribute<?>> attributes = type.getAttributes();
             IMemberAccessor<?, IItem> accessor = null;
-
-            for (IAttribute<?> attribute : attributes) {
+            for (IAccessorKey<?> attribute : type.getAccessorKeys().keySet()) {
                 if (targetField.equals(attribute.getIdentifier())) {
-                    accessor = ItemToolkit.accessor(attribute);
+                    accessor = type.getAccessor(attribute);
                     break;
                 }
             }
@@ -294,15 +296,12 @@ public class RecordingService {
                     // name.
                     for (IItemIterable itemIterable : filteredEvents) {
                         IType<IItem> type = itemIterable.getType();
-                        List<IAttribute<?>> attributes = type.getAttributes();
                         final Map<String, IMemberAccessor<?, IItem>> aMap = new HashMap<>();
-
-                        for (IAttribute<?> attribute : attributes) { // Attributes of the events
+                        for (IAccessorKey<?> attribute : type.getAccessorKeys().keySet()) {
                             if (eventField.equals(attribute.getIdentifier())) {
-                                aMap.put(eventField, ItemToolkit.accessor(attribute));
+                                aMap.put(eventField, type.getAccessor(attribute));
                             } else if (targetOptions.get(attribute.getIdentifier()) != null) {
-                                aMap.put(
-                                        attribute.getIdentifier(), ItemToolkit.accessor(attribute));
+                                aMap.put(attribute.getIdentifier(), type.getAccessor(attribute));
                             }
                         }
 
@@ -423,13 +422,10 @@ public class RecordingService {
                     // name.
                     for (IItemIterable itemIterable : filteredEvents) {
                         IType<IItem> type = itemIterable.getType();
-                        List<IAttribute<?>> attributes = type.getAttributes();
-
                         IMemberAccessor<?, IItem> accessor = null;
-
-                        for (IAttribute<?> attribute : attributes) { // Attributes of the events
+                        for (IAccessorKey<?> attribute : type.getAccessorKeys().keySet()) {
                             if (targetEventField.equals(attribute.getIdentifier())) {
-                                accessor = ItemToolkit.accessor(attribute);
+                                accessor = type.getAccessor(attribute);
                                 columns.forEach(
                                         (obj) -> { // Update targetField type
                                             JsonObject jsonObj = ((JsonObject) obj);
