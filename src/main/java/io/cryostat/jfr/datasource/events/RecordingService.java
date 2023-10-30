@@ -181,8 +181,8 @@ public class RecordingService {
         }
 
         JsonArray row = new JsonArray();
-        LOGGER.info("Start time: " + startTime);
-        LOGGER.info("Stop time: " + stopTime);
+        LOGGER.info("Start time: {}", startTime);
+        LOGGER.info("Stop time: {}", stopTime);
 
         row.add(Long.valueOf(Math.max(stopTime - startTime, 0)));
         rows.add(row);
@@ -554,7 +554,7 @@ public class RecordingService {
             if (!file.exists() || !file.isFile()) {
                 throw new IOException("File not found");
             }
-            LOGGER.info("Loading file: " + file.getAbsolutePath());
+            LOGGER.info("Loading file: {}", file.getAbsolutePath());
             this.events = JfrLoaderToolkit.loadEvents(file);
         } catch (CouldNotLoadRecordingException e) {
             LOGGER.error("Failed to read events from recording", e);
