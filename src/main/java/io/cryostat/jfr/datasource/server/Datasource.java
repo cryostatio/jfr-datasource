@@ -195,7 +195,7 @@ public class Datasource {
     void current(RoutingContext context) {
         HttpServerResponse response = context.response();
 
-        LOGGER.info("Current: " + loadedFile);
+        LOGGER.info("Current: {}", loadedFile);
         response.end(loadedFile + System.lineSeparator());
     }
 
@@ -280,7 +280,7 @@ public class Datasource {
 
             if (fsService.exists(dest)) {
                 if (overwrite) {
-                    LOGGER.info(fileUpload.fileName() + " exists and will be overwritten.");
+                    LOGGER.info("{} exists and will be overwritten.", fileUpload.fileName());
                 } else {
                     int attempts = 0;
                     while (fsService.exists(dest) && attempts < 10) {
@@ -317,14 +317,14 @@ public class Datasource {
         long now = start;
         long elapsed = 0;
 
-        LOGGER.info("Received request for %s (%d bytes)", fileUpload.fileName(), fileUpload.size());
+        LOGGER.info("Received request for {} ({} bytes)", fileUpload.fileName(), fileUpload.size());
 
         if (IOToolkit.isCompressedFile(source.toFile())) {
             source = decompress(source);
             now = System.nanoTime();
             elapsed = now - start;
             LOGGER.info(
-                    "%s was compressed. Decompressed size: %d bytes. Decompression took %dms",
+                    "{} was compressed. Decompressed size: {} bytes. Decompression took {}ms",
                     fileUpload.fileName(),
                     source.toFile().length(),
                     TimeUnit.NANOSECONDS.toMillis(elapsed));
@@ -361,7 +361,7 @@ public class Datasource {
     private void logUploadedFile(String file, StringBuilder responseBuilder) {
         responseBuilder.append("Uploaded: " + file);
         responseBuilder.append(System.lineSeparator());
-        LOGGER.info("Uploaded: " + file);
+        LOGGER.info("Uploaded: {}", file);
     }
 
     private void setLoadedFile(String filename) {
@@ -393,7 +393,7 @@ public class Datasource {
                 if (fsService.isRegularFile(f)) {
                     fsService.delete(f);
                     deleteFiles.add(f.getFileName().toString());
-                    LOGGER.info("Deleted: " + f.getFileSystem().toString());
+                    LOGGER.info("Deleted: {}", f.getFileSystem().toString());
                 }
             }
             setLoadedFile(UNSET_FILE);
@@ -407,7 +407,7 @@ public class Datasource {
         if (fsService.exists(dir) && fsService.isDirectory(dir)) {
             if (fsService.deleteIfExists(
                     fsService.pathOf(dir.toAbsolutePath().toString(), filename))) {
-                LOGGER.info("Deleted: " + filename);
+                LOGGER.info("Deleted: {}", filename);
                 if (filename.equals(loadedFile)) {
                     setLoadedFile(UNSET_FILE);
                 }
