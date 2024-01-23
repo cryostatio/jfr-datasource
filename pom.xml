@@ -96,15 +96,6 @@
   </dependency>
   </dependencies>
 
-  <repositories>
-    <repository>
-      <id>adopt</id>
-      <name>AdoptOpenJDK</name>
-      <url>https://adoptopenjdk.jfrog.io/adoptopenjdk/jmc-libs</url>
-      <layout>default</layout>
-    </repository>
-  </repositories>
-
   <profiles>
     <profile>
       <id>native</id>
