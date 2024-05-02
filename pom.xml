@@ -20,7 +20,7 @@
     <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
     <maven-assembly-plugin.version>3.7.1</maven-assembly-plugin.version>
 
-    <jmc.core.version>8.2.0</jmc.core.version>
+    <jmc.core.version>9.0.0</jmc.core.version>
 
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
@@ -95,6 +95,15 @@
       <scope>test</scope>
   </dependency>
   </dependencies>
+
+  <repositories>
+    <repository>
+      <id>jmc-libs</id>
+      <name>Adoptium JDK Mission Control Core Libraries</name>
+      <url>https://adoptium.jfrog.io/artifactory/jmc-libs</url>
+      <layout>default</layout>
+    </repository>
+  </repositories>
 
   <profiles>
     <profile>
