@@ -29,7 +29,7 @@
     <!-- TODO Remove if Quarkus updates Netty in 3.2 -->
     <io.netty.version>4.1.108.Final</io.netty.version>
 
-    <org.owasp.dependency.check.version>10.0.1</org.owasp.dependency.check.version>
+    <org.owasp.dependency.check.version>10.0.2</org.owasp.dependency.check.version>
 
     <quarkus.native.enable-http-url-handler>true</quarkus.native.enable-http-url-handler>
     <quarkus.native.additional-build-args>
