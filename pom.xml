@@ -24,10 +24,8 @@
 
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
-    <quarkus.platform.version>3.2.12.Final</quarkus.platform.version>
-    <quarkus-plugin.version>3.2.12.Final</quarkus-plugin.version>
-    <!-- TODO Remove if Quarkus updates Netty in 3.2 -->
-    <io.netty.version>4.1.108.Final</io.netty.version>
+    <quarkus.platform.version>3.8.5</quarkus.platform.version>
+    <quarkus-plugin.version>3.8.5</quarkus-plugin.version>
 
     <org.owasp.dependency.check.version>10.0.3</org.owasp.dependency.check.version>
 
@@ -42,13 +40,6 @@
 
   <dependencyManagement>
     <dependencies>
-      <dependency>
-        <groupId>io.netty</groupId>
-        <artifactId>netty-bom</artifactId>
-        <version>${io.netty.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
       <dependency>
         <groupId>${quarkus.platform.group-id}</groupId>
         <artifactId>${quarkus.platform.artifact-id}</artifactId>
