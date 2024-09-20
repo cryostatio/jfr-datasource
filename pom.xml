@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.cryostat</groupId>
   <artifactId>jfr-datasource</artifactId>
-  <version>3.0.1</version>
+  <version>3.0.2-SNAPSHOT</version>
   <name>JFR Datasource</name>
 
   <properties>
