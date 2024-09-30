@@ -24,8 +24,8 @@
 
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
-    <quarkus.platform.version>3.8.6</quarkus.platform.version>
-    <quarkus-plugin.version>3.8.5</quarkus-plugin.version>
+    <quarkus.platform.version>3.15.1</quarkus.platform.version>
+    <quarkus-plugin.version>3.15.1</quarkus-plugin.version>
 
     <org.owasp.dependency.check.version>10.0.4</org.owasp.dependency.check.version>
 
@@ -100,7 +100,8 @@
     <profile>
       <id>native</id>
       <properties>
-        <quarkus.package.type>native</quarkus.package.type>
+        <quarkus.native.enabled>true</quarkus.native.enabled>
+        <quarkus.package.jar.enabled>false</quarkus.package.jar.enabled>
       </properties>
       <build>
         <plugins>
@@ -133,7 +134,9 @@
     <profile>
       <id>native-sources</id>
       <properties>
-        <quarkus.package.type>native-sources</quarkus.package.type>
+        <quarkus.native.enabled>true</quarkus.native.enabled>
+        <quarkus.native.sources-only>true</quarkus.native.sources-only>
+        <quarkus.package.jar.enabled>false</quarkus.package.jar.enabled>
       </properties>
       <build>
         <plugins>
