@@ -33,7 +33,7 @@
     <quarkus.native.additional-build-args>
       -H:ReflectionConfigurationResources=reflection.json
     </quarkus.native.additional-build-args>
-    <com.diffplug.spotless.maven.plugin.version>2.44.5</com.diffplug.spotless.maven.plugin.version>
+    <com.diffplug.spotless.maven.plugin.version>2.45.0</com.diffplug.spotless.maven.plugin.version>
     <com.mycila.license.maven.plugin.version>5.0.0</com.mycila.license.maven.plugin.version>
     <org.codehaus.mojo.build.helper.plugin.version>3.6.1</org.codehaus.mojo.build.helper.plugin.version>
   </properties>
