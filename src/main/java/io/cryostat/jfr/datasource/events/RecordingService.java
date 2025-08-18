@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import org.openjdk.jmc.common.item.IAccessorKey;
 import org.openjdk.jmc.common.item.IItem;
@@ -47,7 +48,6 @@ import io.cryostat.jfr.datasource.json.JsonUtils;
 import io.cryostat.jfr.datasource.server.Query;
 import io.cryostat.jfr.datasource.server.Search;
 import io.cryostat.jfr.datasource.server.Target;
-import io.cryostat.jfr.datasource.utils.ArgRunnable;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import io.vertx.core.json.JsonArray;
@@ -476,8 +476,8 @@ public class RecordingService {
     }
 
     public void applyFilterEvents(
-            String targetIdentifier, long from, long to, ArgRunnable<IItemCollection> runnable) {
-        runnable.run(filterEvents(targetIdentifier, from, to));
+            String targetIdentifier, long from, long to, Consumer<IItemCollection> consumer) {
+        consumer.accept(filterEvents(targetIdentifier, from, to));
     }
 
     public IItemCollection filterEvents(String targetIdentifier, long from, long to) {
