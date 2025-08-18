@@ -24,7 +24,6 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.security.KeyManagementException;
@@ -70,8 +69,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.ServerErrorException;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.MultivaluedHashMap;
-import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriBuilder;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -136,7 +133,7 @@ public class Datasource {
                 return recordingService.search(new Search(body));
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e);
             throw new BadRequestException("Error: invalid search body", e);
         }
         throw new BadRequestException("Error: invalid search body");
@@ -154,6 +151,7 @@ public class Datasource {
                 return (recordingService.query(query));
             }
         } catch (Exception e) {
+            logger.error(e);
             throw new BadRequestException("Error: invalid query body", e);
         }
 
@@ -275,52 +273,9 @@ public class Datasource {
                 var bis = new BufferedInputStream(stream)) {
             java.nio.file.Path file = fsService.createTempFile();
             String name = UUID.randomUUID().toString();
-            long contentLength = Files.copy(bis, file);
-            FileUpload upload =
-                    new FileUpload() {
-
-                        @Override
-                        public String name() {
-                            return name;
-                        }
-
-                        @Override
-                        public java.nio.file.Path filePath() {
-                            return file;
-                        }
-
-                        @Override
-                        public String fileName() {
-                            return name;
-                        }
-
-                        @Override
-                        public long size() {
-                            return contentLength;
-                        }
-
-                        @Override
-                        public String contentType() {
-                            return MediaType.APPLICATION_OCTET_STREAM;
-                        }
-
-                        @Override
-                        public String charSet() {
-                            return StandardCharsets.UTF_8.displayName();
-                        }
-
-                        @Override
-                        public MultivaluedMap<String, String> getHeaders() {
-                            return new MultivaluedHashMap<>();
-                        }
-                    };
-
+            logger.infov("Downloaded {0} to {1}", downloadUri, file);
             final StringBuilder responseBuilder = new StringBuilder();
-
-            String lastFile = uploadFiles(List.of(upload), responseBuilder, true);
-            String filePath = jfrDir + File.separator + lastFile;
-
-            return setFile(filePath, lastFile, responseBuilder);
+            return setFile(file.toFile().getAbsolutePath(), name, responseBuilder);
         } finally {
             httpConn.disconnect();
         }
@@ -456,6 +411,7 @@ public class Datasource {
                 logUploadedFile(dest.getFileName().toString(), responseBuilder);
                 lastFile = dest.getFileName().toString();
             } catch (IOException e) {
+                logger.error(e);
                 logUploadedFile(uploadedFile, responseBuilder);
             }
         }
@@ -521,12 +477,14 @@ public class Datasource {
 
     private String setFile(String absolutePath, String filename, StringBuilder responseBuilder) {
         try {
+            logger.infov("Setting active file: {0} ({1})", filename, absolutePath);
             recordingService.loadEvents(absolutePath);
             responseBuilder.append("Set: " + filename);
             responseBuilder.append(System.lineSeparator());
             setLoadedFile(filename);
             return (responseBuilder.toString());
         } catch (IOException e) {
+            logger.error(e);
             throw new NotFoundException(e);
         }
     }
