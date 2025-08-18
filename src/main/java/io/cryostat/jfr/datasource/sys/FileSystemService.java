@@ -63,4 +63,8 @@ public class FileSystemService {
     public List<Path> list(Path dir) throws IOException {
         return Files.list(dir).collect(Collectors.toList());
     }
+
+    public Path createTempFile() throws IOException {
+        return Files.createTempFile(null, null);
+    }
 }

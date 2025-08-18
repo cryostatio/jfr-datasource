@@ -15,13 +15,19 @@
  */
 package io.cryostat.jfr.datasource.server;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
@@ -36,6 +42,8 @@ import io.smallrye.common.annotation.Blocking;
 import io.vertx.core.json.JsonObject;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.BeanParam;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
@@ -47,6 +55,10 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.ServerErrorException;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedHashMap;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriBuilder;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.RestForm;
@@ -65,8 +77,16 @@ public class Datasource {
     @ConfigProperty(name = "io.cryostat.jfr-datasource.timeout", defaultValue = "29000")
     String timeoutMs;
 
-    @Inject RecordingService recordingService;
+    @ConfigProperty(name = "cryostat.storage.base-uri")
+    Optional<String> storageBase;
 
+    @ConfigProperty(name = "cryostat.storage.auth-method")
+    Optional<String> storageAuthMethod;
+
+    @ConfigProperty(name = "cryostat.storage.auth")
+    Optional<String> storageAuth;
+
+    @Inject RecordingService recordingService;
     @Inject FileSystemService fsService;
 
     @Inject Logger logger;
@@ -156,6 +176,87 @@ public class Datasource {
         String filePath = jfrDir + File.separator + lastFile;
 
         return setFile(filePath, lastFile, responseBuilder);
+    }
+
+    @Path("/load_presigned")
+    @POST
+    @Produces(MediaType.TEXT_PLAIN)
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Blocking
+    public String loadPresigned(@BeanParam PresignedFormData form)
+            throws IOException, URISyntaxException {
+        if (storageBase.isEmpty()) {
+            throw new ServerErrorException(Response.Status.BAD_GATEWAY);
+        }
+
+        UriBuilder uriBuilder =
+                UriBuilder.newInstance()
+                        .uri(new URI(storageBase.get()))
+                        .path(form.path)
+                        .replaceQuery(form.query);
+        URI downloadUri = uriBuilder.build();
+        logger.infov("Attempting to download presigned recording from {0}", downloadUri);
+        HttpURLConnection httpConn = (HttpURLConnection) downloadUri.toURL().openConnection();
+        httpConn.setRequestMethod("GET");
+        if (storageAuthMethod.isPresent() && storageAuth.isPresent()) {
+            httpConn.setRequestProperty(
+                    "Authorization",
+                    String.format("%s %s", storageAuthMethod.get(), storageAuth.get()));
+        }
+
+        try (var stream = httpConn.getInputStream();
+                var bis = new BufferedInputStream(stream)) {
+            java.nio.file.Path file = fsService.createTempFile();
+            String name = UUID.randomUUID().toString();
+            long contentLength = Files.copy(bis, file);
+            FileUpload upload =
+                    new FileUpload() {
+
+                        @Override
+                        public String name() {
+                            return name;
+                        }
+
+                        @Override
+                        public java.nio.file.Path filePath() {
+                            return file;
+                        }
+
+                        @Override
+                        public String fileName() {
+                            return name;
+                        }
+
+                        @Override
+                        public long size() {
+                            return contentLength;
+                        }
+
+                        @Override
+                        public String contentType() {
+                            return MediaType.APPLICATION_OCTET_STREAM;
+                        }
+
+                        @Override
+                        public String charSet() {
+                            return StandardCharsets.UTF_8.displayName();
+                        }
+
+                        @Override
+                        public MultivaluedMap<String, String> getHeaders() {
+                            return new MultivaluedHashMap<>();
+                        }
+                    };
+
+            final StringBuilder responseBuilder = new StringBuilder();
+
+            String lastFile = uploadFiles(List.of(upload), responseBuilder, true);
+            String filePath = jfrDir + File.separator + lastFile;
+
+            return setFile(filePath, lastFile, responseBuilder);
+        } finally {
+            httpConn.disconnect();
+        }
     }
 
     @Path("/list")
@@ -321,7 +422,7 @@ public class Datasource {
         now = System.nanoTime();
         elapsed = now - start;
         if (elapsed > timeout) {
-            throw new ServerErrorException(504);
+            throw new ServerErrorException(Response.Status.BAD_GATEWAY);
         }
         return new Pair<>(uploadedFile, source);
     }
