@@ -53,13 +53,13 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import jakarta.enterprise.context.ApplicationScoped;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import jakarta.inject.Inject;
+import org.jboss.logging.Logger;
 
 @ApplicationScoped
 public class RecordingService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RecordingService.class);
+    @Inject Logger logger;
 
     private IItemCollection events;
 
@@ -181,8 +181,8 @@ public class RecordingService {
         }
 
         JsonArray row = new JsonArray();
-        LOGGER.info("Start time: {}", startTime);
-        LOGGER.info("Stop time: {}", stopTime);
+        logger.infov("Start time: {0}", startTime);
+        logger.infov("Stop time: {0}", stopTime);
 
         row.add(Long.valueOf(Math.max(stopTime - startTime, 0)));
         rows.add(row);
@@ -238,7 +238,7 @@ public class RecordingService {
             query.applyTargets(
                     (t) -> {
                         String type = t.getType();
-                        LOGGER.info(type);
+                        logger.info(type);
                         if (type.equals("timeserie")) {
                             for (JsonObject obj :
                                     this.getTimeseries(t, query.getFrom(), query.getTo())) {
@@ -554,10 +554,10 @@ public class RecordingService {
             if (!file.exists() || !file.isFile()) {
                 throw new IOException("File not found");
             }
-            LOGGER.info("Loading file: {}", file.getAbsolutePath());
+            logger.infov("Loading file: {0}", file.getAbsolutePath());
             this.events = JfrLoaderToolkit.loadEvents(file);
         } catch (CouldNotLoadRecordingException e) {
-            LOGGER.error("Failed to read events from recording", e);
+            logger.error("Failed to read events from recording", e);
             throw new IOException("Failed to load JFR recording", e);
         }
     }
