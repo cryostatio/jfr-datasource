@@ -27,8 +27,4 @@ public class PresignedFormData {
     @RestForm
     @PartType(MediaType.TEXT_PLAIN)
     public String query;
-
-    @RestForm
-    @PartType(MediaType.TEXT_PLAIN)
-    public String filter;
 }
