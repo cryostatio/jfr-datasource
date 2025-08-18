@@ -25,12 +25,18 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.X509TrustManager;
 
 import org.openjdk.jmc.common.io.IOToolkit;
 import org.openjdk.jmc.common.util.Pair;
@@ -85,6 +91,15 @@ public class Datasource {
 
     @ConfigProperty(name = "cryostat.storage.auth")
     Optional<String> storageAuth;
+
+    @ConfigProperty(name = "cryostat.storage.tls-version")
+    String storageTlsVersion;
+
+    @ConfigProperty(name = "cryostat.storage.ignore-ssl")
+    boolean storageSslIgnore;
+
+    @ConfigProperty(name = "cryostat.storage.verify-hostname")
+    boolean storageHostnameVerify;
 
     @Inject RecordingService recordingService;
     @Inject FileSystemService fsService;
@@ -198,6 +213,21 @@ public class Datasource {
         logger.infov("Attempting to download presigned recording from {0}", downloadUri);
         HttpURLConnection httpConn = (HttpURLConnection) downloadUri.toURL().openConnection();
         httpConn.setRequestMethod("GET");
+        if (httpConn instanceof HttpsURLConnection) {
+            HttpsURLConnection httpsConn = (HttpsURLConnection) httpConn;
+            if (storageSslIgnore) {
+                try {
+                    httpsConn.setSSLSocketFactory(
+                            ignoreSslContext(storageTlsVersion).getSocketFactory());
+                } catch (Exception e) {
+                    logger.error(e);
+                    throw new InternalServerErrorException(e);
+                }
+            }
+            if (!storageHostnameVerify) {
+                httpsConn.setHostnameVerifier((hostname, session) -> true);
+            }
+        }
         if (storageAuthMethod.isPresent() && storageAuth.isPresent()) {
             httpConn.setRequestProperty(
                     "Authorization",
@@ -501,5 +531,22 @@ public class Datasource {
         } finally {
             fileLock.unlock();
         }
+    }
+
+    private static SSLContext ignoreSslContext(String tlsVersion) throws Exception {
+        SSLContext sslContext = SSLContext.getInstance(tlsVersion);
+        sslContext.init(
+                null, new X509TrustManager[] {new X509TrustAllManager()}, new SecureRandom());
+        return sslContext;
+    }
+
+    private static final class X509TrustAllManager implements X509TrustManager {
+        public X509Certificate[] getAcceptedIssuers() {
+            return null;
+        }
+
+        public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+
+        public void checkServerTrusted(X509Certificate[] certs, String authType) {}
     }
 }
