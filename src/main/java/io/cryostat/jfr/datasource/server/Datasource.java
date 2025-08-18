@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.openjdk.jmc.common.io.IOToolkit;
 import org.openjdk.jmc.common.util.Pair;
@@ -56,6 +57,7 @@ public class Datasource {
 
     private static final String UNSET_FILE = "";
     private volatile String loadedFile = UNSET_FILE;
+    private final ReentrantLock fileLock = new ReentrantLock();
 
     @ConfigProperty(name = "quarkus.http.body.uploads-directory")
     String jfrDir;
@@ -161,6 +163,7 @@ public class Datasource {
     @Produces(MediaType.TEXT_PLAIN)
     @Blocking
     public String list() {
+        fileLock.lock();
         try {
             StringBuilder responseBuilder = new StringBuilder();
             for (String filename : listFiles()) {
@@ -174,6 +177,8 @@ public class Datasource {
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
             throw new InternalServerErrorException(e);
+        } finally {
+            fileLock.unlock();
         }
     }
 
@@ -181,8 +186,13 @@ public class Datasource {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public String current() {
-        logger.infov("Current: {0}", loadedFile);
-        return loadedFile + System.lineSeparator();
+        fileLock.lock();
+        try {
+            logger.infov("Current: {0}", loadedFile);
+            return loadedFile + System.lineSeparator();
+        } finally {
+            fileLock.unlock();
+        }
     }
 
     @Path("/delete_all")
@@ -213,6 +223,7 @@ public class Datasource {
         if (fileName == null || fileName.isEmpty()) {
             throw new BadRequestException();
         } else {
+            fileLock.lock();
             try {
                 deleteFile(fileName);
                 if (fileName.equals(loadedFile)) {
@@ -224,6 +235,8 @@ public class Datasource {
             } catch (IOException e) {
                 logger.error(e.getMessage(), e);
                 throw new InternalServerErrorException();
+            } finally {
+                fileLock.unlock();
             }
         }
     }
@@ -330,7 +343,12 @@ public class Datasource {
     }
 
     private void setLoadedFile(String filename) {
-        this.loadedFile = filename;
+        fileLock.lock();
+        try {
+            this.loadedFile = filename;
+        } finally {
+            fileLock.unlock();
+        }
     }
 
     private String setFile(String absolutePath, String filename, StringBuilder responseBuilder) {
@@ -362,20 +380,25 @@ public class Datasource {
     }
 
     private void deleteFile(String filename) throws IOException {
-        java.nio.file.Path dir = fsService.pathOf(jfrDir);
+        fileLock.lock();
+        try {
+            java.nio.file.Path dir = fsService.pathOf(jfrDir);
 
-        if (fsService.exists(dir) && fsService.isDirectory(dir)) {
-            if (fsService.deleteIfExists(
-                    fsService.pathOf(dir.toAbsolutePath().toString(), filename))) {
-                logger.infov("Deleted: {0}", filename);
-                if (filename.equals(loadedFile)) {
-                    setLoadedFile(UNSET_FILE);
+            if (fsService.exists(dir) && fsService.isDirectory(dir)) {
+                if (fsService.deleteIfExists(
+                        fsService.pathOf(dir.toAbsolutePath().toString(), filename))) {
+                    logger.infov("Deleted: {0}", filename);
+                    if (filename.equals(loadedFile)) {
+                        setLoadedFile(UNSET_FILE);
+                    }
+                } else {
+                    throw new FileNotFoundException(filename + " does not exist");
                 }
             } else {
                 throw new FileNotFoundException(filename + " does not exist");
             }
-        } else {
-            throw new FileNotFoundException(filename + " does not exist");
+        } finally {
+            fileLock.unlock();
         }
     }
 }
