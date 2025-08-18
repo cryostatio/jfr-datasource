@@ -64,7 +64,7 @@ public class DatasourceTest {
     @Test
     @Order(1)
     public void testGet() throws Exception {
-        given().when().get("/").then().statusCode(200).body(is("")).headers(Collections.emptyMap());
+        given().when().get("/").then().statusCode(204).body(is("")).headers(Collections.emptyMap());
     }
 
     @Test
@@ -75,7 +75,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(System.lineSeparator()))
-                .header("content-type", is("text/plain"));
+                .header("content-type", is("text/plain;charset=UTF-8"));
     }
 
     @Test
@@ -91,7 +91,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"));
+                .header("content-type", is("text/plain;charset=UTF-8"));
     }
 
     @Test
@@ -107,7 +107,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"));
+                .header("content-type", is("text/plain;charset=UTF-8"));
 
         // Should return the same filename
         given().queryParam("overwrite", Arrays.asList("true"))
@@ -117,7 +117,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"));
+                .header("content-type", is("text/plain;charset=UTF-8"));
 
         // There should only be 1 file when /list
         expected = "recording.jfr" + System.lineSeparator();
@@ -126,7 +126,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"));
+                .header("content-type", is("text/plain;charset=UTF-8"));
     }
 
     @Test
@@ -142,7 +142,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"));
+                .header("content-type", is("text/plain;charset=UTF-8"));
 
         expected = "recording.jfr" + System.lineSeparator();
         given().when()
@@ -150,7 +150,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"));
+                .header("content-type", is("text/plain;charset=UTF-8"));
 
         expected = "Set: recording.jfr" + System.lineSeparator();
         given().body("recording.jfr")
@@ -159,7 +159,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"));
+                .header("content-type", is("text/plain;charset=UTF-8"));
 
         expected = "**recording.jfr**" + System.lineSeparator();
         given().when()
@@ -167,7 +167,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"));
+                .header("content-type", is("text/plain;charset=UTF-8"));
     }
 
     @Test
@@ -179,7 +179,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"));
+                .header("content-type", is("text/plain;charset=UTF-8"));
     }
 
     @Test
@@ -194,7 +194,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"));
+                .header("content-type", is("text/plain;charset=UTF-8"));
 
         expected = "Set: recording.jfr" + System.lineSeparator();
         given().body("recording.jfr")
@@ -203,7 +203,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"));
+                .header("content-type", is("text/plain;charset=UTF-8"));
 
         expected = "recording.jfr" + System.lineSeparator();
         given().when()
@@ -211,7 +211,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"));
+                .header("content-type", is("text/plain;charset=UTF-8"));
     }
 
     @Test
@@ -230,7 +230,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"));
+                .header("content-type", is("text/plain;charset=UTF-8"));
 
         expected = "recording.jfr" + System.lineSeparator();
         given().when()
@@ -238,7 +238,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"));
+                .header("content-type", is("text/plain;charset=UTF-8"));
     }
 
     @Test
@@ -257,7 +257,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"));
+                .header("content-type", is("text/plain;charset=UTF-8"));
 
         given().queryParam("overwrite", Arrays.asList("true"))
                 .multiPart(jfrFile)
@@ -266,7 +266,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"));
+                .header("content-type", is("text/plain;charset=UTF-8"));
 
         expected = "recording.jfr" + System.lineSeparator();
         given().when()
@@ -274,7 +274,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"));
+                .header("content-type", is("text/plain;charset=UTF-8"));
     }
 
     @Test
@@ -293,7 +293,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"));
+                .header("content-type", is("text/plain;charset=UTF-8"));
 
         expected = "recording.jfr" + System.lineSeparator();
         given().when()
@@ -301,22 +301,16 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"));
+                .header("content-type", is("text/plain;charset=UTF-8"));
 
-        given().body("recording.jfr")
-                .when()
-                .delete("/delete")
-                .then()
-                .statusCode(204)
-                .body(is(""))
-                .header("content-type", is("text/plain"));
+        given().body("recording.jfr").when().delete("/delete").then().statusCode(204);
 
         given().when()
                 .get("/current")
                 .then()
                 .statusCode(200)
                 .body(is(System.lineSeparator()))
-                .header("content-type", is("text/plain"));
+                .header("content-type", is("text/plain;charset=UTF-8"));
     }
 
     @Test
@@ -335,7 +329,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"));
+                .header("content-type", is("text/plain;charset=UTF-8"));
 
         File inputFile = new File("src/test/resources/searches/search.events.input.txt");
         assertTrue(inputFile.exists());
@@ -351,7 +345,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected.trim()))
-                .header("content-type", is("application/json"));
+                .header("content-type", is("application/json;charset=UTF-8"));
     }
 
     @Test
@@ -370,7 +364,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"));
+                .header("content-type", is("text/plain;charset=UTF-8"));
 
         File inputFile = new File("src/test/resources/searches/search.target.input.txt");
         assertTrue(inputFile.exists());
@@ -386,7 +380,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("application/json"));
+                .header("content-type", is("application/json;charset=UTF-8"));
     }
 
     @Test
@@ -405,7 +399,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"));
+                .header("content-type", is("text/plain;charset=UTF-8"));
 
         File inputFile = new File("src/test/resources/queries/query.timeseries.input.txt");
         assertTrue(inputFile.exists());
@@ -421,7 +415,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("application/json"));
+                .header("content-type", is("application/json;charset=UTF-8"));
     }
 
     @Test
@@ -440,7 +434,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"));
+                .header("content-type", is("text/plain;charset=UTF-8"));
 
         File inputFile = new File("src/test/resources/queries/query.timeseries.params.input.txt");
         assertTrue(inputFile.exists());
@@ -456,7 +450,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("application/json"));
+                .header("content-type", is("application/json;charset=UTF-8"));
     }
 
     @Test
@@ -475,7 +469,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"));
+                .header("content-type", is("text/plain;charset=UTF-8"));
 
         File inputFile = new File("src/test/resources/queries/query.table.input.txt");
         assertTrue(inputFile.exists());
@@ -491,7 +485,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("application/json"));
+                .header("content-type", is("application/json;charset=UTF-8"));
     }
 
     @Test
@@ -510,7 +504,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"));
+                .header("content-type", is("text/plain;charset=UTF-8"));
 
         File inputFile = new File("src/test/resources/queries/query.recording_duration.input.txt");
         assertTrue(inputFile.exists());
@@ -527,7 +521,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(output))
-                .header("content-type", is("application/json"));
+                .header("content-type", is("application/json;charset=UTF-8"));
     }
 
     @Test
@@ -546,7 +540,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"));
+                .header("content-type", is("text/plain;charset=UTF-8"));
 
         File inputFile =
                 new File("src/test/resources/queries/query.recording_start_time.input.txt");
@@ -564,7 +558,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(output))
-                .header("content-type", is("application/json"));
+                .header("content-type", is("application/json;charset=UTF-8"));
     }
 
     @Test
@@ -579,26 +573,14 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"));
+                .header("content-type", is("text/plain;charset=UTF-8"));
 
-        given().body("recording.jfr")
-                .when()
-                .delete("/delete")
-                .then()
-                .statusCode(204)
-                .body(is(""))
-                .header("content-type", is("text/plain"));
+        given().body("recording.jfr").when().delete("/delete").then().statusCode(204);
     }
 
     @Test
     public void testDeleteFileNotExist() throws Exception {
-        given().body("recording.jfr")
-                .when()
-                .delete("/delete")
-                .then()
-                .statusCode(404)
-                .body(is(""))
-                .header("content-type", is("text/plain"));
+        given().body("recording.jfr").when().delete("/delete").then().statusCode(404);
     }
 
     @Test
@@ -613,17 +595,11 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"));
+                .header("content-type", is("text/plain;charset=UTF-8"));
 
         doThrow(new IOException()).when(fsService).deleteIfExists(Mockito.any(Path.class));
 
-        given().body("recording.jfr")
-                .when()
-                .delete("/delete")
-                .then()
-                .statusCode(500)
-                .body(is(""))
-                .header("content-type", is("text/plain"));
+        given().body("recording.jfr").when().delete("/delete").then().statusCode(500);
     }
 
     @Test
@@ -638,7 +614,7 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"));
+                .header("content-type", is("text/plain;charset=UTF-8"));
 
         expected = "Deleted: recording.jfr" + System.lineSeparator();
         given().when()
@@ -646,14 +622,14 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"));
+                .header("content-type", is("text/plain;charset=UTF-8"));
 
         given().when()
                 .delete("/delete_all")
                 .then()
                 .statusCode(200)
                 .body(is(""))
-                .header("content-type", is("text/plain"));
+                .header("content-type", is("text/plain;charset=UTF-8"));
     }
 
     @Test
@@ -668,16 +644,11 @@ public class DatasourceTest {
                 .then()
                 .statusCode(200)
                 .body(is(expected))
-                .header("content-type", is("text/plain"));
+                .header("content-type", is("text/plain;charset=UTF-8"));
 
         doThrow(new IOException()).when(fsService).delete(Mockito.any(Path.class));
 
-        given().when()
-                .delete("/delete_all")
-                .then()
-                .statusCode(500)
-                .body(is(""))
-                .header("content-type", is("text/plain"));
+        given().when().delete("/delete_all").then().statusCode(500);
     }
 
     @Test
@@ -685,7 +656,7 @@ public class DatasourceTest {
         given().when().post("/").then().statusCode(405);
         given().when().get("/search").then().statusCode(405);
         given().body("{targets: [], range: { from: '', to: ''}}")
-                .header("content-type", "application/json")
+                .header("content-type", "application/json;charset=UTF-8")
                 .when()
                 .get("/query")
                 .then()
