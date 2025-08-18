@@ -76,6 +76,7 @@ public class Datasource {
     @Path("/search")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
+    @Blocking
     public String search(JsonObject body) {
         try {
             if (body != null && !body.isEmpty()) {
@@ -92,6 +93,7 @@ public class Datasource {
     @Path("/query")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
+    @Blocking
     public String query(JsonObject body) {
         try {
             if (body != null && !body.isEmpty()) {
@@ -109,8 +111,9 @@ public class Datasource {
     @Path("/annotations")
     @POST
     @Produces(MediaType.TEXT_PLAIN)
+    @Blocking
     public String annotations() {
-        return (recordingService.annotations());
+        return recordingService.annotations();
     }
 
     @Path("/set")
@@ -156,6 +159,7 @@ public class Datasource {
     @Path("/list")
     @GET
     @Produces(MediaType.TEXT_PLAIN)
+    @Blocking
     public String list() {
         try {
             StringBuilder responseBuilder = new StringBuilder();
@@ -166,7 +170,7 @@ public class Datasource {
                 responseBuilder.append(filename);
                 responseBuilder.append(System.lineSeparator());
             }
-            return (responseBuilder.toString());
+            return responseBuilder.toString();
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
             throw new InternalServerErrorException(e);
