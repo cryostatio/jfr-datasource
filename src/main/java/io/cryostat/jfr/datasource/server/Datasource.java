@@ -191,8 +191,8 @@ public class Datasource {
     }
 
     @Path("/load")
-    @POST
     @Produces(MediaType.TEXT_PLAIN)
+    @POST
     @Blocking
     public String load(
             @RestForm(FileUpload.ALL) List<FileUpload> files,
@@ -272,6 +272,7 @@ public class Datasource {
         try (var stream = httpConn.getInputStream();
                 var bis = new BufferedInputStream(stream)) {
             java.nio.file.Path file = fsService.createTempFile();
+            Files.copy(bis, file, StandardCopyOption.REPLACE_EXISTING);
             String name = UUID.randomUUID().toString();
             logger.infov("Downloaded {0} to {1}", downloadUri, file);
             final StringBuilder responseBuilder = new StringBuilder();
