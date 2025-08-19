@@ -52,8 +52,10 @@ import org.openjdk.jmc.common.util.Pair;
 import io.cryostat.jfr.datasource.events.RecordingService;
 import io.cryostat.jfr.datasource.sys.FileSystemService;
 
+import io.quarkus.runtime.StartupEvent;
 import io.smallrye.common.annotation.Blocking;
 import io.vertx.core.json.JsonObject;
+import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.BeanParam;
@@ -115,8 +117,13 @@ public class Datasource {
 
     @Inject RecordingService recordingService;
     @Inject FileSystemService fsService;
-
     @Inject Logger logger;
+
+    java.nio.file.Path presignDownloadFile;
+
+    public void onStart(@Observes StartupEvent evt) throws IOException {
+        this.presignDownloadFile = fsService.createTempFile();
+    }
 
     @GET
     @Path("/")
@@ -271,12 +278,12 @@ public class Datasource {
 
         try (var stream = httpConn.getInputStream();
                 var bis = new BufferedInputStream(stream)) {
-            java.nio.file.Path file = fsService.createTempFile();
-            Files.copy(bis, file, StandardCopyOption.REPLACE_EXISTING);
-            String name = UUID.randomUUID().toString();
-            logger.infov("Downloaded {0} to {1}", downloadUri, file);
-            final StringBuilder responseBuilder = new StringBuilder();
-            return setFile(file.toFile().getAbsolutePath(), name, responseBuilder);
+            Files.copy(bis, presignDownloadFile, StandardCopyOption.REPLACE_EXISTING);
+            logger.infov("Downloaded {0} to {1}", downloadUri, presignDownloadFile);
+            return setFile(
+                    presignDownloadFile.toFile().getAbsolutePath(),
+                    UUID.randomUUID().toString(),
+                    new StringBuilder());
         } finally {
             httpConn.disconnect();
         }
