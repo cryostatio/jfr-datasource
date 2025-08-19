@@ -258,11 +258,12 @@ public class Datasource {
                 stringBuilder.append("Deleted: " + deletedFile);
                 stringBuilder.append(System.lineSeparator());
             }
-            setLoadedFile(UNSET_FILE);
             return (stringBuilder.toString());
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
             throw new InternalServerErrorException(e);
+        } finally {
+            setLoadedFile(UNSET_FILE);
         }
     }
 
