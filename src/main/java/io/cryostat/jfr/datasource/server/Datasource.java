@@ -483,7 +483,7 @@ public class Datasource {
             responseBuilder.append("Set: " + filename);
             responseBuilder.append(System.lineSeparator());
             setLoadedFile(filename);
-            return (responseBuilder.toString());
+            return responseBuilder.toString();
         } catch (IOException e) {
             logger.error(e);
             throw new NotFoundException(e);
