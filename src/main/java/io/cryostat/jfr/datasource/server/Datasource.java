@@ -15,25 +15,12 @@
  */
 package io.cryostat.jfr.datasource.server;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -41,16 +28,12 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
-
 import org.openjdk.jmc.common.io.IOToolkit;
 import org.openjdk.jmc.common.util.Pair;
 
 import io.cryostat.jfr.datasource.events.RecordingService;
 import io.cryostat.jfr.datasource.sys.FileSystemService;
+import io.cryostat.jfr.datasource.sys.PresignedFileService;
 
 import io.quarkus.runtime.StartupEvent;
 import io.smallrye.common.annotation.Blocking;
@@ -72,7 +55,6 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.ServerErrorException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriBuilder;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.RestForm;
@@ -117,6 +99,7 @@ public class Datasource {
 
     @Inject RecordingService recordingService;
     @Inject FileSystemService fsService;
+    @Inject PresignedFileService presignedFileService;
     @Inject Logger logger;
 
     java.nio.file.Path presignDownloadFile;
@@ -220,73 +203,10 @@ public class Datasource {
     @Blocking
     public String loadPresigned(@BeanParam PresignedFormData form)
             throws IOException, URISyntaxException {
-        if (storageBase.isEmpty()) {
-            throw new ServerErrorException(Response.Status.BAD_GATEWAY);
-        }
-
-        UriBuilder uriBuilder =
-                UriBuilder.newInstance()
-                        .uri(new URI(storageBase.get()))
-                        .path(form.path)
-                        .replaceQuery(form.query);
-        URI downloadUri = uriBuilder.build();
-        logger.infov("Attempting to download presigned recording from {0}", downloadUri);
-        HttpURLConnection httpConn = (HttpURLConnection) downloadUri.toURL().openConnection();
-        httpConn.setRequestMethod("GET");
-        if (httpConn instanceof HttpsURLConnection) {
-            HttpsURLConnection httpsConn = (HttpsURLConnection) httpConn;
-            if (storageTlsIgnore) {
-                try {
-                    httpsConn.setSSLSocketFactory(
-                            ignoreSslContext(storageTlsVersion).getSocketFactory());
-                } catch (Exception e) {
-                    logger.error(e);
-                    throw new InternalServerErrorException(e);
-                }
-            } else if (storageCaPath.isPresent() || storageCertPath.isPresent()) {
-                if (!(storageCaPath.isPresent() && storageCertPath.isPresent())) {
-                    Exception e =
-                            new IllegalStateException(
-                                    String.format(
-                                            "%s and %s must be both set or both unset",
-                                            "cryostat.storage.tls.ca.path",
-                                            "cryostat.storage.tls.cert.path"));
-                    logger.error(e);
-                    throw new InternalServerErrorException(e);
-                }
-                try {
-                    httpsConn.setSSLSocketFactory(
-                            trustSslCertContext(
-                                            storageTlsVersion,
-                                            storageCaPath.get(),
-                                            storageCertPath.get())
-                                    .getSocketFactory());
-                } catch (Exception e) {
-                    logger.error(e);
-                    throw new InternalServerErrorException(e);
-                }
-            }
-            if (!storageHostnameVerify) {
-                httpsConn.setHostnameVerifier((hostname, session) -> true);
-            }
-        }
-        if (storageAuthMethod.isPresent() && storageAuth.isPresent()) {
-            httpConn.setRequestProperty(
-                    "Authorization",
-                    String.format("%s %s", storageAuthMethod.get(), storageAuth.get()));
-        }
-
-        try (var stream = httpConn.getInputStream();
-                var bis = new BufferedInputStream(stream)) {
-            Files.copy(bis, presignDownloadFile, StandardCopyOption.REPLACE_EXISTING);
-            logger.infov("Downloaded {0} to {1}", downloadUri, presignDownloadFile);
-            return setFile(
-                    presignDownloadFile.toFile().getAbsolutePath(),
-                    UUID.randomUUID().toString(),
-                    new StringBuilder());
-        } finally {
-            httpConn.disconnect();
-        }
+        return setFile(
+                presignedFileService.download(form.path, form.query).toFile().getAbsolutePath(),
+                UUID.randomUUID().toString(),
+                new StringBuilder());
     }
 
     @Path("/list")
@@ -534,48 +454,5 @@ public class Datasource {
         } finally {
             fileLock.unlock();
         }
-    }
-
-    private static SSLContext ignoreSslContext(String tlsVersion) throws Exception {
-        SSLContext sslContext = SSLContext.getInstance(tlsVersion);
-        sslContext.init(
-                null, new X509TrustManager[] {new X509TrustAllManager()}, new SecureRandom());
-        return sslContext;
-    }
-
-    private static SSLContext trustSslCertContext(
-            String tlsVersion, java.nio.file.Path caPath, java.nio.file.Path certPath)
-            throws IOException,
-                    KeyStoreException,
-                    KeyManagementException,
-                    CertificateException,
-                    NoSuchAlgorithmException {
-        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-        try (InputStream ca = new FileInputStream(caPath.toFile());
-                InputStream cert = new FileInputStream(certPath.toFile()); ) {
-            keyStore.load(null, null);
-            keyStore.setCertificateEntry("storage-ca", certFactory.generateCertificate(ca));
-            keyStore.setCertificateEntry("storage-tls", certFactory.generateCertificate(cert));
-
-            TrustManagerFactory trustManagerFactory =
-                    TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-            trustManagerFactory.init(keyStore);
-
-            SSLContext sslCtx = SSLContext.getInstance(tlsVersion);
-            sslCtx.init(null, trustManagerFactory.getTrustManagers(), null);
-
-            return sslCtx;
-        }
-    }
-
-    private static final class X509TrustAllManager implements X509TrustManager {
-        public X509Certificate[] getAcceptedIssuers() {
-            return null;
-        }
-
-        public void checkClientTrusted(X509Certificate[] certs, String authType) {}
-
-        public void checkServerTrusted(X509Certificate[] certs, String authType) {}
     }
 }
