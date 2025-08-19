@@ -26,6 +26,7 @@ import io.cryostat.jfr.datasource.sys.PresignedFileService;
 
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -34,6 +35,11 @@ public class DatasourcePresignedTest {
 
     @InjectMock PresignedFileService presignedFileService;
     @InjectMock RecordingService recordingService;
+
+    @AfterEach
+    void cleanup() {
+        given().when().delete("/delete_all");
+    }
 
     @Test
     public void testDownloadPresignedFile() throws Exception {
