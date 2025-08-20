@@ -18,160 +18,203 @@ package io.cryostat.jfr.datasource.server;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.openjdk.jmc.common.io.IOToolkit;
 import org.openjdk.jmc.common.util.Pair;
 
 import io.cryostat.jfr.datasource.events.RecordingService;
 import io.cryostat.jfr.datasource.sys.FileSystemService;
+import io.cryostat.jfr.datasource.sys.PresignedFileService;
 
-import io.quarkus.vertx.web.ReactiveRoutes;
-import io.quarkus.vertx.web.Route;
-import io.quarkus.vertx.web.Route.HttpMethod;
+import io.quarkus.runtime.StartupEvent;
 import io.smallrye.common.annotation.Blocking;
-import io.vertx.core.MultiMap;
-import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.web.FileUpload;
-import io.vertx.ext.web.RoutingContext;
+import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.BeanParam;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.DefaultValue;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.InternalServerErrorException;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.ServerErrorException;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jboss.logging.Logger;
+import org.jboss.resteasy.reactive.RestForm;
+import org.jboss.resteasy.reactive.multipart.FileUpload;
 
+@Path("")
 public class Datasource {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Datasource.class);
+
     private static final String UNSET_FILE = "";
     private volatile String loadedFile = UNSET_FILE;
+    private final ReentrantLock fileLock = new ReentrantLock();
 
     @ConfigProperty(name = "quarkus.http.body.uploads-directory")
     String jfrDir;
 
-    @ConfigProperty(name = "io.cryostat.jfr-datasource.memory-factor", defaultValue = "10")
-    String memoryFactor;
-
     @ConfigProperty(name = "io.cryostat.jfr-datasource.timeout", defaultValue = "29000")
     String timeoutMs;
 
+    @ConfigProperty(name = "cryostat.storage.base-uri")
+    Optional<String> storageBase;
+
+    @ConfigProperty(name = "cryostat.storage.auth-method")
+    Optional<String> storageAuthMethod;
+
+    @ConfigProperty(name = "cryostat.storage.auth")
+    Optional<String> storageAuth;
+
+    @ConfigProperty(name = "cryostat.storage.tls-version")
+    String storageTlsVersion;
+
+    @ConfigProperty(name = "cryostat.storage.ignore-tls")
+    boolean storageTlsIgnore;
+
+    @ConfigProperty(name = "cryostat.storage.verify-hostname")
+    boolean storageHostnameVerify;
+
+    @ConfigProperty(name = "cryostat.storage.tls.ca.path")
+    Optional<java.nio.file.Path> storageCaPath;
+
+    @ConfigProperty(name = "cryostat.storage.tls.cert.path")
+    Optional<java.nio.file.Path> storageCertPath;
+
     @Inject RecordingService recordingService;
-
     @Inject FileSystemService fsService;
+    @Inject PresignedFileService presignedFileService;
+    @Inject Logger logger;
 
-    @Route(path = "/", methods = HttpMethod.GET)
-    void root(RoutingContext context) {
-        HttpServerResponse response = context.response();
-        response.end();
+    java.nio.file.Path presignDownloadFile;
+
+    public void onStart(@Observes StartupEvent evt) throws IOException {
+        this.presignDownloadFile = fsService.createTempFile();
     }
 
-    @Route(
-            path = "/search",
-            methods = HttpMethod.POST,
-            produces = {ReactiveRoutes.APPLICATION_JSON})
-    void search(RoutingContext context) {
-        HttpServerResponse response = context.response();
-        JsonObject body = context.body().asJsonObject();
-        try {
-            if (body != null && !body.isEmpty()) {
-                LOGGER.info(body.toString());
-                response.end(recordingService.search(new Search(body)));
-                return;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        response.setStatusCode(400).end("Error: invalid search body");
-    }
+    @GET
+    @Path("/")
+    public void healthCheck() {}
 
-    @Route(
-            path = "/query",
-            methods = HttpMethod.POST,
-            produces = {ReactiveRoutes.APPLICATION_JSON})
-    void query(RoutingContext context) {
-        HttpServerResponse response = context.response();
-        try {
-            JsonObject body = context.body().asJsonObject();
-            if (body != null && !body.isEmpty()) {
-                LOGGER.info(body.toString());
-                Query query = new Query(body);
-                response.end(recordingService.query(query));
-                return;
-            }
-        } catch (Exception e) {
-        }
-
-        response.setStatusCode(400);
-        response.end("Error: invalid query body");
-    }
-
-    @Route(
-            path = "/annotations",
-            methods = HttpMethod.POST,
-            produces = {"text/plain"})
-    void annotations(RoutingContext context) {
-        HttpServerResponse response = context.response();
-        response.end(recordingService.annotations());
-    }
-
-    @Route(
-            path = "/set",
-            methods = HttpMethod.POST,
-            produces = {"text/plain"})
+    @Path("/search")
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
     @Blocking
-    void set(RoutingContext context) {
-        HttpServerResponse response = context.response();
+    public String search(JsonObject body) {
+        try {
+            if (body != null && !body.isEmpty()) {
+                logger.debug(body.toString());
+                return recordingService.search(new Search(body));
+            }
+        } catch (Exception e) {
+            logger.error(e);
+            throw new BadRequestException("Error: invalid search body", e);
+        }
+        throw new BadRequestException("Error: invalid search body");
+    }
 
-        String file = context.body().asString();
+    @Path("/query")
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Blocking
+    public String query(JsonObject body) {
+        try {
+            if (body != null && !body.isEmpty()) {
+                logger.info(body.toString());
+                Query query = new Query(body);
+                return (recordingService.query(query));
+            }
+        } catch (Exception e) {
+            logger.error(e);
+            throw new BadRequestException("Error: invalid query body", e);
+        }
+
+        throw new BadRequestException("Error: invalid query body");
+    }
+
+    @Path("/annotations")
+    @POST
+    @Produces(MediaType.TEXT_PLAIN)
+    @Blocking
+    public String annotations() {
+        return recordingService.annotations();
+    }
+
+    @Path("/set")
+    @POST
+    @Produces(MediaType.TEXT_PLAIN)
+    @Blocking
+    public String set(String file) {
         String filePath = jfrDir + File.separator + file;
 
-        setFile(filePath, file, response, new StringBuilder());
+        return setFile(filePath, file, new StringBuilder());
     }
 
-    @Route(
-            path = "/upload",
-            methods = HttpMethod.POST,
-            produces = {"text/plain"})
+    @Path("/upload")
+    @POST
+    @Produces(MediaType.TEXT_PLAIN)
     @Blocking
-    void upload(RoutingContext context) throws IOException {
-        HttpServerResponse response = context.response();
-
+    public String upload(
+            @RestForm(FileUpload.ALL) List<FileUpload> files,
+            @QueryParam("overwrite") @DefaultValue("false") boolean overwrite)
+            throws IOException {
         final StringBuilder responseBuilder = new StringBuilder();
 
-        boolean overwrite = Boolean.parseBoolean(extractQueryParam(context, "overwrite", "false"));
-        uploadFiles(context.fileUploads(), responseBuilder, overwrite, response);
-        response.end(responseBuilder.toString());
+        uploadFiles(files, responseBuilder, overwrite);
+        return responseBuilder.toString();
     }
 
-    @Route(
-            path = "/load",
-            methods = HttpMethod.POST,
-            produces = {"text/plain"})
+    @Path("/load")
+    @Produces(MediaType.TEXT_PLAIN)
+    @POST
     @Blocking
-    void load(RoutingContext context) throws IOException {
-        HttpServerResponse response = context.response();
-
+    public String load(
+            @RestForm(FileUpload.ALL) List<FileUpload> files,
+            @QueryParam("overwrite") @DefaultValue("false") boolean overwrite)
+            throws IOException {
         final StringBuilder responseBuilder = new StringBuilder();
 
-        boolean overwrite = Boolean.parseBoolean(extractQueryParam(context, "overwrite", "false"));
-        String lastFile = uploadFiles(context.fileUploads(), responseBuilder, overwrite, response);
+        String lastFile = uploadFiles(files, responseBuilder, overwrite);
         String filePath = jfrDir + File.separator + lastFile;
 
-        setFile(filePath, lastFile, response, responseBuilder);
+        return setFile(filePath, lastFile, responseBuilder);
     }
 
-    @Route(
-            path = "/list",
-            methods = HttpMethod.GET,
-            produces = {"text/plain"})
-    void list(RoutingContext context) {
-        HttpServerResponse response = context.response();
+    @Path("/load_presigned")
+    @POST
+    @Produces(MediaType.TEXT_PLAIN)
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Blocking
+    public String loadPresigned(@BeanParam PresignedFormData form)
+            throws IOException, URISyntaxException {
+        return setFile(
+                presignedFileService.download(form.path, form.query).toFile().getAbsolutePath(),
+                UUID.randomUUID().toString(),
+                new StringBuilder());
+    }
 
+    @Path("/list")
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    @Blocking
+    public String list() {
+        fileLock.lock();
         try {
             StringBuilder responseBuilder = new StringBuilder();
             for (String filename : listFiles()) {
@@ -181,32 +224,33 @@ public class Datasource {
                 responseBuilder.append(filename);
                 responseBuilder.append(System.lineSeparator());
             }
-            response.end(responseBuilder.toString());
+            return responseBuilder.toString();
         } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
-            response.setStatusCode(500).end();
+            logger.error(e.getMessage(), e);
+            throw new InternalServerErrorException(e);
+        } finally {
+            fileLock.unlock();
         }
     }
 
-    @Route(
-            path = "/current",
-            methods = HttpMethod.GET,
-            produces = {"text/plain"})
-    void current(RoutingContext context) {
-        HttpServerResponse response = context.response();
-
-        LOGGER.info("Current: {}", loadedFile);
-        response.end(loadedFile + System.lineSeparator());
+    @Path("/current")
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    public String current() {
+        fileLock.lock();
+        try {
+            logger.infov("Current: {0}", loadedFile);
+            return loadedFile + System.lineSeparator();
+        } finally {
+            fileLock.unlock();
+        }
     }
 
-    @Route(
-            path = "/delete_all",
-            methods = HttpMethod.DELETE,
-            produces = {"text/plain"})
+    @Path("/delete_all")
+    @DELETE
+    @Produces(MediaType.TEXT_PLAIN)
     @Blocking
-    void deleteAll(RoutingContext context) {
-        HttpServerResponse response = context.response();
-
+    public String deleteAll() {
         final StringBuilder stringBuilder = new StringBuilder();
         try {
             List<String> deletedFiles = deleteAllFiles();
@@ -214,48 +258,46 @@ public class Datasource {
                 stringBuilder.append("Deleted: " + deletedFile);
                 stringBuilder.append(System.lineSeparator());
             }
-            setLoadedFile(UNSET_FILE);
-            response.end(stringBuilder.toString());
+            return (stringBuilder.toString());
         } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
-            response.setStatusCode(500).end();
+            logger.error(e.getMessage(), e);
+            throw new InternalServerErrorException(e);
+        } finally {
+            setLoadedFile(UNSET_FILE);
         }
     }
 
-    @Route(
-            path = "/delete",
-            methods = HttpMethod.DELETE,
-            produces = {"text/plain"})
+    @Path("/delete")
+    @DELETE
+    @Produces(MediaType.TEXT_PLAIN)
     @Blocking
-    void delete(RoutingContext context) {
-        HttpServerResponse response = context.response();
-
-        String fileName = context.body().asString();
+    public void delete(String fileName) {
         if (fileName == null || fileName.isEmpty()) {
-            response.setStatusCode(400);
+            throw new BadRequestException();
         } else {
+            fileLock.lock();
             try {
                 deleteFile(fileName);
                 if (fileName.equals(loadedFile)) {
                     setLoadedFile(UNSET_FILE);
                 }
-                response.setStatusCode(204);
             } catch (FileNotFoundException e) {
-                LOGGER.error(e.getMessage(), e);
-                response.setStatusCode(404);
+                logger.error(e.getMessage(), e);
+                throw new NotFoundException();
             } catch (IOException e) {
-                LOGGER.error(e.getMessage(), e);
-                response.setStatusCode(500);
+                logger.error(e.getMessage(), e);
+                throw new InternalServerErrorException();
+            } finally {
+                fileLock.unlock();
             }
         }
-        response.end();
     }
 
     private List<String> listFiles() throws IOException {
         final List<String> files = new ArrayList<>();
-        Path dir = fsService.pathOf(jfrDir);
+        java.nio.file.Path dir = fsService.pathOf(jfrDir);
         if (fsService.exists(dir) && fsService.isDirectory(dir)) {
-            for (Path f : fsService.list(dir)) {
+            for (java.nio.file.Path f : fsService.list(dir)) {
                 if (fsService.isRegularFile(f)) {
                     files.add(f.getFileName().toString());
                 }
@@ -265,22 +307,19 @@ public class Datasource {
     }
 
     private String uploadFiles(
-            List<FileUpload> uploads,
-            StringBuilder responseBuilder,
-            boolean overwrite,
-            HttpServerResponse response)
+            List<FileUpload> uploads, StringBuilder responseBuilder, boolean overwrite)
             throws IOException {
         String lastFile = "";
         for (FileUpload fileUpload : uploads) {
-            Pair<String, Path> pairHelper = uploadHelper(fileUpload, response);
+            Pair<String, java.nio.file.Path> pairHelper = uploadHelper(fileUpload);
             String uploadedFile = pairHelper.left;
-            Path source = pairHelper.right;
+            java.nio.file.Path source = pairHelper.right;
             lastFile = uploadedFile;
-            Path dest = source.resolveSibling(fileUpload.fileName());
+            java.nio.file.Path dest = source.resolveSibling(fileUpload.fileName());
 
             if (fsService.exists(dest)) {
                 if (overwrite) {
-                    LOGGER.info("{} exists and will be overwritten.", fileUpload.fileName());
+                    logger.infov("{0} exists and will be overwritten.", fileUpload.fileName());
                 } else {
                     int attempts = 0;
                     while (fsService.exists(dest) && attempts < 10) {
@@ -301,6 +340,7 @@ public class Datasource {
                 logUploadedFile(dest.getFileName().toString(), responseBuilder);
                 lastFile = dest.getFileName().toString();
             } catch (IOException e) {
+                logger.error(e);
                 logUploadedFile(uploadedFile, responseBuilder);
             }
         }
@@ -308,48 +348,39 @@ public class Datasource {
         return lastFile;
     }
 
-    private Pair<String, Path> uploadHelper(FileUpload fileUpload, HttpServerResponse response)
+    private Pair<String, java.nio.file.Path> uploadHelper(FileUpload fileUpload)
             throws IOException {
-        Path source = fsService.pathOf(fileUpload.uploadedFileName());
+        java.nio.file.Path source = fileUpload.filePath();
         long timeout = TimeUnit.MILLISECONDS.toNanos(Long.parseLong(timeoutMs));
         String uploadedFile = source.getFileName().toString();
         long start = System.nanoTime();
         long now = start;
         long elapsed = 0;
 
-        LOGGER.info("Received request for {} ({} bytes)", fileUpload.fileName(), fileUpload.size());
+        logger.infov(
+                "Received request for {0} ({1} bytes)", fileUpload.fileName(), fileUpload.size());
 
         if (IOToolkit.isCompressedFile(source.toFile())) {
             source = decompress(source);
             now = System.nanoTime();
             elapsed = now - start;
-            LOGGER.info(
-                    "{} was compressed. Decompressed size: {} bytes. Decompression took {}ms",
+            logger.infov(
+                    "{0} was compressed. Decompressed size: {1} bytes. Decompression took {2}ms",
                     fileUpload.fileName(),
                     source.toFile().length(),
                     TimeUnit.NANOSECONDS.toMillis(elapsed));
         }
 
-        Runtime runtime = Runtime.getRuntime();
-        System.gc();
-        long availableMemory = runtime.maxMemory() - runtime.totalMemory() + runtime.freeMemory();
-        long maxHandleableSize = availableMemory / Long.parseLong(memoryFactor);
-        if (source.toFile().length() > maxHandleableSize) {
-            response.setStatusCode(413);
-            response.end();
-        }
-
         now = System.nanoTime();
         elapsed = now - start;
         if (elapsed > timeout) {
-            response.setStatusCode(504);
-            response.end();
+            throw new ServerErrorException(Response.Status.BAD_GATEWAY);
         }
         return new Pair<>(uploadedFile, source);
     }
 
-    private Path decompress(Path source) throws IOException {
-        Path tmp = Files.createTempFile(null, null);
+    private java.nio.file.Path decompress(java.nio.file.Path source) throws IOException {
+        java.nio.file.Path tmp = Files.createTempFile(null, null);
         try (var stream = IOToolkit.openUncompressedStream(source.toFile())) {
             Files.copy(stream, tmp, StandardCopyOption.REPLACE_EXISTING);
             return tmp;
@@ -361,39 +392,41 @@ public class Datasource {
     private void logUploadedFile(String file, StringBuilder responseBuilder) {
         responseBuilder.append("Uploaded: " + file);
         responseBuilder.append(System.lineSeparator());
-        LOGGER.info("Uploaded: {}", file);
+        logger.infov("Uploaded: {0}", file);
     }
 
     private void setLoadedFile(String filename) {
-        this.loadedFile = filename;
+        fileLock.lock();
+        try {
+            this.loadedFile = filename;
+        } finally {
+            fileLock.unlock();
+        }
     }
 
-    private void setFile(
-            String absolutePath,
-            String filename,
-            HttpServerResponse response,
-            StringBuilder responseBuilder) {
+    private String setFile(String absolutePath, String filename, StringBuilder responseBuilder) {
         try {
+            logger.infov("Setting active file: {0} ({1})", filename, absolutePath);
             recordingService.loadEvents(absolutePath);
             responseBuilder.append("Set: " + filename);
             responseBuilder.append(System.lineSeparator());
             setLoadedFile(filename);
-            response.end(responseBuilder.toString());
+            return responseBuilder.toString();
         } catch (IOException e) {
-            response.setStatusCode(404);
-            response.end();
+            logger.error(e);
+            throw new NotFoundException(e);
         }
     }
 
     private List<String> deleteAllFiles() throws IOException {
         final List<String> deleteFiles = new ArrayList<>();
-        Path dir = fsService.pathOf(jfrDir);
+        java.nio.file.Path dir = fsService.pathOf(jfrDir);
         if (fsService.exists(dir) && fsService.isDirectory(dir)) {
-            for (Path f : fsService.list(dir)) {
+            for (java.nio.file.Path f : fsService.list(dir)) {
                 if (fsService.isRegularFile(f)) {
                     fsService.delete(f);
                     deleteFiles.add(f.getFileName().toString());
-                    LOGGER.info("Deleted: {}", f.getFileSystem().toString());
+                    logger.infov("Deleted: {0}", f.getFileSystem().toString());
                 }
             }
             setLoadedFile(UNSET_FILE);
@@ -402,26 +435,25 @@ public class Datasource {
     }
 
     private void deleteFile(String filename) throws IOException {
-        Path dir = fsService.pathOf(jfrDir);
+        fileLock.lock();
+        try {
+            java.nio.file.Path dir = fsService.pathOf(jfrDir);
 
-        if (fsService.exists(dir) && fsService.isDirectory(dir)) {
-            if (fsService.deleteIfExists(
-                    fsService.pathOf(dir.toAbsolutePath().toString(), filename))) {
-                LOGGER.info("Deleted: {}", filename);
-                if (filename.equals(loadedFile)) {
-                    setLoadedFile(UNSET_FILE);
+            if (fsService.exists(dir) && fsService.isDirectory(dir)) {
+                if (fsService.deleteIfExists(
+                        fsService.pathOf(dir.toAbsolutePath().toString(), filename))) {
+                    logger.infov("Deleted: {0}", filename);
+                    if (filename.equals(loadedFile)) {
+                        setLoadedFile(UNSET_FILE);
+                    }
+                } else {
+                    throw new FileNotFoundException(filename + " does not exist");
                 }
             } else {
                 throw new FileNotFoundException(filename + " does not exist");
             }
-        } else {
-            throw new FileNotFoundException(filename + " does not exist");
+        } finally {
+            fileLock.unlock();
         }
-    }
-
-    private String extractQueryParam(RoutingContext context, String name, String defaultValue) {
-        final MultiMap queries = context.queryParams();
-        final String val = queries.get(name);
-        return val != null ? val : defaultValue;
     }
 }

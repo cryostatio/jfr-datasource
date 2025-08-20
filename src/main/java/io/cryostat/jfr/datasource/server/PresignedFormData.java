@@ -13,8 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.cryostat.jfr.datasource.utils;
+package io.cryostat.jfr.datasource.server;
 
-public interface ArgRunnable<T> {
-    public void run(T target);
+import jakarta.ws.rs.core.MediaType;
+import org.jboss.resteasy.reactive.PartType;
+import org.jboss.resteasy.reactive.RestForm;
+
+public class PresignedFormData {
+    @RestForm
+    @PartType(MediaType.TEXT_PLAIN)
+    public String path;
+
+    @RestForm
+    @PartType(MediaType.TEXT_PLAIN)
+    public String query;
 }
