@@ -19,14 +19,8 @@ import java.util.Optional;
 
 import io.vertx.core.json.JsonObject;
 
-public class Search {
-    private Optional<String> target;
-
-    public Search(JsonObject body) {
-        this.target = Optional.ofNullable(body.getString("target"));
-    }
-
+public record Search(JsonObject body) {
     public Optional<String> getTarget() {
-        return this.target;
+        return Optional.ofNullable(body.getString("target"));
     }
 }

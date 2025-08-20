@@ -18,33 +18,27 @@ package io.cryostat.jfr.datasource.server;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
+import java.util.function.Consumer;
 
-import io.cryostat.jfr.datasource.utils.ArgRunnable;
 import io.cryostat.jfr.datasource.utils.InvalidQueryException;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
-public class Query {
+public record Query(JsonObject query) {
 
-    DateTimeFormatter dateFormat = DateTimeFormatter.ISO_INSTANT;
-
-    private JsonObject query;
-
-    public Query(JsonObject query) {
-        this.query = query;
-    }
+    private static final DateTimeFormatter dateFormat = DateTimeFormatter.ISO_INSTANT;
 
     public JsonArray getTargets() {
         return this.query.getJsonArray("targets");
     }
 
-    public void applyTargets(ArgRunnable<Target> runnable) throws InvalidQueryException {
+    public void applyTargets(Consumer<Target> consumer) throws InvalidQueryException {
         JsonArray targets = this.query.getJsonArray("targets");
         for (int i = 0; i < targets.size(); i++) {
             JsonObject target = targets.getJsonObject(i);
             Target t = new Target(target.getString("target"), target.getString("type"));
-            runnable.run(t);
+            consumer.accept(t);
         }
     }
 
