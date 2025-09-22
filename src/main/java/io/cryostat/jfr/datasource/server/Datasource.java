@@ -18,10 +18,12 @@ package io.cryostat.jfr.datasource.server;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
@@ -31,11 +33,16 @@ import org.openjdk.jmc.common.util.Pair;
 
 import io.cryostat.jfr.datasource.events.RecordingService;
 import io.cryostat.jfr.datasource.sys.FileSystemService;
+import io.cryostat.jfr.datasource.sys.PresignedFileService;
 
+import io.quarkus.runtime.StartupEvent;
 import io.smallrye.common.annotation.Blocking;
 import io.vertx.core.json.JsonObject;
+import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.BeanParam;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
@@ -47,6 +54,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.ServerErrorException;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.RestForm;
@@ -65,11 +73,40 @@ public class Datasource {
     @ConfigProperty(name = "io.cryostat.jfr-datasource.timeout", defaultValue = "29000")
     String timeoutMs;
 
+    @ConfigProperty(name = "cryostat.storage.base-uri")
+    Optional<String> storageBase;
+
+    @ConfigProperty(name = "cryostat.storage.auth-method")
+    Optional<String> storageAuthMethod;
+
+    @ConfigProperty(name = "cryostat.storage.auth")
+    Optional<String> storageAuth;
+
+    @ConfigProperty(name = "cryostat.storage.tls-version")
+    String storageTlsVersion;
+
+    @ConfigProperty(name = "cryostat.storage.ignore-tls")
+    boolean storageTlsIgnore;
+
+    @ConfigProperty(name = "cryostat.storage.verify-hostname")
+    boolean storageHostnameVerify;
+
+    @ConfigProperty(name = "cryostat.storage.tls.ca.path")
+    Optional<java.nio.file.Path> storageCaPath;
+
+    @ConfigProperty(name = "cryostat.storage.tls.cert.path")
+    Optional<java.nio.file.Path> storageCertPath;
+
     @Inject RecordingService recordingService;
-
     @Inject FileSystemService fsService;
-
+    @Inject PresignedFileService presignedFileService;
     @Inject Logger logger;
+
+    java.nio.file.Path presignDownloadFile;
+
+    public void onStart(@Observes StartupEvent evt) throws IOException {
+        this.presignDownloadFile = fsService.createTempFile();
+    }
 
     @GET
     @Path("/")
@@ -86,7 +123,7 @@ public class Datasource {
                 return recordingService.search(new Search(body));
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e);
             throw new BadRequestException("Error: invalid search body", e);
         }
         throw new BadRequestException("Error: invalid search body");
@@ -104,6 +141,7 @@ public class Datasource {
                 return (recordingService.query(query));
             }
         } catch (Exception e) {
+            logger.error(e);
             throw new BadRequestException("Error: invalid query body", e);
         }
 
@@ -143,8 +181,8 @@ public class Datasource {
     }
 
     @Path("/load")
-    @POST
     @Produces(MediaType.TEXT_PLAIN)
+    @POST
     @Blocking
     public String load(
             @RestForm(FileUpload.ALL) List<FileUpload> files,
@@ -156,6 +194,19 @@ public class Datasource {
         String filePath = jfrDir + File.separator + lastFile;
 
         return setFile(filePath, lastFile, responseBuilder);
+    }
+
+    @Path("/load_presigned")
+    @POST
+    @Produces(MediaType.TEXT_PLAIN)
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Blocking
+    public String loadPresigned(@BeanParam PresignedFormData form)
+            throws IOException, URISyntaxException {
+        return setFile(
+                presignedFileService.download(form.path, form.query).toFile().getAbsolutePath(),
+                UUID.randomUUID().toString(),
+                new StringBuilder());
     }
 
     @Path("/list")
@@ -207,11 +258,12 @@ public class Datasource {
                 stringBuilder.append("Deleted: " + deletedFile);
                 stringBuilder.append(System.lineSeparator());
             }
-            setLoadedFile(UNSET_FILE);
             return (stringBuilder.toString());
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
             throw new InternalServerErrorException(e);
+        } finally {
+            setLoadedFile(UNSET_FILE);
         }
     }
 
@@ -288,6 +340,7 @@ public class Datasource {
                 logUploadedFile(dest.getFileName().toString(), responseBuilder);
                 lastFile = dest.getFileName().toString();
             } catch (IOException e) {
+                logger.error(e);
                 logUploadedFile(uploadedFile, responseBuilder);
             }
         }
@@ -321,7 +374,7 @@ public class Datasource {
         now = System.nanoTime();
         elapsed = now - start;
         if (elapsed > timeout) {
-            throw new ServerErrorException(504);
+            throw new ServerErrorException(Response.Status.BAD_GATEWAY);
         }
         return new Pair<>(uploadedFile, source);
     }
@@ -353,12 +406,14 @@ public class Datasource {
 
     private String setFile(String absolutePath, String filename, StringBuilder responseBuilder) {
         try {
+            logger.infov("Setting active file: {0} ({1})", filename, absolutePath);
             recordingService.loadEvents(absolutePath);
             responseBuilder.append("Set: " + filename);
             responseBuilder.append(System.lineSeparator());
             setLoadedFile(filename);
-            return (responseBuilder.toString());
+            return responseBuilder.toString();
         } catch (IOException e) {
+            logger.error(e);
             throw new NotFoundException(e);
         }
     }

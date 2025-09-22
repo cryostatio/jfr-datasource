@@ -250,7 +250,7 @@ public class RecordingService {
                     });
             return responseJson.toString();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e);
             return JsonUtils.EMPTY_ARRAY;
         }
     }
@@ -551,10 +551,14 @@ public class RecordingService {
         }
         try {
             File file = new File(filename);
-            if (!file.exists() || !file.isFile()) {
+            logger.infov("Loading file: {0}", file.getAbsolutePath());
+            if (!file.exists()) {
                 throw new IOException("File not found");
             }
-            logger.infov("Loading file: {0}", file.getAbsolutePath());
+            if (!file.isFile()) {
+                throw new IOException(
+                        String.format("Path %s is not a file", file.getAbsolutePath()));
+            }
             this.events = JfrLoaderToolkit.loadEvents(file);
         } catch (CouldNotLoadRecordingException e) {
             logger.error("Failed to read events from recording", e);
