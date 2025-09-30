@@ -73,9 +73,6 @@ public class Datasource {
     @ConfigProperty(name = "io.cryostat.jfr-datasource.timeout", defaultValue = "29000")
     String timeoutMs;
 
-    @ConfigProperty(name = "cryostat.storage.base-uri")
-    Optional<String> storageBase;
-
     @ConfigProperty(name = "cryostat.storage.auth-method")
     Optional<String> storageAuthMethod;
 
@@ -204,7 +201,7 @@ public class Datasource {
     public String loadPresigned(@BeanParam PresignedFormData form)
             throws IOException, URISyntaxException {
         return setFile(
-                presignedFileService.download(form.path, form.query).toFile().getAbsolutePath(),
+                presignedFileService.download(form.uri).toFile().getAbsolutePath(),
                 UUID.randomUUID().toString(),
                 new StringBuilder());
     }

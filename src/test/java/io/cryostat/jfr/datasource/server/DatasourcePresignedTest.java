@@ -18,7 +18,7 @@ package io.cryostat.jfr.datasource.server;
 import static io.restassured.RestAssured.given;
 
 import java.io.File;
-import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Path;
 
 import io.cryostat.jfr.datasource.events.RecordingService;
@@ -43,45 +43,23 @@ public class DatasourcePresignedTest {
 
     @Test
     public void testDownloadPresignedFile() throws Exception {
-        String path = "/some/path";
-        String query = "my=query&foo=bar";
+        URI uri = new URI("https://example.com:1234/some/path?my=query&foo=bar");
         String absPath = "/path/to/presigned.file";
 
         File file = Mockito.mock(File.class);
         Mockito.when(file.getAbsolutePath()).thenReturn(absPath);
         Path filePath = Mockito.mock(Path.class);
         Mockito.when(filePath.toFile()).thenReturn(file);
-        Mockito.when(presignedFileService.download(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(filePath);
+        Mockito.when(presignedFileService.download(Mockito.any())).thenReturn(filePath);
         Mockito.doNothing().when(recordingService).loadEvents(Mockito.anyString());
 
-        given().multiPart("path", path)
-                .multiPart("query", query)
+        given().multiPart("uri", uri.toString())
                 .when()
                 .post("/load_presigned")
                 .then()
                 .statusCode(200);
 
-        Mockito.verify(presignedFileService, Mockito.times(1)).download(path, query);
+        Mockito.verify(presignedFileService, Mockito.times(1)).download(uri);
         Mockito.verify(recordingService, Mockito.times(1)).loadEvents(absPath);
-    }
-
-    @Test
-    public void testDownloadPresignedFileFailure() throws Exception {
-        String path = "/some/path";
-        String query = "my=query&foo=bar";
-
-        Mockito.when(presignedFileService.download(Mockito.anyString(), Mockito.anyString()))
-                .thenThrow(new IOException());
-        Mockito.doNothing().when(recordingService).loadEvents(Mockito.anyString());
-
-        given().multiPart("path", path)
-                .multiPart("query", query)
-                .when()
-                .post("/load_presigned")
-                .then()
-                .statusCode(500);
-
-        Mockito.verify(presignedFileService, Mockito.times(1)).download(path, query);
     }
 }
