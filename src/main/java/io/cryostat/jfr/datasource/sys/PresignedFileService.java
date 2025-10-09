@@ -45,15 +45,11 @@ import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.core.UriBuilder;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 @ApplicationScoped
 public class PresignedFileService {
-
-    @ConfigProperty(name = "cryostat.storage.base-uri")
-    Optional<String> storageBase;
 
     @ConfigProperty(name = "cryostat.storage.auth-method")
     Optional<String> storageAuthMethod;
@@ -85,20 +81,9 @@ public class PresignedFileService {
         this.presignDownloadFile = fsService.createTempFile();
     }
 
-    public Path download(String path, String query)
-            throws URISyntaxException, MalformedURLException, IOException {
-        if (storageBase.isEmpty()) {
-            throw new IllegalStateException();
-        }
-
-        UriBuilder uriBuilder =
-                UriBuilder.newInstance()
-                        .uri(new URI(storageBase.get()))
-                        .path(path)
-                        .replaceQuery(query);
-        URI downloadUri = uriBuilder.build();
-        logger.infov("Attempting to download presigned recording from {0}", downloadUri);
-        HttpURLConnection httpConn = (HttpURLConnection) downloadUri.toURL().openConnection();
+    public Path download(URI uri) throws URISyntaxException, MalformedURLException, IOException {
+        logger.infov("Attempting to download presigned recording from {0}", uri);
+        HttpURLConnection httpConn = (HttpURLConnection) uri.toURL().openConnection();
         httpConn.setRequestMethod("GET");
         if (httpConn instanceof HttpsURLConnection) {
             HttpsURLConnection httpsConn = (HttpsURLConnection) httpConn;
@@ -146,7 +131,7 @@ public class PresignedFileService {
         try (var stream = httpConn.getInputStream();
                 var bis = new BufferedInputStream(stream)) {
             Files.copy(bis, presignDownloadFile, StandardCopyOption.REPLACE_EXISTING);
-            logger.infov("Downloaded {0} to {1}", downloadUri, presignDownloadFile);
+            logger.infov("Downloaded {0} to {1}", uri, presignDownloadFile);
             return presignDownloadFile;
         } finally {
             httpConn.disconnect();
