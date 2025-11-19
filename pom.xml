@@ -31,7 +31,7 @@
 
     <quarkus.native.enable-http-url-handler>true</quarkus.native.enable-http-url-handler>
     <quarkus.native.additional-build-args>-H:ReflectionConfigurationResources=reflection.json</quarkus.native.additional-build-args>
-    <com.diffplug.spotless.maven.plugin.version>3.0.0</com.diffplug.spotless.maven.plugin.version>
+    <com.diffplug.spotless.maven.plugin.version>3.1.0</com.diffplug.spotless.maven.plugin.version>
     <com.mycila.license.maven.plugin.version>5.0.0</com.mycila.license.maven.plugin.version>
     <org.codehaus.mojo.build.helper.plugin.version>3.6.1</org.codehaus.mojo.build.helper.plugin.version>
   </properties>
