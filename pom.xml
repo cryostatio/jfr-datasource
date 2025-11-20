@@ -24,7 +24,7 @@
 
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
-    <quarkus.platform.version>3.27.0</quarkus.platform.version>
+    <quarkus.platform.version>3.27.1</quarkus.platform.version>
     <quarkus-plugin.version>3.27.0</quarkus-plugin.version>
 
     <org.owasp.dependency.check.version>12.1.8</org.owasp.dependency.check.version>
