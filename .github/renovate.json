@@ -1,0 +1,45 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard"
+  ],
+  "reviewersFromCodeOwners": true,
+  "labels": [
+    "dependencies",
+    "chore",
+    "safe-to-test"
+  ],
+  "semanticCommits": "enabled",
+  "major": {
+    "dependencyDashboardApproval": true
+  },
+  "stopUpdatingLabel": "blocked",
+  "packageRules": [
+    {
+      "description": "Require approval for Quarkus minor version updates",
+      "matchManagers": [
+        "maven"
+      ],
+      "matchUpdateTypes": [
+        "major",
+        "minor"
+      ],
+      "dependencyDashboardApproval": true,
+      "matchPackageNames": [
+        "/^io\\.quarkus:/",
+        "/^io\\.quarkus\\.platform:/"
+      ]
+    },
+    {
+      "description": "Require approval for hibernate-jfr updates",
+      "matchManagers": [
+        "maven"
+      ],
+      "dependencyDashboardApproval": true,
+      "matchPackageNames": [
+        "/^org\\.hibernate\\.orm:hibernate-jfr/"
+      ]
+    }
+  ]
+}
