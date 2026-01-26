@@ -38,7 +38,7 @@ jobs:
     needs: [get-pom-properties]
     steps:
     - uses: actions/checkout@v6
-    - uses: actions/setup-java@v3
+    - uses: actions/setup-java@v5
       with:
         java-version: '21'
         distribution: 'temurin'
