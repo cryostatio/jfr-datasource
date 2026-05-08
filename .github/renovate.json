@@ -17,7 +17,7 @@
   "stopUpdatingLabel": "blocked",
   "packageRules": [
     {
-      "description": "Require approval for Quarkus minor version updates",
+      "description": "Require approval for Quarkus major and minor version updates",
       "matchManagers": [
         "maven"
       ],
@@ -32,13 +32,24 @@
       ]
     },
     {
-      "description": "Require approval for hibernate-jfr updates",
+      "description": "Create PR for Quarkus patch version updates",
       "matchManagers": [
         "maven"
       ],
-      "dependencyDashboardApproval": true,
+      "matchUpdateTypes": [
+        "patch",
+        "pin",
+        "pinDigest",
+        "digest",
+        "lockFileMaintenance",
+        "rollback",
+        "bump",
+        "replacement"
+      ],
+      "prCreation": "immediate",
       "matchPackageNames": [
-        "/^org\\.hibernate\\.orm:hibernate-jfr/"
+        "/^io\\.quarkus:/",
+        "/^io\\.quarkus\\.platform:/"
       ]
     }
   ]
