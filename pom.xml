@@ -10,7 +10,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <java.version>21</java.version>
+    <java.version>25</java.version>
     <maven.compiler.release>${java.version}</maven.compiler.release>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
@@ -24,8 +24,8 @@
 
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
-    <quarkus.platform.version>3.27.3.1</quarkus.platform.version>
-    <quarkus-plugin.version>3.27.0</quarkus-plugin.version>
+    <quarkus.platform.version>3.33.1.1</quarkus.platform.version>
+    <quarkus-plugin.version>3.33.1.1</quarkus-plugin.version>
 
     <org.owasp.dependency.check.version>12.2.2</org.owasp.dependency.check.version>
 
@@ -74,7 +74,7 @@
 
     <dependency>
       <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-junit5</artifactId>
+      <artifactId>quarkus-junit</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -84,7 +84,7 @@
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-junit5-mockito</artifactId>
+      <artifactId>quarkus-junit-mockito</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -128,6 +128,7 @@
             </executions>
             <configuration>
               <trimStackTrace>false</trimStackTrace>
+              <argLine>@{argLine}</argLine>
             </configuration>
           </plugin>
         </plugins>
@@ -254,6 +255,7 @@
             <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
             <maven.home>${maven.home}</maven.home>
           </systemProperties>
+          <argLine>@{argLine}</argLine>
         </configuration>
       </plugin>
       <plugin>
@@ -272,7 +274,7 @@
         <configuration>
           <java>
             <googleJavaFormat>
-              <version>1.23.0</version>
+              <version>1.35.0</version>
               <style>AOSP</style>
               <reflowLongStrings>true</reflowLongStrings>
             </googleJavaFormat>
