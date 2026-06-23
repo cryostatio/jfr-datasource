@@ -24,8 +24,13 @@
 
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
+<<<<<<< HEAD
     <quarkus.platform.version>3.27.3.1</quarkus.platform.version>
     <quarkus-plugin.version>3.27.0</quarkus-plugin.version>
+=======
+    <quarkus.platform.version>3.33.1.1</quarkus.platform.version>
+    <quarkus-plugin.version>3.33.2.1</quarkus-plugin.version>
+>>>>>>> c998275 (chore(deps): update quarkus-plugin.version (#528))
 
     <org.owasp.dependency.check.version>12.2.2</org.owasp.dependency.check.version>
 
