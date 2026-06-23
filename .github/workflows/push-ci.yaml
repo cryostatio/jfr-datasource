@@ -47,7 +47,7 @@ jobs:
       run: mvn -B -U clean verify
     - name: Build container images and manifest
       id: buildah-build
-      uses: redhat-actions/buildah-build@v2
+      uses: redhat-actions/buildah-build@7a95fa7ee0f02d552a32753e7414641a04307056 # v2
       env:
         IMAGE_VERSION: ${{ needs.get-pom-properties.outputs.image-version }}
       with:
@@ -59,7 +59,7 @@ jobs:
       if: ${{ github.event_name == 'push' && github.repository_owner == 'cryostatio' }}
     - name: Push to quay.io
       id: push-to-quay
-      uses: redhat-actions/push-to-registry@v2
+      uses: redhat-actions/push-to-registry@5ed88d269cf581ea9ef6dd6806d01562096bee9c # v2
       with:
         image: ${{ needs.get-pom-properties.outputs.image-name }}
         tags: ${{ steps.buildah-build.outputs.tags }}
