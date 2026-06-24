@@ -59,7 +59,7 @@ jobs:
       if: ${{ github.event_name == 'push' && github.repository_owner == 'cryostatio' }}
     - name: Push to quay.io
       id: push-to-quay
-      uses: redhat-actions/push-to-registry@6a46770abca42ac80304301261712a93af6289a0 # v2.2.1
+      uses: redhat-actions/push-to-registry@f787883d70a3cc66d399816d0385ac4aec7079f9 # v2.5.1
       with:
         image: ${{ needs.get-pom-properties.outputs.image-name }}
         tags: ${{ steps.buildah-build.outputs.tags }}
