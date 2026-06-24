@@ -47,7 +47,7 @@ jobs:
       run: mvn -B -U clean verify
     - name: Build container images and manifest
       id: buildah-build
-      uses: redhat-actions/buildah-build@54ff9945b9f9320e460006b5ea63dfac279906b0 # v2.2.2
+      uses: redhat-actions/buildah-build@098556ccc2000fec32d402f442051f7d67569788 # v2.5.2
       env:
         IMAGE_VERSION: ${{ needs.get-pom-properties.outputs.image-version }}
       with:
