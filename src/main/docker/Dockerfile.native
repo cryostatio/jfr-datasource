@@ -1,8 +1,0 @@
-FROM registry.access.redhat.com/ubi8/ubi-minimal@sha256:a2006dac3089997a79cb2d211a80ac59949d18f16e48bb89849fb96efabb970b
-WORKDIR /work/
-COPY target/*-runner /work/application
-RUN chmod 775 /work
-USER 1001
-EXPOSE 8080
-ENV LISTEN_HOST=${LISTEN_HOST:-0.0.0.0}
-CMD ["./application", "-Dquarkus.http.host=${LISTEN_HOST}"]
