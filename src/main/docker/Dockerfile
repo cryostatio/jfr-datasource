@@ -7,18 +7,18 @@
 #
 # Then, build the image with:
 #
-# docker build -f src/main/docker/Dockerfile.jvm -t quarkus/cryostat-reports-jvm .
+# docker build -f src/main/docker/Dockerfile -t quarkus/cryostat-reports .
 #
 # Then run the container using:
 #
-# docker run -i --rm -p 8080:8080 quarkus/cryostat-reports-jvm
+# docker run -i --rm -p 8080:8080 quarkus/cryostat-reports
 #
 # If you want to include the debug port into your docker image
 # you will have to expose the debug port (default 5005) like this :  EXPOSE 8080 5005
 #
 # Then run the container using :
 #
-# docker run -i --rm -p 8080:8080 -p 5005:5005 -e JAVA_DEBUG="true" quarkus/cryostat-reports-jvm
+# docker run -i --rm -p 8080:8080 -p 5005:5005 -e JAVA_DEBUG="true" quarkus/cryostat-reports
 #
 ###
 FROM registry.access.redhat.com/ubi9/openjdk-25-runtime:1.24-3.1790007357@sha256:335d3b531374ddc4dc89ad4953285360ccc522b7f4a3daa626581fb17c162bea
