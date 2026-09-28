@@ -10,18 +10,6 @@ This demonstrates how a simple JSON data source can be used in Grafana to read t
 
 ### Dependencies
 
-For native image support, GraalVM for Java 21 is needed with the environment variable `GRAALVM_HOME` set to its path. It can be downloaded from:
-```
-https://github.com/graalvm/graalvm-ce-builds/releases
-```
-
-After downloading, run
-```bash
-/path/to/graal-install/bin/gu install native-image
-```
-
-`libz.a` is also required to complete native image builds. On Fedora, `dnf install zlib-devel`.
-
 For containers, podman is required. Installation instructions are here:
 ```
 https://podman.io/getting-started/installation.html
@@ -29,34 +17,17 @@ https://podman.io/getting-started/installation.html
 
 ### Build and run locally
 
-This project uses [Quarkus](https://quarkus.io), which can produce a JAR to run in a JVM (JDK 21+), or an executable native image.
+This project uses [Quarkus](https://quarkus.io), which can produce a JAR to run in a JVM.
 
 To build a JAR:
 ```bash
 ./mvnw clean verify
 ```
-To build a native image instead:
-```bash
-./mvnw -Pnative clean verify
-```
-Native image builds may use more than 4G of RAM to finish.
-
-To build a native image within a container, for a consistent environment:
-```bash
-./mvnw -Pnative -Dquarkus.native.container-build=true -Dquarkus.native.container-runtime=podman \
--Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel-builder-image:jdk-21 \
-clean verify
-```
 
 #### Run the server
 
-If you built a JAR:
 ```bash
 java -jar target/quarkus-app/quarkus-run.jar
-```
-If you built a native image:
-```bash
-./target/jfr-datasource-*-runner
 ```
 
 ### Run Grafana
@@ -71,15 +42,10 @@ grafana-cli --pluginsDir <path-to-your-plugins-directory> plugins install grafan
 
 ### Building a container image
 
-This project comes with a Dockerfile to produce a container image with the native image result.
+This project comes with a Dockerfile to produce a container image.
 
 ```bash
-podman build -f src/main/docker/Dockerfile.native -t quay.io/cryostat/jfr-datasource .
-```
-
-To produce a container image of the JVM mode result:
-```bash
-podman build -f src/main/docker/Dockerfile.jvm -t quay.io/cryostat/jfr-datasource .
+podman build -f src/main/docker/Dockerfile -t quay.io/cryostat/jfr-datasource .
 ```
 
 ## API
