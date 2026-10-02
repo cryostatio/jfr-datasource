@@ -24,8 +24,7 @@
 
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
-    <quarkus.platform.version>3.33.4</quarkus.platform.version>
-    <quarkus-plugin.version>3.33.4</quarkus-plugin.version>
+    <quarkus.platform.version>3.40.1</quarkus.platform.version>
 
     <org.owasp.dependency.check.version>13.0.0</org.owasp.dependency.check.version>
 
@@ -167,7 +166,7 @@
       <plugin>
         <groupId>io.quarkus</groupId>
         <artifactId>quarkus-maven-plugin</artifactId>
-        <version>${quarkus-plugin.version}</version>
+        <version>${quarkus.platform.version}</version>
         <extensions>true</extensions>
         <executions>
           <execution>
