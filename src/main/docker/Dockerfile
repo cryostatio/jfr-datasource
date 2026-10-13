@@ -21,7 +21,7 @@
 # docker run -i --rm -p 8080:8080 -p 5005:5005 -e JAVA_DEBUG="true" quay.io/cryostat/jfr-datasource
 #
 ###
-FROM registry.access.redhat.com/ubi9/openjdk-25-runtime:1.24-3.1790929655@sha256:eb87ccb706b306d1dbaf875f2c89cda7460b72e69464f5163a4ce67a4cbcd422
+FROM registry.access.redhat.com/ubi9/openjdk-25-runtime:1.24-3.1791779557@sha256:a2577e5438a824a7f85b80783525371d937550089710a91bf3e8979c26eaf8e8
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en'
 
