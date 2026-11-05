@@ -6,6 +6,6 @@ pull_request_rules:
     actions:
       backport:
         branches:
-          - cryostat-v4.2
+          - cryostat-v4.3
         assignees:
           - "{{ author }}"
