@@ -21,7 +21,7 @@
 # docker run -i --rm -p 8080:8080 -p 5005:5005 -e JAVA_DEBUG="true" quarkus/cryostat-reports-jvm
 #
 ###
-FROM registry.access.redhat.com/ubi8/openjdk-17-runtime:1.20-3
+FROM registry.access.redhat.com/ubi8/openjdk-17-runtime:1.20-3@sha256:39ca5bc8ed8e88f8537e741d9272bdbc478ad75f77fe838d64eaeb0b7d5ca1e0
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en'
 
