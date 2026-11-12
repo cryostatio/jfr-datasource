@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi8/ubi-minimal:8.6
+FROM registry.access.redhat.com/ubi8/ubi-minimal:8.10-1794442960@sha256:b3314c5f8d009ee6df04ead732bca6d3eaf011750185e348f55fce2678fb30d0
 WORKDIR /work/
 COPY target/*-runner /work/application
 RUN chmod 775 /work
