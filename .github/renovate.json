@@ -28,6 +28,7 @@
   },
   "stopUpdatingLabel": "blocked",
   "customManagers": [
+    {
       "customType": "regex",
       "description": "Track the VALIDATOR_VERSION pin that the config validator workflow passes to npx, so Renovate raises a PR to bump its own validator",
       "managerFilePatterns": ["/^\\.github/workflows/.+\\.ya?ml$/"],
