@@ -9,7 +9,11 @@
     ":docker",
     ":separateMajorReleases",
     ":separateMultipleMinorReleases",
-    ":separatePatchReleases"
+    ":separatePatchReleases",
+    ":separatePatchReleases",
+    "github>cryostatio/cryostat//.github/renovate/release-branch/lockdown",
+    "github>cryostatio/cryostat//.github/renovate/release-branch/default(maven)",
+    "github>cryostatio/cryostat//.github/renovate/release-branch/default(dockerfile)"
   ],
   "baseBranchPatterns": ["main", "/^cryostat-v.*/"],
   "reviewersFromCodeOwners": true,
@@ -23,23 +27,19 @@
     "dependencyDashboardApproval": true
   },
   "stopUpdatingLabel": "blocked",
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Track the VALIDATOR_VERSION pin that the config validator workflow passes to npx, so Renovate raises a PR to bump its own validator",
+      "managerFilePatterns": ["/^\\.github/workflows/.+\\.ya?ml$/"],
+      "matchStrings": [
+        "VALIDATOR_VERSION:\\s*(?<currentValue>\\S+)"
+      ],
+      "depNameTemplate": "renovate",
+      "datasourceTemplate": "npm"
+    }
+  ],
   "packageRules": [
-    {
-      "description": "Dockerfile base image updates are never gated by the dependency dashboard, on any branch",
-      "matchManagers": ["dockerfile"],
-      "dependencyDashboardApproval": false
-    },
-    {
-      "description": "Disable all dependency updates on release branches except Dockerfile base images; other updates there are handled via Mergify backport",
-      "matchBaseBranches": ["/^cryostat-v.*/"],
-      "enabled": false
-    },
-    {
-      "description": "Allow Dockerfile base image updates on release branches",
-      "matchBaseBranches": ["/^cryostat-v.*/"],
-      "matchManagers": ["dockerfile"],
-      "enabled": true
-    },
     {
       "description": "Require approval for Quarkus major and minor version updates",
       "matchManagers": [
