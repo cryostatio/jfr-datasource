@@ -49,12 +49,12 @@ import io.cryostat.jfr.datasource.server.Query;
 import io.cryostat.jfr.datasource.server.Search;
 import io.cryostat.jfr.datasource.server.Target;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
+import tools.jackson.databind.DatabindException;
 
 @ApplicationScoped
 public class RecordingService {
@@ -67,7 +67,7 @@ public class RecordingService {
         return events != null;
     }
 
-    public String search(Search search) throws JsonMappingException {
+    public String search(Search search) throws DatabindException {
         if (!eventsLoaded()) {
             return JsonUtils.EMPTY_ARRAY;
         }
@@ -75,11 +75,11 @@ public class RecordingService {
             String target = search.getTarget().get();
             return target.equals("*") ? getEventTypes() : getTargetValues(target);
         } else {
-            throw new JsonMappingException(null, "missing target field in json body");
+            throw new DatabindException(null, "missing target field in json body");
         }
     }
 
-    public String getEventTypes() throws JsonMappingException {
+    public String getEventTypes() throws DatabindException {
         JsonArray json = new JsonArray();
         Iterator<IItemIterable> i = events.iterator();
         while (i.hasNext()) {
