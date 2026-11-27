@@ -12,8 +12,6 @@
 
     <java.version>25</java.version>
     <maven.compiler.release>${java.version}</maven.compiler.release>
-    <maven.compiler.source>${java.version}</maven.compiler.source>
-    <maven.compiler.target>${java.version}</maven.compiler.target>
 
     <maven-failsafe-plugin.version>3.6.0</maven-failsafe-plugin.version>
     <maven-surefire-plugin.version>3.6.1</maven-surefire-plugin.version>
@@ -24,7 +22,7 @@
 
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
-    <quarkus.platform.version>3.40.2</quarkus.platform.version>
+    <quarkus.platform.version>4.0.1</quarkus.platform.version>
 
     <org.owasp.dependency.check.version>13.0.0</org.owasp.dependency.check.version>
 
@@ -46,6 +44,10 @@
   </dependencyManagement>
 
   <dependencies>
+    <dependency>
+      <groupId>tools.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.openjdk.jmc</groupId>
       <artifactId>flightrecorder</artifactId>
